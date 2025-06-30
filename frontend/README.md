@@ -1,6 +1,6 @@
-# Hire Nova - AI-Powered CV Screening Platform
+# HireTab - AI-Powered CV Screening Platform
 
-Hire Nova is a modern web application that leverages artificial intelligence to streamline the CV screening process for recruiters and HR professionals. The platform offers an intuitive interface and powerful features to make candidate evaluation more efficient and accurate.
+Hire Tab is a modern web application that leverages artificial intelligence to streamline the CV screening process for recruiters and HR professionals. The platform offers an intuitive interface and powerful features to make candidate evaluation more efficient and accurate.
 
 ## 🚀 Tech Stack
 

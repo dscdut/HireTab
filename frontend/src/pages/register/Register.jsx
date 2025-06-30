@@ -105,7 +105,7 @@ export default function Register() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="mt-2 text-sm text-gray-600"
             >
-              Join Hire Nova to explore the best job opportunities
+              Join HireTab to explore the best job opportunities
             </motion.p>
           </div>
 

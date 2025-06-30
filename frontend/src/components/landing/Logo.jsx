@@ -38,7 +38,7 @@ const Logo = ({ className = '' }) => {
           />
         </div>
         <span className="text-2xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text">
-          Hire Nova
+          HireTab
         </span>
       </motion.div>
     </Link>

@@ -7,7 +7,7 @@ const testimonials = [
     position: 'HR Manager',
     company: 'Tech Solutions',
     content:
-      'Hire Nova has helped us reduce resume screening time by 70% and find high-quality candidates.',
+      'HireTab has helped us reduce resume screening time by 70% and find high-quality candidates.',
     rating: 5
   },
   {
@@ -15,7 +15,7 @@ const testimonials = [
     position: 'Talent Acquisition',
     company: 'Digital Corp',
     content:
-      'Hire Nova’s AI tool is highly intelligent, helping us find the most suitable candidates for the position.',
+      'HireTab’s AI tool is highly intelligent, helping us find the most suitable candidates for the position.',
     rating: 5
   },
   {
@@ -23,7 +23,7 @@ const testimonials = [
     position: 'Recruitment Lead',
     company: 'Innovation Hub',
     content:
-      'I’m very impressed with Hire Nova’s resume analysis and evaluation capabilities. It’s an excellent solution for businesses.',
+      'I’m very impressed with HireTab’s resume analysis and evaluation capabilities. It’s an excellent solution for businesses.',
     rating: 5
   }
 ]

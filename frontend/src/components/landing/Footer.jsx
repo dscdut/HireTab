@@ -30,7 +30,7 @@ const Footer = () => {
   ]
 
   const contactInfo = [
-    { icon: <Mail className="w-5 h-5" />, text: 'contact@hirenova.com' },
+    { icon: <Mail className="w-5 h-5" />, text: 'contact@hireTab.com' },
     { icon: <Phone className="w-5 h-5" />, text: '+84 123 456 789' },
     { icon: <MapPin className="w-5 h-5" />, text: 'Hanoi, Vietnam' }
   ]
@@ -46,7 +46,7 @@ const Footer = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h3 className="mb-4 text-2xl font-bold text-white">Hire Nova</h3>
+            <h3 className="mb-4 text-2xl font-bold text-white">HireTab</h3>
             <p className="mb-4">
               Smart AI solution helping businesses efficiently find and screen candidates
             </p>
@@ -148,7 +148,7 @@ const Footer = () => {
           viewport={{ once: true }}
           className="pt-8 mt-12 text-center border-t border-gray-800"
         >
-          <p>&copy; {new Date().getFullYear()} Hire Nova. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} HireTab. All rights reserved.</p>
         </motion.div>
       </div>
     </footer>

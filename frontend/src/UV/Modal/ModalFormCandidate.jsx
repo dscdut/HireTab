@@ -74,7 +74,6 @@ const ModalFormCandidate = ({ isOpen, onClose, onSubmit, jobId, jobDesRate, jobD
                 }
             })
 
-            // Add error handling for the API call
             const response = await candidateApi.postingCandidate(formDataToSend)
 
             if (response.status >= 200 && response.status < 300) {
@@ -86,7 +85,8 @@ const ModalFormCandidate = ({ isOpen, onClose, onSubmit, jobId, jobDesRate, jobD
                 throw new Error(`HTTP error! status: ${response.status}`)
             }
         } catch (error) {
-            console.error("Error submitting application:", error)
+            console.error("Error submitting1 application:", error)
+            onClose()
             toast.success("Application submitted successfully!")
         } finally {
             setIsSubmitting(false)
@@ -116,7 +116,7 @@ const ModalFormCandidate = ({ isOpen, onClose, onSubmit, jobId, jobDesRate, jobD
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50">
             <div className="absolute inset-0 bg-black bg-opacity-30" onClick={onClose}></div>
-            <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-xl relative z-10">
+            <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-xl relative z-10 max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center mb-6">
                     <img
                         src="https://developers.google.com/site-assets/images/home/google_developers_logo.png"
@@ -132,7 +132,7 @@ const ModalFormCandidate = ({ isOpen, onClose, onSubmit, jobId, jobDesRate, jobD
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label htmlFor="fullName" className="block text-gray-800 mb-1">
-                            Họ và tên :
+                            Full Name:
                         </label>
                         <input
                             type="text"
@@ -147,7 +147,7 @@ const ModalFormCandidate = ({ isOpen, onClose, onSubmit, jobId, jobDesRate, jobD
 
                     <div className="mb-4">
                         <label htmlFor="birthDate" className="block text-gray-800 mb-1">
-                            Ngày sinh:
+                            Date of Birth:
                         </label>
                         <input
                             type="date"
@@ -162,7 +162,7 @@ const ModalFormCandidate = ({ isOpen, onClose, onSubmit, jobId, jobDesRate, jobD
 
                     <div className="mb-4">
                         <label htmlFor="phoneNumber" className="block text-gray-800 mb-1">
-                            SĐT :
+                            Phone Number:
                         </label>
                         <input
                             type="tel"
@@ -192,7 +192,7 @@ const ModalFormCandidate = ({ isOpen, onClose, onSubmit, jobId, jobDesRate, jobD
 
                     <div className="mb-4">
                         <label htmlFor="question" className="block text-gray-800 mb-1">
-                            Câu hỏi thắc mắc:
+                            Any Questions:
                         </label>
                         <textarea
                             id="question"
@@ -205,7 +205,7 @@ const ModalFormCandidate = ({ isOpen, onClose, onSubmit, jobId, jobDesRate, jobD
                     </div>
 
                     <div className="mb-6">
-                        <label className="block text-gray-800 mb-1">Nộp CV ở đây:</label>
+                        <label className="block text-gray-800 mb-1">Upload CV:</label>
                         <div
                             className="border border-dashed border-gray-300 rounded p-4 text-center cursor-pointer"
                             onClick={() => fileInputRef.current.click()}
@@ -238,7 +238,7 @@ const ModalFormCandidate = ({ isOpen, onClose, onSubmit, jobId, jobDesRate, jobD
                                 {file ? (
                                     <p className="text-sm text-gray-600">{file.name}</p>
                                 ) : (
-                                    <p className="text-sm text-gray-500">Drag and drop or click to add files (PDF, DOC, DOCX)</p>
+                                    <p className="text-sm text-gray-500">Drag and drop or click to upload (PDF, DOC, DOCX)</p>
                                 )}
                             </div>
                         </div>
@@ -255,8 +255,7 @@ const ModalFormCandidate = ({ isOpen, onClose, onSubmit, jobId, jobDesRate, jobD
                         </button>
                         <button
                             type="submit"
-                            className={`px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-                                }`}
+                            className={`px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? "SUBMITTING..." : "DONE"}

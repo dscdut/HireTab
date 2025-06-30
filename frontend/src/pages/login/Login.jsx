@@ -126,7 +126,7 @@ export default function Login() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="mt-2 text-sm text-gray-600"
             >
-              Log in to continue with Hire Nova
+              Log in to continue with HireTab
             </motion.p>
           </div>
 
