@@ -30,6 +30,9 @@ class Service {
         createUserDto.password = this.bcryptService.hash(
             createUserDto.password,
         );
+        if (!createUserDto.role_id) {
+          createUserDto.role_id = 3; 
+        }
         let createdUser;
         try {
             delete createUserDto.confirm_password;

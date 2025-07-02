@@ -64,6 +64,7 @@ export default function AddJobModal({isOpen, onClose}) {
         },
         onSuccess: () => {
             toast.success("Job created successfully!")
+            onClose()
         },
         onError: () => {
             toast.error("Failed to create job!")
