@@ -1,59 +1,54 @@
-import { sidebarLinks } from '@/core/constants/general.const'
+import { hrLinks, candidateLinks } from '@/core/constants/general.const'
 import { path } from '@/core/constants/path'
-import useToggleSideBar from '@/core/store'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
-const SidebarLink = ({ link, isActive, isCollapsed }) => {
+const SidebarLink = ({ link, isActive }) => {
   const baseClasses =
-    'flex items-center gap-4 font-medium text-base rounded-xl py-4 transition-all duration-300'
-  const collapsedClasses = isCollapsed ? 'justify-center px-0' : 'px-10'
+    'flex items-center gap-4 font-medium text-base rounded-xl py-4 px-10 transition-all duration-300'
   const activeClasses = isActive ? 'bg-primary text-white' : 'hover:text-primary'
 
   return (
-    <Link to={link.path} className={`${baseClasses} ${collapsedClasses} ${activeClasses}`}>
+    <Link to={link.path} className={`${baseClasses} ${activeClasses}`}>
       <span>{link.icon}</span>
-      {!isCollapsed && <span>{link.title}</span>}
+      <span>{link.title}</span>
     </Link>
   )
 }
 
-const Logo = ({ isCollapsed }) => (
+const Logo = () => (
   <Link
-    to={path.home}
-    className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-4 ml-10'}`}
+    to={path.hr.job_posting}
+   
   >
-    {!isCollapsed && (
-      <img
-        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR674l0C3gMt1O9yGq5B36C_sx5qp1liCwNrdIL8ZyoFxM2HHC4lgTidZ9WM8FLNKB-oSY&usqp=CAU"
-        alt="logo"
-        className="w-24 h-10"
-      />
-    )}
+    <div className="ml-10">
+      <div className="text-2xl font-bold">
+        <span className="text-blue-600">Dash</span>
+        <span className="text-purple-600">Board</span>
+      </div>
+      <div className="text-xs text-gray-500 font-medium -mt-1">
+        HR Management System
+      </div>
+    </div>
   </Link>
 )
 
 const Sidebar = () => {
   const { pathname } = useLocation()
-  const { sidebarOpen, toggleSidebar } = useToggleSideBar()
+
+  // Gộp tất cả links lại
+  const allLinks = [...hrLinks, ...candidateLinks]
 
   return (
-    <div
-      className={`px-4 py-4 bg-[#FCFCFC] ${sidebarOpen ? 'w-20' : 'w-64'} transition-width duration-300`}
-    >
-      <div className="flex items-center gap-2 mb-5">
-        <Logo isCollapsed={sidebarOpen} />
-        <button onClick={toggleSidebar} className={`ml-auto ${sidebarOpen ? 'mr-2' : ''}`}>
-          {sidebarOpen ? <ChevronRight /> : <ChevronLeft />}
-        </button>
+    <div className="px-4 py-4 bg-[#FCFCFC] w-64">
+      <div className="flex items-center mb-5">
+        <Logo />
       </div>
       <div>
-        {sidebarLinks.map(link => (
+        {allLinks.map(link => (
           <SidebarLink
             key={link.title}
             link={link}
             isActive={pathname.startsWith(link.path)}
-            isCollapsed={sidebarOpen}
           />
         ))}
       </div>

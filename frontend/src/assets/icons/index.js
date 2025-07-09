@@ -1,3 +1,5 @@
 export { default as IconDashboard } from './icon-dashboard.jsx'
+export { default as IconJobPosting } from './icon-jobposting.jsx'
+export { default as IconJobs } from './icon-jobs.jsx'
 export { default as IconEye } from './icon-eye.jsx'
 export { default as IconNonEye } from './icon-non-eye.jsx'

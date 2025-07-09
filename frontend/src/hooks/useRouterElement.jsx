@@ -44,25 +44,30 @@ export default function useRoutesElements() {
     {
       path: path.hr.dashboard,
       element: (
-        <ProtectedRoute allowedRoles={['HR']}>
-           <JobPostingDashboard />
-        </ProtectedRoute>
-        
+        <LayoutMain>
+          <ProtectedRoute allowedRoles={['HR']}>
+            <JobPostingDashboard />
+          </ProtectedRoute>
+        </LayoutMain>
+
+
       )
     },
     {
       path: path.hr.job_posting,
       element: (
-        <ProtectedRoute allowedRoles={['HR']}>
+        <LayoutMain hasHeader={true}>
+          <ProtectedRoute allowedRoles={['HR']}>
             <JobBoardHR />
-        </ProtectedRoute>
+          </ProtectedRoute>
+        </LayoutMain>
       )
     },
     {
       path: path.hr.job_detail,
       element: (
         <ProtectedRoute allowedRoles={['HR']}>
-            <JobDetailHR /> 
+          <JobDetailHR />
         </ProtectedRoute >
       )
     },
