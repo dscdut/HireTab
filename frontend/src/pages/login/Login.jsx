@@ -50,59 +50,29 @@ export default function Login() {
     mutationFn: data => authApi.login(data)
   })
 
-  // function onSubmit() {
-  //   setIsLoading(true)
-  //   const loginData = form.getValues()
-  //   mutationLogin.mutate(loginData, {
-  //     onSuccess: ({ access_token, refresh_token, user }) => {
-  //       setAccessTokenToLS(access_token)
-  //       setRefreshTokenToLS(refresh_token)
-  //       setUserToLS(user)
-  //       navigate(
-  //         isEqual(user.roles[0], ROLE_ADMIN) || isEqual(user.roles[0], ROLE_EMPLOYEE)
-  //           ? path.hr.job_posting
-  //           : path.candidate.job
-  //       )
-  //       toast.success('Login success 🚀🚀⚡⚡!')
-  //     },
-  //     onError: () => {
-  //       toast.error('Login failed!')
-  //     },
-  //     onSettled: () => {
-  //       setIsLoading(false)
-  //     }
-  //   })
-  // }
   function onSubmit() {
     setIsLoading(true)
-
-    // Không cần kiểm tra form.getValues nữa, bạn có thể lấy hoặc bỏ cũng được
-    const fakeUser = {
-      id: '001',
-      name: 'Fake User',
-      roles: [ROLE_ADMIN] // hoặc ROLE_EMPLOYEE hoặc ROLE_CANDIDATE
-    }
-
-    const fakeAccessToken = 'fake_access_token'
-    const fakeRefreshToken = 'fake_refresh_token'
-
-    // Mô phỏng delay API
-    setTimeout(() => {
-      setAccessTokenToLS(fakeAccessToken)
-      setRefreshTokenToLS(fakeRefreshToken)
-      setUserToLS(fakeUser)
-
-      navigate(
-        isEqual(fakeUser.roles[0], ROLE_ADMIN) || isEqual(fakeUser.roles[0], ROLE_EMPLOYEE)
-          ? path.hr.job_posting
-          : path.candidate.job
-      )
-
-      toast.success('Fake login success 🚀🚀⚡⚡!')
-      setIsLoading(false)
-    }, 500)
+    const loginData = form.getValues()
+    mutationLogin.mutate(loginData, {
+      onSuccess: ({ access_token, refresh_token, user }) => {
+        setAccessTokenToLS(access_token)
+        setRefreshTokenToLS(refresh_token)
+        setUserToLS(user)
+        navigate(
+          isEqual(user.roles[0], ROLE_ADMIN) || isEqual(user.roles[0], ROLE_EMPLOYEE)
+            ? path.hr.job_posting
+            : path.candidate.job
+        )
+        toast.success('Login success 🚀🚀⚡⚡!')
+      },
+      onError: () => {
+        toast.error('Login failed!')
+      },
+      onSettled: () => {
+        setIsLoading(false)
+      }
+    })
   }
-
 
   const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible)
 

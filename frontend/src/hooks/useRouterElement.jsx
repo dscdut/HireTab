@@ -32,7 +32,10 @@ export default function useRoutesElements() {
     {
       path: path.candidate.job,
       element: (
+
         <JobBoard />
+
+    
       )
     },
     {
@@ -66,9 +69,12 @@ export default function useRoutesElements() {
     {
       path: path.hr.job_detail,
       element: (
-        <ProtectedRoute allowedRoles={['HR']}>
-          <JobDetailHR />
-        </ProtectedRoute >
+        <LayoutMain>
+          <ProtectedRoute allowedRoles={['HR']}>
+            <JobDetailHR />
+          </ProtectedRoute >
+        </LayoutMain>
+
       )
     },
     { path: '*', element: <PageNotFound /> }
