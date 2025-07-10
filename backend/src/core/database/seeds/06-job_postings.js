@@ -11,7 +11,7 @@ exports.seed = async knex => {
             title: 'Senior Full-Stack Developer',
             description: 'We are looking for an experienced Full-Stack Developer to join our dynamic team. You will be responsible for developing and maintaining web applications using modern frameworks and technologies.',
             location: 'Ho Chi Minh City, Vietnam',
-            emoloyment_type: 'Full-time',
+            employment_type: 'Full-time',
             requirements: JSON.stringify([
                 "Bachelor's degree in Computer Science or related field",
                 "3+ years experience with React/Node.js",
@@ -41,7 +41,7 @@ exports.seed = async knex => {
             title: 'Machine Learning Engineer',
             description: 'Join our AI team to build and optimize machine learning models for cutting-edge applications. Work with large datasets and deploy ML solutions at scale.',
             location: 'Hanoi, Vietnam',
-            emoloyment_type: 'Full-time',
+            employment_type: 'Full-time',
             requirements: JSON.stringify([
                 "Master's degree in AI/ML or related field",
                 "2+ years experience with Python/TensorFlow/PyTorch",
@@ -71,7 +71,7 @@ exports.seed = async knex => {
             title: 'Cybersecurity Specialist',
             description: 'Protect our digital infrastructure by monitoring security threats, implementing security measures, and responding to incidents.',
             location: 'Da Nang, Vietnam',
-            emoloyment_type: 'Full-time',
+            employment_type: 'Full-time',
             requirements: JSON.stringify([
                 "Bachelor's degree in Cybersecurity or IT",
                 "Security certifications (CISSP, CEH, CISM)",
@@ -101,7 +101,7 @@ exports.seed = async knex => {
             title: 'Cloud Solutions Architect',
             description: 'Design and implement cloud infrastructure solutions for enterprise clients. Lead cloud migration projects and optimize cloud costs.',
             location: 'Remote',
-            emoloyment_type: 'Part-time',
+            employment_type: 'Part-time',
             requirements: JSON.stringify([
                 "Cloud certifications (AWS Solutions Architect, Azure Architect)",
                 "5+ years experience with cloud platforms",
@@ -131,7 +131,7 @@ exports.seed = async knex => {
             title: 'Data Scientist Intern',
             description: 'Learn and contribute to data science projects. Analyze data, build predictive models, and create data visualizations.',
             location: 'Ho Chi Minh City, Vietnam',
-            emoloyment_type: 'Internship',
+            employment_type: 'Internship',
             requirements: JSON.stringify([
                 "Currently pursuing degree in Data Science/Statistics/Mathematics",
                 "Basic knowledge of Python/R programming",
