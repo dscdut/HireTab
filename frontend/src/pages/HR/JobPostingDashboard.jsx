@@ -667,8 +667,8 @@ export default function JobPostingDashboard() {
   const availableTransitions = getAvailableStatusTransitions()
 
   return (
-    <div className="min-h-screen bg-gray-50 font-['Inter',system-ui,sans-serif]">
-      {/* <Header /> */}
+    <div className="min-h-screen bg-gray-50 font-['Inter',system-ui,sans-serif] pt-20">
+      <Header />
 
       {/* Main Content */}
       <div className="bg-gray-50 min-h-screen">
