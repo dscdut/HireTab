@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { jobApi } from "@/core/services/job.service";
 import AddJobModal from "./Modal/AddJobModal";
 import EditJobModal from "./Modal/EditJobModal";
-import Header from "./components/HRHeader";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
@@ -25,12 +24,11 @@ export default function JobBoard() {
 
   const statuses = ["All Statuses", "To Do", "In Progress", "Done", "Closed"];
 
-  
   const { data: jobListings = [], isLoading, isError } = useQuery({
     queryKey: ["jobs"],
     queryFn: async () => {
       try {
-        return await jobApi.listJobs(); 
+        return await jobApi.listJobs();
       } catch (error) {
         toast.error("Failed to load jobs!");
         throw error;
@@ -39,9 +37,8 @@ export default function JobBoard() {
     retry: false,
   });
 
-  
   const locations = useMemo(() => {
-    const uniqueLocations = new Set(jobListings.map((job) => job.location).filter(Boolean)); // Loại bỏ giá trị null/undefined
+    const uniqueLocations = new Set(jobListings.map((job) => job.location).filter(Boolean));
     return ["All Locations", ...Array.from(uniqueLocations)];
   }, [jobListings]);
 
@@ -78,149 +75,149 @@ export default function JobBoard() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-lg text-gray-600">Loading...</div>
+      </div>
+    );
   }
 
   if (isError) {
-    return <div>Error loading jobs!</div>;
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-lg text-red-600">Error loading jobs!</div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header with image */}
-      <Header />
-      <div className="relative w-full h-64 bg-gradient-to-r from-blue-500 to-purple-600 overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-        <div className="relative z-10 flex flex-col justify-center items-center h-full text-center text-white px-4">
-          <h1 className="text-3xl font-bold mb-4">Job Opportunities</h1>
-          <p className="text-lg max-w-2xl">Explore exciting careers and find your next professional challenge.</p>
-        </div>
-      </div>
-      
-
-      {/* Search and Filter Section */}
-           <div className="container mx-auto -mt-2 px-4">
-            <div className="bg-white shadow-lg rounded-lg p-6">
-              <div className="flex flex-wrap gap-4 items-center justify-between">
-                <div className="flex flex-wrap gap-4 items-center">
-
-              {/* Search Input */}
-              <div className="relative flex-grow min-w-[250px]">
-                <input
-                  type="text"
-                  placeholder="Search jobs..."
-                  className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
-              </div>
-
-              {/* Location Dropdown */}
-              <div className="relative">
-                <button
-                  className="px-4 py-2 border border-gray-300 rounded-md bg-white flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onClick={() => setShowLocationDropdown(!showLocationDropdown)}
-                >
-                  {location} <ChevronDown size={16} />
-                </button>
-                {showLocationDropdown && (
-                  <div className="absolute z-10 mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg">
-                    {locations.map((loc) => (
-                      <div
-                        key={loc}
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => {
-                          setLocation(loc);
-                          setShowLocationDropdown(false);
-                        }}
-                      >
-                        {loc}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Status Dropdown */}
-              <div className="relative">
-                <button
-                  className="px-4 py-2 border border-gray-300 rounded-md bg-white flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                >
-                  {status} <ChevronDown size={16} />
-                </button>
-                {showStatusDropdown && (
-                  <div className="absolute z-10 mt-1 w-48 bg-white border border-gray-300 rounded-md shadow-lg">
-                    {statuses.map((stat) => (
-                      <div
-                        key={stat}
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => {
-                          setStatus(stat);
-                          setShowStatusDropdown(false);
-                        }}
-                      >
-                        {stat}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+    <div className="h-full bg-gray-50">
+      {/* Header với Search và Filter */}
+      <div className="sticky top-0 z-10 bg-white shadow-sm border-b border-gray-200 p-4">
+        <div className="flex flex-wrap gap-3 items-center justify-between">
+          <div className="flex flex-wrap gap-3 items-center flex-1">
+            {/* Search Input */}
+            <div className="relative flex-grow min-w-[250px] max-w-md">
+              <input
+                type="text"
+                placeholder="Search jobs..."
+                className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
             </div>
 
-            {/* Add New Job Button */}
-            <div>
+            {/* Location Dropdown */}
+            <div className="relative">
               <button
-               onClick={() => setShowAddModal(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md flex items-center gap-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-lg bg-white flex items-center gap-2 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                onClick={() => setShowLocationDropdown(!showLocationDropdown)}
               >
-                <Plus size={18} /> Add New Job
+                {location} <ChevronDown size={16} />
               </button>
+              {showLocationDropdown && (
+                <div className="absolute z-10 mt-1 w-48 bg-white border border-gray-300 rounded-lg shadow-lg">
+                  {locations.map((loc) => (
+                    <div
+                      key={loc}
+                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm first:rounded-t-lg last:rounded-b-lg"
+                      onClick={() => {
+                        setLocation(loc);
+                        setShowLocationDropdown(false);
+                      }}
+                    >
+                      {loc}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-               <AddJobModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} />
-              {showEditModal && <EditJobModal job={selectedJob} onClose={() => setShowEditModal(false)} />}
+            {/* Status Dropdown */}
+            <div className="relative">
+              <button
+                className="px-3 py-2 border border-gray-300 rounded-lg bg-white flex items-center gap-2 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+              >
+                {status} <ChevronDown size={16} />
+              </button>
+              {showStatusDropdown && (
+                <div className="absolute z-10 mt-1 w-48 bg-white border border-gray-300 rounded-lg shadow-lg">
+                  {statuses.map((stat) => (
+                    <div
+                      key={stat}
+                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm first:rounded-t-lg last:rounded-b-lg"
+                      onClick={() => {
+                        setStatus(stat);
+                        setShowStatusDropdown(false);
+                      }}
+                    >
+                      {stat}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Add New Job Button */}
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-sm font-medium"
+          >
+            <Plus size={18} /> Add New Job
+          </button>
         </div>
       </div>
 
-      {/* Job Listings */}
-      <div className="container mx-auto p-6">
+      {/* Job Listings Content */}
+      <div className="flex-1 overflow-auto p-4">
         {filteredJobs.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <Filter className="mx-auto mb-4 text-gray-400" size={48} />
+          <div className="flex flex-col items-center justify-center py-16 bg-white rounded-lg shadow-sm">
+            <Filter className="mb-4 text-gray-400" size={48} />
             <p className="text-xl text-gray-600">No jobs match your current filters</p>
+            <p className="text-sm text-gray-500 mt-2">Try adjusting your search criteria</p>
           </div>
         ) : (
-          filteredJobs.map((job, index) => (
-            <div
-              key={index}
-              className="bg-white border border-gray-200 rounded-lg p-6 mb-4 shadow-sm hover:shadow-md transition-shadow relative"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{job.title}</h3>
-                  <div className="flex items-center gap-2 text-gray-600 mb-2">
-                    <span className="text-sm">{job.location}</span>
-                    <span className="text-xs text-gray-400">•</span>
-                    <span className={`text-sm px-2 py-1 rounded ${getStatusColor(job.status)}`}>{job.status}</span>
+          <div className="space-y-4">
+            {filteredJobs.map((job, index) => (
+              <div
+                key={index}
+                className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{job.title}</h3>
+                    <div className="flex items-center gap-2 text-gray-600 mb-2">
+                      <span className="text-sm">{job.location}</span>
+                      <span className="text-xs text-gray-400">•</span>
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${getStatusColor(job.status)}`}>
+                        {job.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
+                
+                <p className="text-gray-600 mb-4 line-clamp-3">{job.description}</p>
+                
+                <div className="flex justify-end">
+                  <Link
+                    to={`/hr/job-detail/${job.id}`}
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  >
+                    View Details
+                  </Link>
+                </div>
               </div>
-              <p className="text-gray-600 mb-4">{job.description}</p>
-              <div className="flex justify-end">
-               <Link
-               to={`/hr/job-detail/${job.id}`} key={job.id} 
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                View Details
-              </Link>
-              </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
+
+      {/* Modals */}
+      <AddJobModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} />
+      {showEditModal && <EditJobModal job={selectedJob} onClose={() => setShowEditModal(false)} />}
     </div>
   );
 }

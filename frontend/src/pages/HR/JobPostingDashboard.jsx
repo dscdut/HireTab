@@ -669,7 +669,6 @@ export default function JobPostingDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 font-['Inter',system-ui,sans-serif] pt-20">
       <Header />
-
       {/* Main Content */}
       <div className="bg-gray-50 min-h-screen">
         {/* Job info and controls section - positioned below header */}
