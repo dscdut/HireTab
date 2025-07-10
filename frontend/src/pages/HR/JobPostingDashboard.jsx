@@ -113,7 +113,7 @@ export default function JobPostingDashboard() {
 
   return (
     <div className="min-h-screen">
-      <Header />
+      {/* <Header /> */}
       <div className="bg-gray-50 min-h-screen">
         <div className="bg-white p-4 shadow-lg flex justify-between items-center rounded-md">
 
