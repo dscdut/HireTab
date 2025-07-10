@@ -8,12 +8,12 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
-  const [user, setUser] = useState({ name: '', avatar: null }) 
+  const [user, setUser] = useState({ name: '', avatar: null })
   const navigate = useNavigate()
   useEffect(() => {
     const storedUser = localStorage.getItem('user')
     if (storedUser) {
-      setUser(JSON.parse(storedUser)) 
+      setUser(JSON.parse(storedUser))
     }
   }, [])
 
@@ -40,7 +40,7 @@ const Header = () => {
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
     setUser(null)
-    navigate('/login',  { replace: true })
+    navigate('/login', { replace: true })
   }
 
   return (
@@ -48,9 +48,8 @@ const Header = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/80 backdrop-blur-md shadow-lg' : 'bg-transparent'
-      }`}
+      className={`fixed top-0 left-64 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-md shadow-lg' : 'bg-transparent'
+        }`}
     >
       <div className="container px-4 mx-auto">
         <div className="flex items-center justify-between h-20">
@@ -83,7 +82,7 @@ const Header = () => {
                   {user.avatar ? (
                     <img
                       src={user.avatar}
-                      alt={user.name} 
+                      alt={user.name}
                       className="object-cover w-full h-full rounded-full"
                     />
                   ) : (

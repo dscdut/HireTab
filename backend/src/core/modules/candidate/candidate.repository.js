@@ -97,9 +97,6 @@ class Repository extends DataRepository {
                 'status',
                 'industry_id as industryId',
                 'job_posting_id as jobPostingId',
-                'deleted_at as deletedAt',
-                'created_at as createdAt',
-                'updated_at as updatedAt'
             ]);
     }
 
@@ -122,7 +119,6 @@ class Repository extends DataRepository {
             'candidates.status',
             'job_postings.title as jobPostingName',
             'candidates.created_at as createdAt',
-            'candidates.updated_at as updatedAt'
         )
         .where('candidates.job_posting_id', jobPostingId)
         .whereNull('candidates.deleted_at') 

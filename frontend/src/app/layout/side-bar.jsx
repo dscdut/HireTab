@@ -1,14 +1,17 @@
-import { sidebarLinks } from '@/core/constants/general.const'
+import { hrLinks, candidateLinks, companyProfile, settingsBtn, helpCenterBtn } from '@/core/constants/general.const'
 import { path } from '@/core/constants/path'
 import useToggleSideBar from '@/core/store'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Link, useLocation } from 'react-router-dom'
+import { ChevronLeft, ChevronRight, User, LogOut } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 
 const SidebarLink = ({ link, isActive, isCollapsed }) => {
   const baseClasses =
-    'flex items-center gap-4 font-medium text-base rounded-xl py-4 transition-all duration-300'
-  const collapsedClasses = isCollapsed ? 'justify-center px-0' : 'px-10'
-  const activeClasses = isActive ? 'bg-primary text-white' : 'hover:text-primary'
+    'flex items-center gap-3 font-medium text-base rounded-lg py-3 transition-all duration-300'
+  const collapsedClasses = isCollapsed ? 'justify-center px-2' : 'px-6'
+  const activeClasses = isActive
+    ? 'bg-blue-600 text-white shadow-md font-semibold'
+    : 'hover:text-blue-600 hover:bg-blue-50'
 
   return (
     <Link to={link.path} className={`${baseClasses} ${collapsedClasses} ${activeClasses}`}>
@@ -18,17 +21,160 @@ const SidebarLink = ({ link, isActive, isCollapsed }) => {
   )
 }
 
+const ControlButtons = ({ link, isActive, isCollapsed }) => {
+  const baseClasses =
+    'flex items-center gap-3 font-medium text-base rounded-lg py-3 transition-all duration-300'
+  const collapsedClasses = isCollapsed ? 'justify-center px-2' : 'px-6'
+  const activeClasses = isActive
+    ? 'bg-blue-600 text-white shadow-md font-semibold'
+    : 'hover:text-blue-600 hover:bg-blue-50'
+
+  return (
+    <Link to={link.path} className={`${baseClasses} ${collapsedClasses} ${activeClasses}`}>
+      <span>{link.icon}</span>
+      {!isCollapsed && <span>{link.title}</span>}
+    </Link>
+  )
+}
+
+const UserProfile = ({ isCollapsed }) => {
+  const [user, setUser] = useState({ name: '', avatar: null })
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user')
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isProfileMenuOpen && !event.target.closest('.profile-menu-container')) {
+        setIsProfileMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isProfileMenuOpen])
+
+  const handleLogout = () => {
+    localStorage.removeItem('user')
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
+    setUser({ name: '', avatar: null })
+    navigate('/login', { replace: true })
+  }
+
+  if (isCollapsed) {
+    return (
+      <div className="mt-auto p-3 border-t border-gray-200">
+        <div className="flex justify-center profile-menu-container relative">
+          <div
+            className="flex items-center justify-center w-10 h-10 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700 transition-colors overflow-hidden"
+            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+          >
+            {user.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <User className="w-5 h-5" />
+            )}
+          </div>
+
+          {/* Profile Dropdown for collapsed state */}
+          {isProfileMenuOpen && (
+            <div className="absolute bottom-full left-0 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+              <div className="p-3 border-b border-gray-100">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {user.name || 'Guest'}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  HR Management
+                </p>
+              </div>
+              <div className="p-2">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full px-3 py-2 text-sm text-red-600 rounded-md hover:bg-red-50 transition-colors"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-auto p-3 border-t border-gray-200">
+      <div className="profile-menu-container relative">
+        <div
+          className="flex items-center gap-3 px-3 py-3 rounded-lg bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+          onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+        >
+          <div className="flex items-center justify-center w-10 h-10 text-white bg-blue-600 rounded-full overflow-hidden">
+            {user.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <User className="w-5 h-5" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {user.name || 'Guest'}
+            </p>
+            <p className="text-xs text-gray-500 truncate">
+              HR Management
+            </p>
+          </div>
+        </div>
+
+        {/* Profile Dropdown for expanded state */}
+        {isProfileMenuOpen && (
+          <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+            <div className="p-2">
+              <button
+                onClick={handleLogout}
+                className="flex items-center w-full px-3 py-2 text-sm text-red-600 rounded-md hover:bg-red-50 transition-colors"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 const Logo = ({ isCollapsed }) => (
   <Link
-    to={path.home}
-    className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-4 ml-10'}`}
+    to={path.hr.job_posting}
+    className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-4 ml-6'}`}
   >
     {!isCollapsed && (
-      <img
-        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR674l0C3gMt1O9yGq5B36C_sx5qp1liCwNrdIL8ZyoFxM2HHC4lgTidZ9WM8FLNKB-oSY&usqp=CAU"
-        alt="logo"
-        className="w-24 h-10"
-      />
+      <div>
+        <div className="text-2xl font-bold">
+          <span className="text-blue-600">Dash</span>
+          <span className="text-purple-600">Board</span>
+        </div>
+        <div className="text-xs text-gray-500 font-medium -mt-1">
+          HR Management System
+        </div>
+      </div>
     )}
   </Link>
 )
@@ -37,18 +183,25 @@ const Sidebar = () => {
   const { pathname } = useLocation()
   const { sidebarOpen, toggleSidebar } = useToggleSideBar()
 
+  // Gộp tất cả links lại
+  const allLinks = [...companyProfile, ...hrLinks, ...candidateLinks,]
+  const allButtons = [...settingsBtn, ...helpCenterBtn,]
+
   return (
-    <div
-      className={`px-4 py-4 bg-[#FCFCFC] ${sidebarOpen ? 'w-20' : 'w-64'} transition-width duration-300`}
-    >
-      <div className="flex items-center gap-2 mb-5">
+    <div className={`px-3 py-3 bg-[#FCFCFC] ${sidebarOpen ? 'w-20' : 'w-64'} transition-all duration-300 flex flex-col h-screen`}>
+      <div className="flex items-center gap-2 mb-4">
         <Logo isCollapsed={sidebarOpen} />
-        <button onClick={toggleSidebar} className={`ml-auto ${sidebarOpen ? 'mr-2' : ''}`}>
+        <button
+          onClick={toggleSidebar}
+          className={`ml-auto ${sidebarOpen ? 'mr-1' : ''}`}
+        >
           {sidebarOpen ? <ChevronRight /> : <ChevronLeft />}
         </button>
       </div>
-      <div>
-        {sidebarLinks.map(link => (
+
+      {/* Main navigation links */}
+      <div className="flex-1 overflow-y-auto space-y-1">
+        {allLinks.map(link => (
           <SidebarLink
             key={link.title}
             link={link}
@@ -57,6 +210,33 @@ const Sidebar = () => {
           />
         ))}
       </div>
+
+      {/* Divider line */}
+      <div className="border-t border-gray-200 my-3"></div>
+
+      {/* Settings section */}
+      <div className="space-y-1">
+        {/* Settings title - only show when not collapsed */}
+        {!sidebarOpen && (
+          <div className="px-6 py-2">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              SETTINGS
+            </p>
+          </div>
+        )}
+
+        {/* Settings buttons */}
+        {allButtons.map(link => (
+          <ControlButtons
+            key={link.title}
+            link={link}
+            isActive={pathname.startsWith(link.path)}
+            isCollapsed={sidebarOpen}
+          />
+        ))}
+      </div>
+
+      <UserProfile isCollapsed={sidebarOpen} />
     </div>
   )
 }
