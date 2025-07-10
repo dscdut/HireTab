@@ -1,7 +1,7 @@
 import { Module } from 'packages/handler/Module';
 import { RecordId } from '../../common/swagger/record-id';
 import { RecordIdInterceptor } from 'core/modules/interceptor/recordId/record-id.interceptor';
-import { CreateJobPostingInterceptor } from 'core/modules/job/interceptor/job-posting.interceptor';
+import { CreateJobPostingInterceptor, UpdateJobPostingInterceptor } from 'core/modules/job/interceptor/job-posting.interceptor';
 import { JobController } from './job.controller';
 
 export const JobResolver = Module.builder()
@@ -30,5 +30,22 @@ export const JobResolver = Module.builder()
             interceptors: [CreateJobPostingInterceptor],
             controller: JobController.createOne,
             preAuthorization: true,
+        },
+        {
+            route: '/:id',
+            method: 'put',
+            params: [RecordId],
+            body: 'UpdateJobPostingDto',
+            interceptors: [RecordIdInterceptor, UpdateJobPostingInterceptor],
+            controller: JobController.updateOne,
+            preAuthorization: false,
+        },
+        {
+            route: '/:id',
+            method: 'delete',
+            params: [RecordId],
+            interceptors: [RecordIdInterceptor],
+            controller: JobController.deleteOne,
+            preAuthorization: false,
         },
     ]);

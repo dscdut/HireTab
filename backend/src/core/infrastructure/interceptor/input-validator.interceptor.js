@@ -21,7 +21,10 @@ export class AbstractInputValidatorInterceptor {
 
     intercept = async (req, res, next) => {
         try {
-            await this.getSchema(req).validateAsync(this.getValueToValidate(req), { abortEarly: false });
+            await this.getSchema(req).validateAsync(this.getValueToValidate(req), { 
+                abortEarly: false,
+                allowUnknown: true 
+            });
             return next();
         } catch (error) {
             return this.getResponseErrorHandler(res, error);

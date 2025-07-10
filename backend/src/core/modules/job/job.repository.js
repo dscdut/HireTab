@@ -11,9 +11,12 @@ class JobRepository extends DataRepository {
             'job_postings.title',
             'job_postings.description',
             'job_postings.location',
+            'job_postings.emoloyment_type as employmentType',
+            'job_postings.requirements',
+            'job_postings.responsibilities',
             'job_postings.desc_rate as descRate',
-            'job_postings.salary_min',
-            'job_postings.salary_max',
+            'job_postings.salary_min as salaryMin',
+            'job_postings.salary_max as salaryMax',
             'job_postings.status',
             'job_postings.level',
             { industryName: 'industries.name' },
@@ -26,6 +29,9 @@ class JobRepository extends DataRepository {
                             'title',
                             'description',
                             'location',
+                            'emoloyment_type as employmentType',
+                            'requirements',
+                            'responsibilities',
                             'desc_rate as descRate',
                             'salary_min as salaryMin',
                             'salary_max as salaryMax',
@@ -44,14 +50,9 @@ class JobRepository extends DataRepository {
                 'job_postings.status',
                 'job_postings.description',
                 'job_postings.location',
-                'job_postings.desc_rate as descRate',
+                'job_postings.emoloyment_type as employmentType',
                 'job_postings.level',
-                'job_postings.start_time as startTime',
-                'job_postings.end_time as endTime',
-                'job_postings.salary_min as salaryMin',
-                'job_postings.salary_max as salaryMax',
                 'industries.name as industryName',
-                'job_postings.created_at as createdAt'
             );
 
         if (filters.status) {
@@ -59,6 +60,44 @@ class JobRepository extends DataRepository {
         }
 
         return query;
+    }
+
+    update(id, jobPostingData) {
+        return this.query()
+            .where('id', id)
+            .update({
+                ...jobPostingData,
+                updated_at: new Date()
+            })
+            .returning([
+                'title',
+                'description',
+                'location',
+                'emoloyment_type as employmentType',
+                'requirements',
+                'responsibilities',
+                'desc_rate as descRate',
+                'salary_min as salaryMin',
+                'salary_max as salaryMax',
+                'status',
+                'level',
+                'start_time as startTime',
+                'end_time as endTime',
+            ]);
+    }
+
+    delete(id) {
+        return this.query()
+            .where('id', id)
+            .update({
+                deleted_at: new Date(),
+                updated_at: new Date()
+            })
+            .returning([
+                'id',
+                'title',
+                'deleted_at as deletedAt'
+            ]);
     }
 }
 
