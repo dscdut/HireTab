@@ -23,7 +23,7 @@ exports.up = async knex => {
         table.string('title').notNullable();
         table.text('description').defaultTo(null);
         table.string('location', 500).defaultTo(null);
-        table.string('emoloyment_type', 250).defaultTo(null);
+        table.string('employment_type', 250).defaultTo(null);
         table.jsonb('requirements').defaultTo('[]');
         table.jsonb('responsibilities').defaultTo('[]');
         table.text('desc_rate', 500).defaultTo(null);
