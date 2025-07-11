@@ -25,7 +25,9 @@ export default function JobDetail() {
     },
     retry: false,
   });
-console.log('Job Data:', job); 
+
+  console.log('Job Data:', job); 
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -33,11 +35,24 @@ console.log('Job Data:', job);
   if (isError) {
     return <div>Error loading job details!</div>;
   }
+
   const formatSalary = (min, max) => {
+    // Check if both min and max are valid numbers
+    if (!min || !max || isNaN(min) || isNaN(max)) {
+      return "Salary not specified";
+    }
+    
     const formatNumber = (num) =>
       num.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+    
     return `${formatNumber(min)} - ${formatNumber(max)}`
   }
+
+  // Helper function to safely get job property with fallback
+  const getJobProperty = (property, fallback = "Not specified") => {
+    return job && job[property] ? job[property] : fallback;
+  }
+
   return (
      <div className="flex flex-col min-h-screen">
       {/* Hero section with blue overlay */}
@@ -59,14 +74,14 @@ console.log('Job Data:', job);
 
           {/* Job Title and Location */}
           <div className="relative z-20 flex flex-col justify-center h-full px-6 pb-16">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">{job.title}</h1>
-            <div className="text-white text-lg">{job.location} | Full-Time</div>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">{getJobProperty('title', 'Job Title')}</h1>
+            <div className="text-white text-lg">{getJobProperty('location', 'Location')} | {getJobProperty('employmentType', 'Full-Time')}</div>
           </div>
 
           {/* Apply Button */}
           <div className="absolute z-20 top-6 right-6">
             <button className="bg-white text-blue-600 px-6 py-2 rounded-md hover:bg-blue-50 transition font-medium"
-             onClick={() => navigate(`/hr/job-dashboard/${job.id}`)}>
+             onClick={() => navigate(`/hr/job-dashboard/${job?.id}`)}>
               View List Candidate
             </button>
           </div>
@@ -95,24 +110,40 @@ console.log('Job Data:', job);
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
             <h2 className="text-2xl font-bold mb-4">Job Description</h2>
-            <p className="text-gray-700 mb-8">{job.description}</p>
+            <p className="text-gray-700 mb-8">{getJobProperty('description', 'No description available')}</p>
 
             <h2 className="text-2xl font-bold mb-4">Requirements</h2>
             <ul className="list-disc pl-5 text-gray-700 mb-8">
-              <li className="mb-2">Bachelor's degree in Computer Science or related field</li>
-              <li className="mb-2">3+ years of experience with modern JavaScript frameworks</li>
-              <li className="mb-2">Strong understanding of web technologies and RESTful APIs</li>
-              <li className="mb-2">Experience with database design and optimization</li>
-              <li className="mb-2">Excellent problem-solving and communication skills</li>
+              {job?.requirements && Array.isArray(job.requirements) && job.requirements.length > 0 ? (
+                job.requirements.map((requirement, index) => (
+                  <li key={index} className="mb-2">{requirement}</li>
+                ))
+              ) : (
+                <>
+                  <li className="mb-2">Bachelor's degree in Computer Science or related field</li>
+                  <li className="mb-2">3+ years of experience with modern JavaScript frameworks</li>
+                  <li className="mb-2">Strong understanding of web technologies and RESTful APIs</li>
+                  <li className="mb-2">Experience with database design and optimization</li>
+                  <li className="mb-2">Excellent problem-solving and communication skills</li>
+                </>
+              )}
             </ul>
 
             <h2 className="text-2xl font-bold mb-4">Responsibilities</h2>
             <ul className="list-disc pl-5 text-gray-700">
-              <li className="mb-2">Develop and maintain web applications</li>
-              <li className="mb-2">Collaborate with cross-functional teams</li>
-              <li className="mb-2">Implement responsive design and ensure cross-browser compatibility</li>
-              <li className="mb-2">Optimize applications for maximum speed and scalability</li>
-              <li className="mb-2">Participate in code reviews and contribute to team knowledge sharing</li>
+              {job?.responsibilities && Array.isArray(job.responsibilities) && job.responsibilities.length > 0 ? (
+                job.responsibilities.map((responsibility, index) => (
+                  <li key={index} className="mb-2">{responsibility}</li>
+                ))
+              ) : (
+                <>
+                  <li className="mb-2">Develop and maintain web applications</li>
+                  <li className="mb-2">Collaborate with cross-functional teams</li>
+                  <li className="mb-2">Implement responsive design and ensure cross-browser compatibility</li>
+                  <li className="mb-2">Optimize applications for maximum speed and scalability</li>
+                  <li className="mb-2">Participate in code reviews and contribute to team knowledge sharing</li>
+                </>
+              )}
             </ul>
           </div>
 
@@ -122,32 +153,32 @@ console.log('Job Data:', job);
 
               <div className="mb-4">
                 <p className="text-gray-500 text-sm">Industry</p>
-                <p className="font-medium">{job.industryName}</p>
+                <p className="font-medium">{getJobProperty('industryName', 'Not specified')}</p>
               </div>
 
               <div className="mb-4">
                 <p className="text-gray-500 text-sm">Job Level</p>
-                <p className="font-medium">{job.level || "Mid-Senior Level"}</p>
+                <p className="font-medium">{getJobProperty('level', 'Mid-Senior Level')}</p>
               </div>
 
               <div className="mb-4">
                 <p className="text-gray-500 text-sm">Employment Type</p>
-                <p className="font-medium">Full-Time</p>
+                <p className="font-medium">{getJobProperty('employmentType', 'Full-Time')}</p>
               </div>
 
               <div className="mb-4">
                 <p className="text-gray-500 text-sm">Salary Range</p>
-                <p className="font-medium">{formatSalary(job.salary_min, job.salary_max)}</p>
+                <p className="font-medium">{formatSalary(job?.salaryMin, job?.salaryMax)}</p>
               </div>
 
               <div className="mb-4">
                 <p className="text-gray-500 text-sm">Status</p>
-                <p className="font-medium">{job.status}</p>
+                <p className="font-medium">{getJobProperty('status', 'Open')}</p>
               </div>
 
               <div className="mt-8">
                 <button className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition font-medium"
-                  onClick={() => navigate(`/hr/job-dashboard/${job.id}`)}>
+                  onClick={() => navigate(`/hr/job-dashboard/${job?.id}`)}>
                   View List Candidate
                 </button>
               </div>
@@ -155,8 +186,6 @@ console.log('Job Data:', job);
           </div>
         </div>
       </div>
-
-      
     </div>
   );
 }
