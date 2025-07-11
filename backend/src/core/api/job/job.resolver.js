@@ -49,7 +49,7 @@ export const JobResolver = Module.builder()
             params: [RecordId],
             guards: [hasHRRole],
             interceptors: [RecordIdInterceptor],
-            controller: JobController.deleteOne,
+            controller: JobController.deleteJobById, 
             preAuthorization: true,
         },
     ]);
