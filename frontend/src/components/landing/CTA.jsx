@@ -16,24 +16,23 @@ const CTA = () => {
             Unbox your growth
           </h2>
           <p className="mb-10 text-2xl text-white font-medium">
-            Sẵn sàng bứt phá cùng chúng mình? Apply CV liền tay nhé!!!
+            Ready to break through with us? Apply your CV now!!!
           </p>
-          <div className="flex flex-col justify-center gap-5 sm:flex-row">
-            <Button
-              size="lg"
-              className="text-white bg-gradient-to-r from-[#4285F4] via-[#34A853] to-[#FBBC05] shadow-xl hover:scale-105 hover:-translate-y-1 hover:shadow-2xl transition-all duration-200 text-xl px-10 py-6 font-bold border-0"
-              onClick={() => window.open('https://forms.gle/your-apply-link', '_blank')}
+          <div className="flex justify-center">
+            <motion.div
+              whileHover={{ scale: 1.12, y: -8 }}
+              animate={{ y: [0, -8, 0], scale: [1, 1.08, 1] }}
+              transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
             >
-              Apply Now
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-[#fbbf24] border-[#fbbf24] hover:bg-[#fbbf24] hover:text-[#0f172a] hover:scale-105 hover:-translate-y-1 transition-all duration-200 text-xl px-10 py-6 font-bold"
-              onClick={() => window.open('mailto:hi@hiretab.dev', '_blank')}
-            >
-              Contact Us
-            </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-[#0247c7] border-2 border-[#0247c7] bg-white shadow-lg hover:bg-[#0247c7] hover:text-white hover:scale-110 transition-all duration-200 text-xl px-10 py-6 font-bold"
+                onClick={() => window.open('mailto:hi@hiretab.dev', '_blank')}
+              >
+                Contact Us
+              </Button>
+            </motion.div>
           </div>
         </motion.div>
       </div>

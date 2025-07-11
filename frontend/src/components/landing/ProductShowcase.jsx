@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Star } from 'lucide-react'
+import localismImg from '@/assets/images/localism.png'
 
 const testimonials = [
   {
@@ -31,54 +31,64 @@ const testimonials = [
 const products = [
   {
     name: 'Unigo',
-    description: 'Hệ thống mô phỏng bản đồ trường Đại Học Bách Khoa - Đại học Đà Nẵng',
+    description: 'A simulation system for the map of University of Science and Technology - The University of Danang',
     image: 'https://dut.gdsc.dev/static/media/uniGO.5edcd2ae7021100c7ee3.jpg',
   },
   {
     name: 'BeeBee Travel',
-    description: 'Nền tảng (B2B) kết nối các doanh nghiệp cung cấp các dịch vụ du lịch',
+    description: 'A B2B platform connecting businesses providing travel services',
     image: 'https://dut.gdsc.dev/static/media/BeeBeeTravel.65869692647602915857.png',
   },
   {
     name: 'Provo',
-    description: 'Hệ sinh thái học tiếng Anh cung cấp các dịch vụ như: học từ vựng tiếng anh hay hỗ trợ sửa lỗi IELTS Writing,...',
+    description: 'An English learning ecosystem offering services such as vocabulary learning and IELTS Writing correction support',
     image: 'https://dut.gdsc.dev/static/media/PROVO.459c9036bf02b367496a.png',
   },
   {
     name: 'GDSC - DUT URL Shortener',
-    description: 'Công cụ hỗ trợ rút gọn link được phát triển bởi GDSC - DUT',
+    description: 'A link shortening tool developed by GDSC - DUT',
     image: 'https://dut.gdsc.dev/static/media/url-shortener.f382a0e4bdc3c1c1efa7.png',
   },
   {
     name: 'Event Cookbook',
-    description: 'Cẩm nang tổ chức sự kiện',
+    description: 'Event organizing handbook',
     image: 'https://dut.gdsc.dev/static/media/Event-Cookbook.5b78a2ac2c1656b62cda.png',
   },
   {
     name: 'Smartfood',
-    description: 'Ứng dụng gợi ý công thức nấu ăn từ thực phẩm có sẵn',
+    description: 'An app that suggests recipes based on available ingredients',
     image: 'https://dut.gdsc.dev/static/media/SMARTFOOD.12662b2786ca3b7f1ecb.png',
   },
   {
     name: 'MyEvents',
-    description: 'Ứng dụng quản lý tổ chức sự kiện',
+    description: 'Event management application',
     image: 'https://dut.gdsc.dev/static/media/MyEvents.f743adeafa65fdb29367.png',
   },
   {
     name: 'HappyChild',
-    description: 'Nền tảng hỗ trợ phụ huynh xác định sớm, đánh giá và nuôi dạy trẻ tự kỷ',
+    description: 'A platform supporting parents in early detection, assessment, and upbringing of autistic children',
     image: 'https://dut.gdsc.dev/static/media/HappyChild.33cab0594199f7f210ab.jpg',
   },
   {
     name: 'BloodBond',
-    description: 'Nền tảng hỗ trợ công tác hiến máu',
+    description: 'A platform supporting blood donation activities',
     image: 'https://dut.gdsc.dev/static/media/BloodBond.3c2df1bc8339a066f9bd.jpg',
   },
   {
     name: 'SharingHub',
-    description: 'Ứng dụng hỗ trợ hoạt động thiện nguyện',
+    description: 'An app supporting charity activities',
     image: 'https://dut.gdsc.dev/static/media/url-shortener.f382a0e4bdc3c1c1efa7.png',
   },
+  {
+    name: 'HireTab',
+    description: 'An intelligent recruitment platform using AI to analyze and evaluate candidate profiles',
+    image: 'https://dut.gdsc.dev/static/media/url-shortener.f382a0e4bdc3c1c1efa7.png',
+  },
+  {
+    name: 'Localism',
+    description: 'A platform connecting local communities with nearby activities and events',
+    image: localismImg,
+  }
 ]
 
 const ProductShowcase = () => {
@@ -94,7 +104,7 @@ const ProductShowcase = () => {
         >
           <h2 className="mb-4 text-6xl font-bold text-gray-900">Product Showcase</h2>
           <p className="text-3xl text-gray-600">
-            Một số sản phẩm nổi bật mà tụi mình đã thực hiện
+            Some outstanding products we have built
           </p>
         </motion.div>
 

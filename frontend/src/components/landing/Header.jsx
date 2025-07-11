@@ -46,7 +46,7 @@ const Header = () => {
     <motion.header
   initial={{ y: -100 }}
   animate={{ y: 0 }}
-  transition={{ duration: 0.5 }}
+  transition={{ duration: 0.2 }}
   className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
     isScrolled
       ? 'bg-white/90 backdrop-blur-md shadow-lg'
@@ -83,7 +83,7 @@ const Header = () => {
                 {item.label}
               </motion.a>
             ))}
-            <a href="#apply" className="ml-4">
+            <a href="/candidate/job" className="ml-4">
               <Button className="bg-blue-600 text-white hover:bg-white hover:text-blue-500 font-bold px-8 py-5 rounded-full shadow-md transition-all text-lg">
                 Apply Now
               </Button>

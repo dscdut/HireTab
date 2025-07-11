@@ -3,8 +3,8 @@ import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'luc
 
 const Footer = () => {
   const quickLinks = [
-    { label: 'Về chúng tôi', href: '#' },
-    { label: 'Liên hệ', href: '#' },
+    { label: 'About Us', href: '#' },
+    { label: 'Contact', href: '#' },
   ]
   const socialLinks = [
     { icon: <Facebook className="w-5 h-5" />, href: '#' },
@@ -46,7 +46,7 @@ const Footer = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
           >
-            <h4 className="mb-4 text-lg font-semibold text-white">Liên hệ</h4>
+            <h4 className="mb-4 text-lg font-semibold text-white">Contact</h4>
             <ul className="space-y-4">
               <li className="flex items-center space-x-2"><Phone className="w-5 h-5" /><span>0385 573 708</span></li>
               <li className="flex items-center space-x-2"><Mail className="w-5 h-5" /><span>dsc.dut@gmail.com</span></li>
@@ -60,7 +60,7 @@ const Footer = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <h4 className="mb-4 text-lg font-semibold text-white">Truy cập nhanh</h4>
+            <h4 className="mb-4 text-lg font-semibold text-white">Quick Links</h4>
             <ul className="space-y-2">
               {quickLinks.map((link, index) => (
                 <li key={index}>
@@ -79,7 +79,7 @@ const Footer = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             viewport={{ once: true }}
           >
-            <h4 className="mb-4 text-lg font-semibold text-white">Liên kết</h4>
+            <h4 className="mb-4 text-lg font-semibold text-white">Links</h4>
             <div className="flex space-x-4">
               {socialLinks.map((link, index) => (
                 <a

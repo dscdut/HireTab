@@ -36,10 +36,10 @@ const Hero = () => {
               <span className="text-[#4285F4]">T</span>
             </div>
             <p className="mb-8 text-xl md:text-xl lg:text-xl text-gray-800 leading-relaxed drop-shadow-sm">
-            Là một thành viên trong mạng lưới Google Developer Groups on Campus (GDGoC) toàn cầu,
-              GDGoC-DUT luôn nỗ lực xây dựng một cộng đồng công nghệ lành mạnh, nơi kết nối các sinh
-              viên Đại học Đà Nẵng có cùng đam mê và định hướng phát triển trong lĩnh vực
-              công nghệ thông tin.
+              As a member of the global Google Developer Groups on Campus (GDGoC) network,
+              GDGoC-DUT is committed to building a healthy tech community, connecting students
+              at the University of Danang who share a passion and orientation for development in
+              the field of information technology.
             </p>
           </motion.div>
 

@@ -13,18 +13,18 @@ const ChallengesSection = () => {
           viewport={{ once: true }}
         >
           <h2 className="text-4xl font-extrabold text-gray-900 mb-6">
-            Chia sẻ thử thách của bạn!! <br />
+            Share your challenges!! <br />
           </h2>
           <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-            Cùng nhau, chúng ta sẽ khám phá:
+            Together, we will explore:
           </p>
           <ul className="space-y-4 text-gray-700 font-medium">
-            <li>🚀 Cơ hội học hỏi và phát triển kỹ năng công nghệ</li>
-            <li>🤝 Chiến lược mở rộng team và kết nối với cộng đồng kỹ thuật</li>
-            <li>🧠 Cách xây dựng dự án bền vững và phù hợp xu hướng tương lai</li>
+            <li>🚀 Opportunities to learn and develop technology skills</li>
+            <li>🤝 Strategies to expand your team and connect with the tech community</li>
+            <li>🧠 How to build sustainable projects that fit future trends</li>
           </ul>
           <button className="mt-8 px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition">
-            Tham gia cùng GDGoC
+            Join GDGoC
           </button>
         </motion.div>
 

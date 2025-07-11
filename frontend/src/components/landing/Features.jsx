@@ -10,7 +10,7 @@ const features = [
 		border: 'border-[#4285F4]',
 		title: 'Innovative Community',
 		description:
-			'Kết nối sinh viên trên toàn thành phố Đà Nẵng yêu thích công nghệ để cùng học hỏi và phát triển.',
+			'Connect students across Da Nang city who love technology to learn and grow together.',
 		icon: <img src={CommunityIcon} alt="Community" className="w-10 h-10" />,
 	},
 	{
@@ -18,7 +18,7 @@ const features = [
 		border: 'border-[#EA4335]',
 		title: 'Impactful Events',
 		description:
-			'Tổ chức workshop, tech talk và hackathon để chia sẻ kiến thức và nâng cao kỹ năng.',
+			'Organize workshops, tech talks, and hackathons to share knowledge and enhance skills.',
 		icon: <img src={EventIcon} alt="Event" className="w-10 h-10" />,
 	},
 	{
@@ -26,7 +26,7 @@ const features = [
 		border: 'border-[#FBBC05]',
 		title: 'Future Technologies',
 		description:
-			'Khám phá các công nghệ mới như AI, Cloud, Web3 và ứng dụng vào thực tiễn.',
+			'Explore new technologies like AI, Cloud, Web3 and apply them in practice.',
 		icon: <img src={TechnologyIcon} alt="Technology" className="w-10 h-10" />,
 	},
 	{
@@ -34,7 +34,7 @@ const features = [
 		border: 'border-[#34A853]',
 		title: 'Dynamic Culture',
 		description:
-			'Xây dựng môi trường sáng tạo, gắn kết và đầy năng lượng dành cho sinh viên công nghệ.',
+			'Build a creative, connected, and energetic environment for technology students.',
 		icon: <img src={CultureIcon} alt="Culture" className="w-10 h-10" />,
 	},
 ]
