@@ -16,7 +16,7 @@
     "build:babel": "babel ./src --out-dir dist --copy-files",
     "build": "npm run clean && npm run build:babel",
     "knex": "babel-node node_modules/knex/bin/cli.js --knexfile src/core/config/knexfile.config.js",
-    "db:reset": "yarn knex migrate:rollback && yarn knex migrate:latest && yarn knex seed:run"
+    "db:reset": "npm run knex migrate:rollback && npm run knex migrate:latest && npm run knex seed:run"
   },
   "dependencies": {
     "@sentry/node": "^7.64.0",
