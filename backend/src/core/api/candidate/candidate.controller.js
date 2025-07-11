@@ -2,7 +2,7 @@ import { ValidHttpResponse } from '../../../packages/handler/response/validHttp.
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from 'core/common/constants/default-params.constant';
 import { PaginationCandidateDto } from 'core/modules/candidate/dto/pagination-candidate.dto';
 import { CandidateService } from 'core/modules/candidate/services/candidate.service';
-import { CreateCandidateDto } from 'core/modules/candidate/dto';
+import { CreateCandidateDto, UpdateCandidateStatusDto } from 'core/modules/candidate/dto';
 class Controller {
     constructor() {
         this.service = CandidateService;
@@ -46,6 +46,14 @@ class Controller {
     
     deleteCandidateById = async req => {
         const data = await this.service.deleteCandidateById(req.params.id);
+        return ValidHttpResponse.toOkResponse(data);
+    }
+
+    updateCandidateStatus = async req => {
+    const data = await this.service.updateCandidateStatus(
+        req.params.id, 
+        UpdateCandidateStatusDto(req.body).status
+    );
         return ValidHttpResponse.toOkResponse(data);
     }
 }

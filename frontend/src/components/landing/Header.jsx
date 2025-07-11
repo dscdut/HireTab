@@ -44,12 +44,11 @@ const Header = () => {
 
   return (
     <motion.header
-       initial={{ y: -100 }}
-  animate={{ y: 0 }}
-  transition={{ duration: 0.5 }}
-  className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-    isScrolled ? 'bg-white/70 backdrop-blur-md shadow-lg' : 'bg-white/50 backdrop-blur-sm'
-  }`}
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5 }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/70 backdrop-blur-md shadow-lg' : 'bg-white/50 backdrop-blur-sm'
+        }`}
     >
       <div className="container px-4 mx-auto">
         <div className="flex items-center justify-between h-20">

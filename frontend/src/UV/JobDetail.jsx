@@ -95,14 +95,13 @@ export default function JobDetail() {
         <div className="container mx-auto px-6 max-w-4xl">
           <h2 className="text-2xl font-bold mb-6">About the Company</h2>
           <p className="text-gray-700 mb-4">
-            Google Developer Student Clubs (GDSC) là chương trình toàn cầu của Google Developers dành cho sinh viên đam
-            mê công nghệ tại các trường đại học, cao đẳng và các tổ chức giáo dục khác.
+            HireTab is a forward-thinking technology company committed to transforming the recruitment landscape. With a strong focus on innovation and user experience, we specialize in building modern, efficient, and scalable solutions that bridge the gap between job seekers and employers across various industries.
+          </p>
+          <p className="text-gray-700 mb-4">
+            At HireTab, we believe that finding the right opportunity should be seamless, and hiring the right talent should be effortless. Our platform is designed to simplify the hiring process, enhance communication, and foster meaningful connections between companies and candidates through intelligent matching algorithms, real-time collaboration tools, and a user-friendly interface.
           </p>
           <p className="text-gray-700">
-            Tụ hào là một trong những chapter của GDSC, Google Developer Student Club - Danang University of Science and
-            Technology (GDSC - DUT) là cộng đồng các bạn trẻ đam mê công nghệ cùng nhau học hỏi và xây dựng những giải
-            pháp nhằm giải quyết các vấn đề tại địa phương thông qua các sự kiện và hoạt động từ nguồn tài nguyên của
-            Google.
+            Our team is made up of passionate engineers, designers, and recruitment experts who are dedicated to driving positive change in the job market. Whether you're a growing startup or an established enterprise, HireTab empowers you to discover top talent faster and build stronger teams. We are constantly evolving, embracing new technologies, and listening to our users to create the most effective solutions for the future of work.
           </p>
         </div>
       </div>

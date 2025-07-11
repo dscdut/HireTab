@@ -15,5 +15,9 @@ export const path = {
     job_posting: '/hr/job-posting',
     job_detail: '/hr/job-detail/:id',
     dashboard: '/hr/job-dashboard/:jobId',
+    candidates_manage: '/hr/manage-candidates',
+    company_manage: '/hr/manage-company',
+    settings: '/hr/settings',
+    help_center: '/hr/help-center',
   }
 }

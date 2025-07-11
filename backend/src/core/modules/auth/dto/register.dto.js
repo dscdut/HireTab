@@ -9,7 +9,6 @@ ApiDocument.addModel('RegisterDto', {
     birthday: SwaggerDocument.ApiProperty({ type: 'string', format: 'date' }),
     phone_number: SwaggerDocument.ApiProperty({ type: 'string' }),
     address: SwaggerDocument.ApiProperty({ type: 'string', required: false, maxLength: 500 }), 
-    role_id: SwaggerDocument.ApiProperty({ type: 'number', default: 3 }),
 });
 
 
@@ -21,6 +20,5 @@ export const RegisterDto = body => ({
     birthday: body.birthday,
     phone_number: body.phone_number,
     address: body.address ?? null, 
-    role_id: body.role_id ?? 3,
 });
 
