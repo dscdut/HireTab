@@ -3,20 +3,19 @@
 import { useState, useMemo } from "react"
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query"
 import { XCircle } from "lucide-react"
-import { useParams } from "react-router-dom"
-import { candidateApi } from "@/core/services/candidate.service"
+import { manageCandidateApi } from "./test-candidate-services/manageCandidateApi"
 import { toast } from "react-toastify"
 
 import { CANDIDATE_STATUSES } from "./job-dashboard/constants/candidateConstants"
-import { applyFilters, getAvailableStatusTransitions, getNextStatus } from "../HR/job-dashboard/utils/candidateUtils"
+import { applyFilters, getAvailableStatusTransitions, getNextStatus } from "./job-dashboard/utils/candidateUtils"
 
 import DashboardHeader from "./job-dashboard/DashboardHeader"
 import BulkActionsBar from "./job-dashboard/BulkActionsBar"
-import CandidateTable from "./job-dashboard/CandidateTable"
+import CandidateTableWithJobName from "./job-dashboard/CandidateTableWithJobName"
 import FilterModal from "./job-dashboard/FilterModal"
 import EmailModal from "./job-dashboard/EmailModal"
 
-export default function JobPostingDashboard() {
+export default function ManageCandidates() {
   const [activeTab, setActiveTab] = useState(CANDIDATE_STATUSES.ALL)
   const [searchQuery, setSearchQuery] = useState("")
   const [sortConfig, setSortConfig] = useState({ key: "createdAt", direction: "desc" })
@@ -55,38 +54,29 @@ export default function JobPostingDashboard() {
   const [isGeneratingContent, setIsGeneratingContent] = useState(false)
 
   const queryClient = useQueryClient()
-  const { jobId } = useParams()
 
   const {
     data: candidates = [],
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["candidates", jobId],
+    queryKey: ["allCandidates"],
     queryFn: async () => {
-      if (!jobId) {
-        console.error("Job ID is undefined")
-        return []
-      }
       try {
-        const response = await candidateApi.listCandidate(jobId)
-        if (!Array.isArray(response)) {
-          return [response]
-        }
+        const response = await manageCandidateApi.getAllCandidates()
         return response || []
       } catch (error) {
-        console.error("Failed to fetch candidates:", error)
+        console.error("Failed to fetch all candidates:", error)
         throw error
       }
     },
-    enabled: !!jobId,
   })
 
   const bulkUpdateStatusMutation = useMutation({
     mutationFn: ({ candidateIds, status, currentStatuses }) =>
-      candidateApi.bulkUpdateStatus(candidateIds, { status, currentStatuses }),
+      manageCandidateApi.bulkUpdateStatus(candidateIds, { status, currentStatuses }),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries(["candidates", jobId])
+      queryClient.invalidateQueries(["allCandidates"])
       toast.success(`Updated ${variables.candidateIds.length} candidates to ${variables.status}`)
       setSelectedCandidates(new Set())
     },
@@ -95,8 +85,6 @@ export default function JobPostingDashboard() {
       toast.error("Failed to update candidates")
     },
   })
-
-  const jobName = candidates.length > 0 ? candidates[0].jobPostingName : "Job Position"
 
   const toggleCandidateSelection = (candidateId) => {
     const newSelected = new Set(selectedCandidates)
@@ -127,7 +115,8 @@ export default function JobPostingDashboard() {
         (candidate) =>
           candidate.name.toLowerCase().includes(query) ||
           candidate.email.toLowerCase().includes(query) ||
-          candidate.phone?.toLowerCase().includes(query),
+          candidate.phone?.toLowerCase().includes(query) ||
+          candidate.jobPostingName.toLowerCase().includes(query),
       )
     }
     result = applyFilters(result, filters, filterLogic)
@@ -206,7 +195,7 @@ export default function JobPostingDashboard() {
       to: emailAddresses,
       cc: "",
       bcc: "",
-      subject: `Regarding your application for ${jobName}`,
+      subject: `Regarding your job applications`,
       body: "",
     })
     setEmailModalState("normal")
@@ -250,28 +239,12 @@ export default function JobPostingDashboard() {
           '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>Sending...'
       }
 
-      const response = await fetch(import.meta.env.VITE_EMAIL_WEBHOOK_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: emailData.to,
-          subject: emailData.subject,
-          body: emailData.body,
-          cc: emailData.cc || "",
-          bcc: emailData.bcc || "",
-        }),
-      })
+      // Simulate email sending
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      if (response.ok) {
-        toast.success("Email sent successfully!")
-        closeEmailModal()
-        setSelectedCandidates(new Set())
-      } else {
-        const errorData = await response.json().catch(() => ({ message: "Unknown error" }))
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
-      }
+      toast.success("Email sent successfully!")
+      closeEmailModal()
+      setSelectedCandidates(new Set())
     } catch (error) {
       console.error("Error sending email:", error)
       toast.error(`Failed to send email: ${error.message}`)
@@ -290,40 +263,26 @@ export default function JobPostingDashboard() {
     setIsGeneratingContent(true)
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: `Write a professional email based on this prompt: "${quickReplyPrompt}". The email should be polite, professional, and suitable for business communication. Context: This is regarding a job application for ${jobName}.`,
-                  },
-                ],
-              },
-            ],
-          }),
-        },
-      )
+      // Simulate AI content generation
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      const data = await response.json()
-      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-        const generatedContent = data.candidates[0].content.parts[0].text
-        setEmailData({ ...emailData, body: generatedContent })
-        setShowQuickReplyPrompt(false)
-        setQuickReplyPrompt("")
-      } else {
-        console.error("Unexpected API response:", data)
-        alert("Failed to generate content. Please try again.")
-      }
+      const generatedContent = `Dear Candidate,
+
+Thank you for your interest in our open positions. We have reviewed your application and would like to provide you with an update.
+
+${quickReplyPrompt}
+
+We appreciate your time and interest in joining our team.
+
+Best regards,
+HR Team`
+
+      setEmailData({ ...emailData, body: generatedContent })
+      setShowQuickReplyPrompt(false)
+      setQuickReplyPrompt("")
     } catch (error) {
       console.error("Error generating content:", error)
-      alert("Failed to generate content. Please check your connection and try again.")
+      alert("Failed to generate content. Please try again.")
     } finally {
       setIsGeneratingContent(false)
     }
@@ -390,7 +349,7 @@ export default function JobPostingDashboard() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading candidates...</p>
+          <p className="text-gray-600 font-medium">Loading all candidates...</p>
         </div>
       </div>
     )
@@ -411,7 +370,7 @@ export default function JobPostingDashboard() {
     <div className="min-h-screen bg-gray-50 font-['Inter',system-ui,sans-serif]">
       <div className="bg-gray-50 min-h-screen">
         <DashboardHeader
-          jobName={jobName}
+          jobName="All Candidates Management"
           candidatesCount={candidates.length}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -433,7 +392,7 @@ export default function JobPostingDashboard() {
             isLoading={bulkUpdateStatusMutation.isLoading}
           />
 
-          <CandidateTable
+          <CandidateTableWithJobName
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             candidates={candidates}
