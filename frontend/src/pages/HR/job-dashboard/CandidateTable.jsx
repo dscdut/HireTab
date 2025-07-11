@@ -1,6 +1,7 @@
 "use client"
 
-import { ChevronDown, Users, Calendar, FileText, Mail } from "lucide-react"
+import { useState } from "react"
+import { ChevronDown, Users, Calendar, FileText, Mail, ChevronLeft, ChevronRight } from "lucide-react"
 import { CANDIDATE_STATUSES } from "./constants/candidateConstants"
 import { getStatusConfig, getNextStatus, getStatusButtonClass, formatDate } from "./utils/candidateUtils"
 import StatusBadge from "./StatusBadge"
@@ -17,6 +18,9 @@ export default function CandidateTable({
   setSortConfig,
   onStatusTransition,
 }) {
+  const [currentPage, setCurrentPage] = useState(1)
+  const rowsPerPage = 10
+
   const tabs = [
     CANDIDATE_STATUSES.ALL,
     CANDIDATE_STATUSES.IN_REVIEW,
@@ -36,6 +40,132 @@ export default function CandidateTable({
     { key: "phone", label: "Phone", icon: null },
   ]
 
+  // Pagination logic
+  const totalPages = Math.ceil(sortedCandidates.length / rowsPerPage)
+  const startIndex = (currentPage - 1) * rowsPerPage
+  const endIndex = startIndex + rowsPerPage
+  const currentCandidates = sortedCandidates.slice(startIndex, endIndex)
+
+  // Reset to first page when tab changes
+  const handleTabChange = (tab) => {
+    setActiveTab(tab)
+    setCurrentPage(1)
+  }
+
+  // Pagination component
+  const PaginationComponent = () => {
+    if (sortedCandidates.length <= rowsPerPage) return null
+
+    const getPageNumbers = () => {
+      const pages = []
+      const maxVisiblePages = 5
+      
+      if (totalPages <= maxVisiblePages) {
+        // Show all pages if total pages is less than or equal to max visible
+        for (let i = 1; i <= totalPages; i++) {
+          pages.push(i)
+        }
+      } else {
+        // Show first page
+        pages.push(1)
+        
+        // Calculate start and end of middle pages
+        let startPage = Math.max(2, currentPage - 1)
+        let endPage = Math.min(totalPages - 1, currentPage + 1)
+        
+        // Adjust if we're near the beginning or end
+        if (currentPage <= 3) {
+          endPage = Math.min(4, totalPages - 1)
+        }
+        if (currentPage >= totalPages - 2) {
+          startPage = Math.max(2, totalPages - 3)
+        }
+        
+        // Add ellipsis if needed
+        if (startPage > 2) {
+          pages.push("...")
+        }
+        
+        // Add middle pages
+        for (let i = startPage; i <= endPage; i++) {
+          pages.push(i)
+        }
+        
+        // Add ellipsis if needed
+        if (endPage < totalPages - 1) {
+          pages.push("...")
+        }
+        
+        // Show last page
+        if (totalPages > 1) {
+          pages.push(totalPages)
+        }
+      }
+      
+      return pages
+    }
+
+    return (
+      <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div className="flex items-center text-sm text-gray-600">
+          <span>
+            Showing {startIndex + 1} to {Math.min(endIndex, sortedCandidates.length)} of {sortedCandidates.length} candidates
+          </span>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          {/* Previous button */}
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${
+              currentPage === 1
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span>Previous</span>
+          </button>
+
+          {/* Page numbers */}
+          <div className="flex items-center space-x-1">
+            {getPageNumbers().map((page, index) => (
+              <button
+                key={index}
+                onClick={() => typeof page === 'number' && setCurrentPage(page)}
+                disabled={page === "..."}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  page === currentPage
+                    ? "bg-blue-600 text-white"
+                    : page === "..."
+                    ? "text-gray-400 cursor-default"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+
+          {/* Next button */}
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${
+              currentPage === totalPages
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <span>Next</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Tabs */}
@@ -54,7 +184,7 @@ export default function CandidateTable({
                   ? "text-blue-600 border-blue-600 bg-white"
                   : "text-gray-600 border-transparent hover:text-gray-900 hover:bg-gray-100"
                   }`}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => handleTabChange(tab)}
               >
                 {tab !== CANDIDATE_STATUSES.ALL && <StatusIcon className="w-4 h-4" />}
                 <span>{tab}</span>
@@ -78,7 +208,7 @@ export default function CandidateTable({
               <th className="px-6 py-4 text-left">
                 <input
                   type="checkbox"
-                  checked={selectedCandidates.size === sortedCandidates.length && sortedCandidates.length > 0}
+                  checked={selectedCandidates.size === currentCandidates.length && currentCandidates.length > 0}
                   onChange={toggleSelectAll}
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
@@ -115,8 +245,8 @@ export default function CandidateTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {sortedCandidates.length > 0 ? (
-              sortedCandidates.map((candidate) => (
+            {currentCandidates.length > 0 ? (
+              currentCandidates.map((candidate) => (
                 <tr
                   key={candidate.id}
                   className={`hover:bg-gray-50 transition-colors ${selectedCandidates.has(candidate.id) ? "bg-blue-50" : ""
@@ -204,6 +334,9 @@ export default function CandidateTable({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      <PaginationComponent />
     </div>
   )
 }

@@ -239,12 +239,28 @@ export default function ManageCandidates() {
           '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>Sending...'
       }
 
-      // Simulate email sending
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const response = await fetch(import.meta.env.VITE_EMAIL_WEBHOOK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: emailData.to,
+          subject: emailData.subject,
+          body: emailData.body,
+          cc: emailData.cc || "",
+          bcc: emailData.bcc || "",
+        }),
+      })
 
-      toast.success("Email sent successfully!")
-      closeEmailModal()
-      setSelectedCandidates(new Set())
+      if (response.ok) {
+        toast.success("Email sent successfully!")
+        closeEmailModal()
+        setSelectedCandidates(new Set())
+      } else {
+        const errorData = await response.json().catch(() => ({ message: "Unknown error" }))
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+      }
     } catch (error) {
       console.error("Error sending email:", error)
       toast.error(`Failed to send email: ${error.message}`)
@@ -263,26 +279,40 @@ export default function ManageCandidates() {
     setIsGeneratingContent(true)
 
     try {
-      // Simulate AI content generation
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `Write a professional email based on this prompt: "${quickReplyPrompt}". The email should be polite, professional, and suitable for business communication. Context: This is regarding job applications for multiple positions.`,
+                  },
+                ],
+              },
+            ],
+          }),
+        },
+      )
 
-      const generatedContent = `Dear Candidate,
-
-Thank you for your interest in our open positions. We have reviewed your application and would like to provide you with an update.
-
-${quickReplyPrompt}
-
-We appreciate your time and interest in joining our team.
-
-Best regards,
-HR Team`
-
-      setEmailData({ ...emailData, body: generatedContent })
-      setShowQuickReplyPrompt(false)
-      setQuickReplyPrompt("")
+      const data = await response.json()
+      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+        const generatedContent = data.candidates[0].content.parts[0].text
+        setEmailData({ ...emailData, body: generatedContent })
+        setShowQuickReplyPrompt(false)
+        setQuickReplyPrompt("")
+      } else {
+        console.error("Unexpected API response:", data)
+        alert("Failed to generate content. Please try again.")
+      }
     } catch (error) {
       console.error("Error generating content:", error)
-      alert("Failed to generate content. Please try again.")
+      alert("Failed to generate content. Please check your connection and try again.")
     } finally {
       setIsGeneratingContent(false)
     }
@@ -346,10 +376,10 @@ HR Team`
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading all candidates...</p>
+          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          <p className="text-gray-600 text-sm">Loading all candidates...</p>
         </div>
       </div>
     )
@@ -357,18 +387,18 @@ HR Team`
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 font-medium">Error loading candidates!</p>
+          <XCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+          <p className="text-red-600 text-sm">Error loading candidates!</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 font-['Inter',system-ui,sans-serif]">
-      <div className="bg-gray-50 min-h-screen">
+    <div className="h-screen bg-gray-50 font-['Inter',system-ui,sans-serif]">
+      <div className="bg-gray-50 h-full">
         <DashboardHeader
           jobName="All Candidates Management"
           candidatesCount={candidates.length}
@@ -383,7 +413,7 @@ HR Team`
           onSendEmail={handleSendEmail}
         />
 
-        <div className="px-6 py-6">
+        <div className="px-3 py-2">
           <BulkActionsBar
             selectedCount={selectedCandidates.size}
             availableTransitions={availableTransitions}
