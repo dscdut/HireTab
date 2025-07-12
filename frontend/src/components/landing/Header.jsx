@@ -37,29 +37,33 @@ const Header = () => {
 
   const menuItems = [
     { label: 'Home', href: '#' },
-    { label: 'Features', href: '#features' },
-    { label: 'How It Works', href: '#how-it-works' },
-    { label: 'Testimonials', href: '#testimonials' }
+    { label: 'About', href: '#about' },
+    { label: 'Events', href: '#events' },
+    { label: 'Contact', href: '#contact' }
   ]
 
   return (
     <motion.header
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/70 backdrop-blur-md shadow-lg' : 'bg-white/50 backdrop-blur-sm'
-        }`}
-    >
+  initial={{ y: -100 }}
+  animate={{ y: 0 }}
+  transition={{ duration: 0.2 }}
+  className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    isScrolled
+      ? 'bg-white/90 backdrop-blur-md shadow-lg'
+      : 'bg-white/40 backdrop-blur-sm'
+  }`}
+>
       <div className="container px-4 mx-auto">
-        <div className="flex items-center justify-between h-20">
+        <div className={`flex items-center justify-between transition-all duration-300
+      ${isScrolled ? 'h-16 py-0' : 'h-24 py-4'}`}>
           {/* Logo */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center"
+            className="flex items-center transition-all duration-300"
           >
-            <Logo />
+    <Logo className={`transition-all duration-300 ${isScrolled ? 'w-10 h-10' : 'w-16 h-16'}`} />
           </motion.div>
 
           {/* Desktop Menu */}
@@ -67,65 +71,23 @@ const Header = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="items-center hidden space-x-8 md:flex"
+            className="items-center hidden space-x-10 md:flex"
           >
             {menuItems.map((item, index) => (
               <motion.a
                 key={index}
                 href={item.href}
                 whileHover={{ scale: 1.05 }}
-                className="text-gray-600 transition-colors hover:text-blue-600"
+                className="text-gray-700 transition-colors hover:text-blue-600 text-xl font-bold px-2 py-1"
               >
                 {item.label}
               </motion.a>
             ))}
-
-            {user ? (
-              <div className="relative">
-                <div
-                  className="flex items-center space-x-2 cursor-pointer"
-                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                >
-                  <div className="flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full">
-                    {user.avatar ? (
-                      <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="object-cover w-full h-full rounded-full"
-                      />
-                    ) : (
-                      <User className="w-5 h-5" />
-                    )}
-                  </div>
-                  <span className="text-sm font-medium text-gray-600">{user.name}</span>
-                </div>
-
-                {/* Dropdown Menu */}
-                <AnimatePresence>
-                  {isProfileMenuOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute right-0 z-50 w-48 mt-2 bg-white rounded-md shadow-lg"
-                    >
-                      <button
-                        onClick={handleLogout}
-                        className="w-full px-4 py-2 text-sm text-left text-gray-600 hover:bg-gray-100"
-                      >
-                        <LogOut className="w-4 h-4 mr-2 inline-block" />
-                        Logout
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ) : (
-              <Link to="/login">
-                <Button className="bg-blue-600 hover:bg-blue-700">Sign In</Button>
-              </Link>
-            )}
+            <a href="/candidate/job" className="ml-4">
+              <Button className="bg-blue-600 text-white hover:bg-white hover:text-blue-500 font-bold px-8 py-5 rounded-full shadow-md transition-all text-lg">
+                Apply Now
+              </Button>
+            </a>
           </motion.nav>
 
           {/* Mobile Menu Button */}

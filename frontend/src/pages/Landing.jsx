@@ -1,7 +1,7 @@
 import Hero from '@/components/landing/Hero'
 import Features from '@/components/landing/Features'
 import HowItWorks from '@/components/landing/HowItWorks'
-import Testimonials from '@/components/landing/Testimonials'
+import Testimonials from '@/components/landing/ProductShowcase'
 import CTA from '@/components/landing/CTA'
 
 const Landing = () => {
