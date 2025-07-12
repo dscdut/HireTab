@@ -17,9 +17,32 @@ class JobService {
         const jobPosting = await this.repository.create(jobPostingData);
         return jobPosting;
     }
+
     async getListJobOpening() {
         const jobOpenings = await this.repository.findAll();
         return jobOpenings;
+    }
+
+    async updateOne(id, jobPostingData) {
+        const updatedJob = await this.repository.update(id, jobPostingData);
+        if (!updatedJob || updatedJob.length === 0) {
+            throw new Error('Job posting not found or update failed');
+        }
+        return updatedJob[0];
+    }
+    async deleteOne(id) {
+        const deletedJob = await this.repository.delete(id);
+        if (!deletedJob || deletedJob.length === 0) {
+            throw new Error('Job posting not found or delete failed');
+        }
+        return deletedJob[0];
+    }
+    async deleteJobById(id) {
+        const result = await this.repository.deleteById(id);
+        if (!result || result === 0) {
+            throw new Error('Job posting not found');
+        }
+        return { message: "Delete success" };
     }
 }
 
