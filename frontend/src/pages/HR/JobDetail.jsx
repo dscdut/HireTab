@@ -54,21 +54,21 @@ export default function JobDetail() {
   }
 
   return (
-     <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Hero section with blue overlay */}
       <div className="relative">
-        <div className="absolute inset-0 bg-blue-600/80 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-700 via-blue-600/80 to-blue-400/80 z-10" />
         <div
-          className="relative bg-cover bg-center h-[400px]"
+          className="relative bg-cover bg-center h-[340px] md:h-[420px]"
           style={{ backgroundImage: "url('https://github.com/meishenry/HireNova/blob/main/%E1%BB%A8ng%20Vi%C3%AAn/M%C3%B4%20t%E1%BA%A3%20c%C3%B4ng%20vi%E1%BB%87c%20khi%20ch%C6%B0a%20apply%20(%E1%BB%A9ng%20vi%C3%AAn)/images/main-image.jpg?raw=true')" }}
         >
           {/* Navigation */}
-          <div className="relative z-20 p-6">
-            <button className="flex items-center text-white hover:text-blue-100 transition"
+          <div className="relative z-20 p-6 flex items-center justify-between">
+            <button className="flex items-center text-white hover:text-blue-100 transition text-lg font-medium bg-blue-700/40 px-4 py-2 rounded-lg shadow"
               onClick={() => navigate(-1)}
             >
               <ArrowLeft className="mr-2 h-5 w-5" />
-              <span>Open Positions</span>
+              <span>Back to Jobs</span>
             </button>
           </div>
 
@@ -84,6 +84,17 @@ export default function JobDetail() {
              onClick={() => navigate(`/hr/job-dashboard/${job?.id}`)}>
               View List Candidate
             </button>
+          </div>
+          {/* Job Title and Info */}
+          <div className="relative z-20 flex flex-col justify-center h-full px-6 pb-10 md:pb-16 max-w-4xl mx-auto">
+            <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-lg">{job.title}</h1>
+            <div className="flex flex-wrap items-center gap-3 text-white text-lg font-medium mb-2">
+              <span className="bg-blue-900/60 px-3 py-1 rounded-full text-base">{job.location}</span>
+              <span className="bg-blue-900/60 px-3 py-1 rounded-full text-base">Full-Time</span>
+              <span className="bg-blue-900/60 px-3 py-1 rounded-full text-base">{job.level || 'Mid-Senior Level'}</span>
+              <span className="bg-blue-900/60 px-3 py-1 rounded-full text-base">{job.industryName}</span>
+              <span className="bg-red-500/80 px-3 py-1 rounded-full text-base">{calculateDaysLeft(job.endTime)}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -147,31 +158,28 @@ export default function JobDetail() {
             </ul>
           </div>
 
+          {/* Right: Job Info Card */}
           <div className="md:col-span-1">
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold mb-4">Job Details</h3>
-
-              <div className="mb-4">
+            <div className="bg-white rounded-2xl shadow-lg p-8 flex flex-col gap-6 sticky top-32">
+              <h3 className="text-xl font-bold mb-2 text-blue-900">Job Info</h3>
+              <div>
                 <p className="text-gray-500 text-sm">Industry</p>
+
                 <p className="font-medium">{getJobProperty('industryName', 'Not specified')}</p>
               </div>
-
-              <div className="mb-4">
+              <div>
                 <p className="text-gray-500 text-sm">Job Level</p>
                 <p className="font-medium">{getJobProperty('level', 'Mid-Senior Level')}</p>
               </div>
-
-              <div className="mb-4">
+              <div>
                 <p className="text-gray-500 text-sm">Employment Type</p>
                 <p className="font-medium">{getJobProperty('employmentType', 'Full-Time')}</p>
               </div>
-
-              <div className="mb-4">
+              <div>
                 <p className="text-gray-500 text-sm">Salary Range</p>
                 <p className="font-medium">{formatSalary(job?.salaryMin, job?.salaryMax)}</p>
               </div>
-
-              <div className="mb-4">
+              <div>
                 <p className="text-gray-500 text-sm">Status</p>
                 <p className="font-medium">{getJobProperty('status', 'Open')}</p>
               </div>
@@ -182,6 +190,10 @@ export default function JobDetail() {
                   View List Candidate
                 </button>
               </div>
+              <button className="w-full bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 text-white py-3 rounded-xl font-bold text-lg shadow transition"
+                onClick={() => navigate(`/hr/job-dashboard/${job.id}`)}>
+                View Candidates
+              </button>
             </div>
           </div>
         </div>
