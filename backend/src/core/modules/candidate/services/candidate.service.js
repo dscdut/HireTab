@@ -49,6 +49,22 @@ class Service {
         return { message: "Delete success" };
     }
 
+    async updateCandidateStatus(id, status) {
+        const validStatuses = ['Interview', 'In-Review', 'Hired', 'Rejected'];
+        if (!validStatuses.includes(status)) {
+            throw new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+        }
+
+        const statusCandidate = await this.repository.updateCandidateStatus(id, status);
+        if (!statusCandidate || statusCandidate.length === 0) {
+            throw new Error('Candidate not found or already deleted');
+        }
+        
+        return {
+            message: "Status updated successfully",
+            candidate: statusCandidate[0]
+        };
+    }
 }
 
 export const CandidateService = new Service();

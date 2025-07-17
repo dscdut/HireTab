@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
+import BannerImg from '@/assets/images/banner.jpg'
 
 const Hero = () => {
   return (
@@ -12,39 +12,50 @@ const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="container z-10 px-4 mx-auto">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="mb-6 text-5xl font-bold text-gray-900 md:text-7xl"
-          >
-            Find Talent
-            <span className="text-blue-600"> Smarter</span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="mb-8 text-xl text-gray-600 md:text-2xl"
-          >
-            Automatically screen resumes with AI, save time, and find the best candidates
-          </motion.p>
-
+      <div className="z-10 w-full">
+        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-8 md:gap-16 w-full max-w-none mx-auto sm:px-6 lg:px-8">
+          {/* Left: Description */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-col justify-center gap-4 sm:flex-row"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex-1 flex flex-col justify-center text-center md:text-left md:pl-16 max-w-2xl md:max-w-3xl"
           >
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-              Try for Free
-            </Button>
-            <Button size="lg" variant="outline">
-              View Demo
-            </Button>
+            {/* <h1 className="mb-4 lg:text-6xl md:text-xl font-extrabold text-gray-900 leading-tight">
+              
+            </h1> */}
+            <div className="mb-6 flex flex-wrap justify-center md:justify-start items-center gap-2 text-6xl md:text-6xl font-extrabold tracking-wide drop-shadow-md">
+              <span className="text-[#4285F4]">G</span>
+              <span className="text-[#EA4335]">D</span>
+              <span className="text-[#FBBC05]">G</span>
+              <span className="text-[#34A853]">o</span>
+              <span className="text-[#4285F4]">C</span>
+              <span className="text-[#EA4335]">-</span>
+              <span className="text-[#FBBC05]">D</span>
+              <span className="text-[#34A853]">U</span>
+              <span className="text-[#4285F4]">T</span>
+            </div>
+            <p className="mb-8 text-xl md:text-xl lg:text-xl text-gray-800 leading-relaxed drop-shadow-sm">
+              As a member of the global Google Developer Groups on Campus (GDGoC) network,
+              GDGoC-DUT is committed to building a healthy tech community, connecting students
+              at the University of Danang who share a passion and orientation for development in
+              the field of information technology.
+            </p>
+          </motion.div>
+
+          {/* Right: Image */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="flex-[1.5] flex items-center justify-center mb-8 md:mb-0"
+          >
+            <img
+              src={BannerImg}
+              alt="GDGoC-DUT Banner"
+              className="h-auto object-cover rounded-3xl shadow-2xl border-4 border-white transition-transform duration-500 hover:scale-105"
+              style={{background:'#f8fafc', width: '80%',}}
+            />
           </motion.div>
         </div>
       </div>

@@ -3,7 +3,7 @@ import { RecordId, page, size, keyword} from '../../common/swagger';
 import { CandidateController } from './candidate.controller';
 import { hasHRRole } from 'core/modules/auth/guard';
 import { RecordIdInterceptor } from 'core/modules/interceptor/recordId/record-id.interceptor';
-import { CreateCandidateInterceptor } from 'core/modules/candidate/interceptor';
+import { CreateCandidateInterceptor, UpdateCandidateStatusInterceptor } from 'core/modules/candidate/interceptor';
 
 export const CandidateResolver = Module.builder()
     .addPrefix({
@@ -52,4 +52,14 @@ export const CandidateResolver = Module.builder()
             controller: CandidateController.deleteCandidateById,
             preAuthorization: true,
         },
+        {
+            route: '/:id/status',
+            method: 'put',
+            params: [RecordId],
+            body: 'UpdateCandidateStatusDto',
+            guards: [hasHRRole],
+            interceptors: [RecordIdInterceptor, UpdateCandidateStatusInterceptor],
+            controller: CandidateController.updateCandidateStatus,
+            preAuthorization: true,
+        }
     ]);
