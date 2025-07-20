@@ -7,9 +7,15 @@ export const jobApi = {
     return axiosClient.get(API_LISTJOB_URL)
   },
    getJobById(id) {
-    return axiosClient.get(`/jobs/open/${id}`); // Lấy chi tiết công việc theo id
+    return axiosClient.get(`/jobs/open/${id}`); 
   },
   createJob(params) {
-    return axiosClient.post(API_CREATEJOB_URL, params) // Tạo công việc mới
+    return axiosClient.post(API_CREATEJOB_URL, params) 
   },
+  deleteJob(id) {
+    return axiosClient.delete(`/jobs/${id}`) 
+  },
+  updateJob(id, params) {
+    return axiosClient.put(`/jobs/${id}`, params)
+  }
 }

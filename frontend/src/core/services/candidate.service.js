@@ -19,5 +19,6 @@ export const candidateApi = {
             if (err.request) throw new Error("No response from server")
             throw new Error(err.message)
         }
-    }
+    },
+    updateStatus: (id, status) => axiosClient.patch(`/candidates/${id}/status`, { status }),
 }
