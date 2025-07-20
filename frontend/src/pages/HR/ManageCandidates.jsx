@@ -3,20 +3,19 @@
 import { useState, useMemo } from "react"
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query"
 import { XCircle } from "lucide-react"
-import { useParams } from "react-router-dom"
-import { candidateApi } from "@/core/services/candidate.service"
+import { manageCandidateApi } from "./test-candidate-services/manageCandidateApi"
 import { toast } from "react-toastify"
 
 import { CANDIDATE_STATUSES } from "./job-dashboard/constants/candidateConstants"
-import { applyFilters, getAvailableStatusTransitions, getNextStatus } from "../HR/job-dashboard/utils/candidateUtils"
+import { applyFilters, getAvailableStatusTransitions, getNextStatus } from "./job-dashboard/utils/candidateUtils"
 
 import DashboardHeader from "./job-dashboard/DashboardHeader"
 import BulkActionsBar from "./job-dashboard/BulkActionsBar"
-import CandidateTable from "./job-dashboard/CandidateTable"
+import CandidateTableWithJobName from "./job-dashboard/CandidateTableWithJobName"
 import FilterModal from "./job-dashboard/FilterModal"
 import EmailModal from "./job-dashboard/EmailModal"
 
-export default function JobPostingDashboard() {
+export default function ManageCandidates() {
   const [activeTab, setActiveTab] = useState(CANDIDATE_STATUSES.ALL)
   const [searchQuery, setSearchQuery] = useState("")
   const [sortConfig, setSortConfig] = useState({ key: "createdAt", direction: "desc" })
@@ -55,38 +54,29 @@ export default function JobPostingDashboard() {
   const [isGeneratingContent, setIsGeneratingContent] = useState(false)
 
   const queryClient = useQueryClient()
-  const { jobId } = useParams()
 
   const {
     data: candidates = [],
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["candidates", jobId],
+    queryKey: ["allCandidates"],
     queryFn: async () => {
-      if (!jobId) {
-        console.error("Job ID is undefined")
-        return []
-      }
       try {
-        const response = await candidateApi.listCandidate(jobId)
-        if (!Array.isArray(response)) {
-          return [response]
-        }
+        const response = await manageCandidateApi.getAllCandidates()
         return response || []
       } catch (error) {
-        console.error("Failed to fetch candidates:", error)
+        console.error("Failed to fetch all candidates:", error)
         throw error
       }
     },
-    enabled: !!jobId,
   })
 
   const bulkUpdateStatusMutation = useMutation({
     mutationFn: ({ candidateIds, status, currentStatuses }) =>
-      candidateApi.bulkUpdateStatus(candidateIds, { status, currentStatuses }),
+      manageCandidateApi.bulkUpdateStatus(candidateIds, { status, currentStatuses }),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries(["candidates", jobId])
+      queryClient.invalidateQueries(["allCandidates"])
       toast.success(`Updated ${variables.candidateIds.length} candidates to ${variables.status}`)
       setSelectedCandidates(new Set())
     },
@@ -95,8 +85,6 @@ export default function JobPostingDashboard() {
       toast.error("Failed to update candidates")
     },
   })
-
-  const jobName = candidates.length > 0 ? candidates[0].jobPostingName : "Job Position"
 
   const toggleCandidateSelection = (candidateId) => {
     const newSelected = new Set(selectedCandidates)
@@ -127,7 +115,8 @@ export default function JobPostingDashboard() {
         (candidate) =>
           candidate.name.toLowerCase().includes(query) ||
           candidate.email.toLowerCase().includes(query) ||
-          candidate.phone?.toLowerCase().includes(query),
+          candidate.phone?.toLowerCase().includes(query) ||
+          candidate.jobPostingName.toLowerCase().includes(query),
       )
     }
     result = applyFilters(result, filters, filterLogic)
@@ -206,7 +195,7 @@ export default function JobPostingDashboard() {
       to: emailAddresses,
       cc: "",
       bcc: "",
-      subject: `Regarding your application for ${jobName}`,
+      subject: `Regarding your job applications`,
       body: "",
     })
     setEmailModalState("normal")
@@ -302,7 +291,7 @@ export default function JobPostingDashboard() {
               {
                 parts: [
                   {
-                    text: `Write a professional email based on this prompt: "${quickReplyPrompt}". The email should be polite, professional, and suitable for business communication. Context: This is regarding a job application for ${jobName}.`,
+                    text: `Write a professional email based on this prompt: "${quickReplyPrompt}". The email should be polite, professional, and suitable for business communication. Context: This is regarding job applications for multiple positions.`,
                   },
                 ],
               },
@@ -387,10 +376,10 @@ export default function JobPostingDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading candidates...</p>
+          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          <p className="text-gray-600 text-sm">Loading all candidates...</p>
         </div>
       </div>
     )
@@ -398,20 +387,20 @@ export default function JobPostingDashboard() {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 font-medium">Error loading candidates!</p>
+          <XCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+          <p className="text-red-600 text-sm">Error loading candidates!</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 font-['Inter',system-ui,sans-serif]">
-      <div className="bg-gray-50 min-h-screen">
+    <div className="h-screen bg-gray-50 font-['Inter',system-ui,sans-serif]">
+      <div className="bg-gray-50 h-full">
         <DashboardHeader
-          jobName={jobName}
+          jobName="All Candidates Management"
           candidatesCount={candidates.length}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -424,7 +413,7 @@ export default function JobPostingDashboard() {
           onSendEmail={handleSendEmail}
         />
 
-        <div className="px-6 py-6">
+        <div className="px-3 py-2">
           <BulkActionsBar
             selectedCount={selectedCandidates.size}
             availableTransitions={availableTransitions}
@@ -433,7 +422,7 @@ export default function JobPostingDashboard() {
             isLoading={bulkUpdateStatusMutation.isLoading}
           />
 
-          <CandidateTable
+          <CandidateTableWithJobName
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             candidates={candidates}
