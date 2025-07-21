@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react"
 import { useState } from "react"
 import ModalFormCandidate from './Modal/ModalFormCandidate'
 import ChatWootWidget from '@/components/ui/chatwoot-widget';
+import { marked } from "marked";
 
 export default function JobDetail() {
   const { id } = useParams();
@@ -111,7 +112,10 @@ export default function JobDetail() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
             <h2 className="text-2xl font-bold mb-4">Job Description</h2>
-            <p className="text-gray-700 mb-8">{job.description}</p>
+            <div
+              className="prose text-gray-700 mb-8"
+              dangerouslySetInnerHTML={{ __html: marked(job.description || "") }}
+            />
 
             <h2 className="text-2xl font-bold mb-4">Requirements</h2>
             <ul className="list-disc pl-5 text-gray-700 mb-8">
@@ -131,6 +135,7 @@ export default function JobDetail() {
               <li className="mb-2">Participate in code reviews and contribute to team knowledge sharing</li>
             </ul>
           </div>
+
 
           <div className="md:col-span-1">
             <div className="bg-gray-50 p-6 rounded-lg">
@@ -177,7 +182,15 @@ export default function JobDetail() {
           jobDesRate={job.descRate}
           jobDes={job.description}
         />
-
+        <style>
+          {`.prose ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+    }
+    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+      font-weight: bold;
+    }`}
+        </style>
       </div>
 
       <ChatWootWidget />

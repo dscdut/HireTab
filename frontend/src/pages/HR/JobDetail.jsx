@@ -3,11 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { jobApi } from '@/core/services/job.service';
 import { toast } from 'react-toastify';
 import { ArrowLeft } from "lucide-react"
+import { marked } from 'marked';
 
 export default function JobDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  console.log('Job ID:', id); 
+  console.log('Job ID:', id);
 
   const { data: job, isLoading, isError } = useQuery({
     queryKey: ['job', id],
@@ -26,7 +27,7 @@ export default function JobDetail() {
     retry: false,
   });
 
-  console.log('Job Data:', job); 
+  console.log('Job Data:', job);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -41,10 +42,10 @@ export default function JobDetail() {
     if (!min || !max || isNaN(min) || isNaN(max)) {
       return "Salary not specified";
     }
-    
+
     const formatNumber = (num) =>
       num.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
-    
+
     return `${formatNumber(min)} - ${formatNumber(max)}`
   }
 
@@ -54,7 +55,7 @@ export default function JobDetail() {
   }
 
   return (
-     <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen">
       {/* Hero section with blue overlay */}
       <div className="relative">
         <div className="absolute inset-0 bg-blue-600/80 z-10" />
@@ -81,7 +82,7 @@ export default function JobDetail() {
           {/* Apply Button */}
           <div className="absolute z-20 top-6 right-6">
             <button className="bg-white text-blue-600 px-6 py-2 rounded-md hover:bg-blue-50 transition font-medium"
-             onClick={() => navigate(`/hr/job-dashboard/${job?.id}`)}>
+              onClick={() => navigate(`/hr/job-dashboard/${job?.id}`)}>
               View List Candidate
             </button>
           </div>
@@ -104,14 +105,19 @@ export default function JobDetail() {
           </p>
         </div>
       </div>
-    
+
       {/* Job Details */}
       <div className="container mx-auto px-6 py-12 max-w-4xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
             <h2 className="text-2xl font-bold mb-4">Job Description</h2>
-            <p className="text-gray-700 mb-8">{getJobProperty('description', 'No description available')}</p>
-
+            {/* <p className="text-gray-700 mb-8">{getJobProperty('description', 'No description available')}</p> */}
+            <div
+              className="prose text-gray-700 mb-8"
+              dangerouslySetInnerHTML={{
+                __html: marked(getJobProperty('description', 'No description available')),
+              }}
+            />
             <h2 className="text-2xl font-bold mb-4">Requirements</h2>
             <ul className="list-disc pl-5 text-gray-700 mb-8">
               {job?.requirements && Array.isArray(job.requirements) && job.requirements.length > 0 ? (
@@ -185,6 +191,16 @@ export default function JobDetail() {
             </div>
           </div>
         </div>
+
+        <style>
+          {`.prose ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+    }
+    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+      font-weight: bold;
+    }`}
+        </style>
       </div>
     </div>
   );
