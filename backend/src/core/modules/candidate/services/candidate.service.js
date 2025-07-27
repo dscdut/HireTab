@@ -6,7 +6,7 @@ class Service {
         this.repository = CandidateRepository;
     }
 
-    async getPaginationCandidate(id ,page = 1, pageSize = 10) {
+    async getPaginationCandidate(page = 1, pageSize = 10) {
             const totalResult = await this.repository.getTotalCount();
             const total = totalResult?.total ? parseInt(totalResult.total, 10) : 0; 
             const data = await this.repository.getPaginationCandidate(page, pageSize);
