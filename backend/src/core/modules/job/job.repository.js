@@ -14,6 +14,8 @@ class JobRepository extends DataRepository {
                 'job_postings.employment_type as employmentType',
                 'job_postings.requirements',
                 'job_postings.responsibilities',
+                'job_postings.start_time',
+                'job_postings.end_time',
                 'job_postings.desc_rate as descRate',
                 'job_postings.salary_min as salaryMin',
                 'job_postings.salary_max as salaryMax',
