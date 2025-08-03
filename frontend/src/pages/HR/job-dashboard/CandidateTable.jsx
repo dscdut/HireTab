@@ -71,7 +71,10 @@ function NotificationModal({ open, onClose, message, type = "success" }) {
           <p className="text-gray-600 leading-relaxed">{message}</p>
         </div>
         <button
-          onClick={onClose}
+          onClick={() => {
+            onClose()
+            window.location.reload()
+          }}
           className={`w-full px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-[1.02] ${isSuccess
             ? "bg-green-600 hover:bg-green-700 text-white hover:shadow-lg"
             : "bg-red-600 hover:bg-red-700 text-white hover:shadow-lg"
@@ -95,6 +98,7 @@ export default function CandidateTable({
   sortConfig,
   setSortConfig,
   onStatusTransition,
+  refetchCandidates
 }) {
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
@@ -434,6 +438,7 @@ export default function CandidateTable({
             setConfirmModal({ open: false, candidateId: null, nextStatus: null })
             onStatusTransition(confirmModal.candidateId, confirmModal.nextStatus)
             setNotifyModal({ open: true, message: "Status updated successfully!", type: "success" })
+            if (refetchCandidates) refetchCandidates()
           } catch (e) {
             setConfirmModal({ open: false, candidateId: null, nextStatus: null })
             setNotifyModal({ open: true, message: "Failed to update status. Please try again.", type: "error" })
