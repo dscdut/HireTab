@@ -1,36 +1,59 @@
-import { hrLinks, candidateLinks, companyProfile, settingsBtn, helpCenterBtn } from '@/core/constants/general.const'
-import { path } from '@/core/constants/path'
-import useToggleSideBar from '@/core/store'
-import { ChevronLeft, ChevronRight, User, LogOut } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath } from 'react-router'
+import { ChevronLeft, ChevronRight, User, LogOut } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { path } from '@/core/constants/path'
+import { hrLinks, candidateLinks, companyProfile, settingsBtn, helpCenterBtn } from '@/core/constants/general.const'
+import useToggleSideBar from '@/core/store'
 
-const SidebarLink = ({ link, isActive, isCollapsed }) => {
+const SidebarLink = ({ link, isCollapsed }) => {
+  const location = useLocation()
+
   const baseClasses =
     'flex items-center gap-3 font-medium text-base rounded-lg py-3 transition-all duration-300'
   const collapsedClasses = isCollapsed ? 'justify-center px-2' : 'px-6'
+  
+  // Check if the current URL matches any path in link.path
+  const isActive = Array.isArray(link.path)
+    ? link.path.some((path) => matchPath({ path, end: true }, location.pathname))
+    : matchPath({ path: link.path, end: true }, location.pathname)
+
   const activeClasses = isActive
     ? 'bg-blue-600 text-white shadow-md font-semibold'
     : 'hover:text-blue-600 hover:bg-blue-50'
 
+  // Use the first path in the array for the Link's "to" prop, or the single path
+  const linkPath = Array.isArray(link.path) ? link.path[0] : link.path
+
   return (
-    <Link to={link.path} className={`${baseClasses} ${collapsedClasses} ${activeClasses}`}>
+    <Link to={linkPath} className={`${baseClasses} ${collapsedClasses} ${activeClasses}`}>
       <span>{link.icon}</span>
       {!isCollapsed && <span>{link.title}</span>}
     </Link>
   )
 }
 
-const ControlButtons = ({ link, isActive, isCollapsed }) => {
+const ControlButtons = ({ link, isCollapsed }) => {
+  const location = useLocation()
+
   const baseClasses =
     'flex items-center gap-3 font-medium text-base rounded-lg py-3 transition-all duration-300'
   const collapsedClasses = isCollapsed ? 'justify-center px-2' : 'px-6'
+  
+  // Check if the current URL matches any path in link.path
+  const isActive = Array.isArray(link.path)
+    ? link.path.some((path) => matchPath({ path, end: true }, location.pathname))
+    : matchPath({ path: link.path, end: true }, location.pathname)
+
   const activeClasses = isActive
     ? 'bg-blue-600 text-white shadow-md font-semibold'
     : 'hover:text-blue-600 hover:bg-blue-50'
 
+  // Use the first path in the array for the Link's "to" prop, or the single path
+  const linkPath = Array.isArray(link.path) ? link.path[0] : link.path
+
   return (
-    <Link to={link.path} className={`${baseClasses} ${collapsedClasses} ${activeClasses}`}>
+    <Link to={linkPath} className={`${baseClasses} ${collapsedClasses} ${activeClasses}`}>
       <span>{link.icon}</span>
       {!isCollapsed && <span>{link.title}</span>}
     </Link>
@@ -86,7 +109,6 @@ const UserProfile = ({ isCollapsed }) => {
             )}
           </div>
 
-          {/* Profile Dropdown for collapsed state */}
           {isProfileMenuOpen && (
             <div className="absolute bottom-full left-0 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
               <div className="p-3 border-b border-gray-100">
@@ -141,7 +163,6 @@ const UserProfile = ({ isCollapsed }) => {
           </div>
         </div>
 
-        {/* Profile Dropdown for expanded state */}
         {isProfileMenuOpen && (
           <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
             <div className="p-2">
@@ -180,12 +201,11 @@ const Logo = ({ isCollapsed }) => (
 )
 
 const Sidebar = () => {
-  const { pathname } = useLocation()
   const { sidebarOpen, toggleSidebar } = useToggleSideBar()
 
-  // Gộp tất cả links lại
-  const allLinks = [...companyProfile, ...hrLinks, ...candidateLinks,]
-  const allButtons = [...settingsBtn, ...helpCenterBtn,]
+  // Combine all links
+  const allLinks = [...companyProfile, ...hrLinks, ...candidateLinks]
+  const allButtons = [...settingsBtn, ...helpCenterBtn]
 
   return (
     <div className={`px-3 py-3 bg-[#FCFCFC] ${sidebarOpen ? 'w-20' : 'w-64'} transition-all duration-300 flex flex-col h-screen`}>
@@ -201,11 +221,10 @@ const Sidebar = () => {
 
       {/* Main navigation links */}
       <div className="flex-1 overflow-y-auto space-y-1">
-        {allLinks.map(link => (
+        {allLinks.map((link) => (
           <SidebarLink
             key={link.title}
             link={link}
-            isActive={pathname.startsWith(link.path)}
             isCollapsed={sidebarOpen}
           />
         ))}
@@ -216,7 +235,6 @@ const Sidebar = () => {
 
       {/* Settings section */}
       <div className="space-y-1">
-        {/* Settings title - only show when not collapsed */}
         {!sidebarOpen && (
           <div className="px-6 py-2">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
@@ -225,12 +243,10 @@ const Sidebar = () => {
           </div>
         )}
 
-        {/* Settings buttons */}
-        {allButtons.map(link => (
+        {allButtons.map((link) => (
           <ControlButtons
             key={link.title}
             link={link}
-            isActive={pathname.startsWith(link.path)}
             isCollapsed={sidebarOpen}
           />
         ))}

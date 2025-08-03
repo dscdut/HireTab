@@ -28,10 +28,11 @@ export const companyProfile = [
 export const hrLinks = [
   {
     title: 'Job Posting',
-    path: path.hr.job_posting,
+    path: [path.hr.job_posting, path.hr.job_detail, path.hr.dashboard], 
     icon: <IconJobPosting />
   }
 ]
+
 export const settingsBtn = [
   {
     title: 'Settings',

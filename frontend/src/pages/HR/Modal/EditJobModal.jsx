@@ -2,7 +2,6 @@
 
 import {
     Dialog,
-    DialogTrigger,
     DialogContent,
     DialogHeader,
     DialogTitle,
@@ -11,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 
-export default function EditJobModal({ job }) {
+export default function EditJobModal({ job, open, onClose, onSuccess }) {
     // State for job fields, initialized with job prop
     const [jobData, setJobData] = useState({
         industryId: job?.industryId || "",
@@ -27,7 +26,6 @@ export default function EditJobModal({ job }) {
         notes: job?.notes || "",
     })
 
-
     // State for criteria, initialized with job criteria
     const [criteria, setCriteria] = useState(
         job?.criteria?.length > 0
@@ -42,26 +40,46 @@ export default function EditJobModal({ job }) {
 
     // Update validation states when job prop changes
     useEffect(() => {
-        // Validate salary fields
         setSalaryError({
             min: jobData.salaryMin && !/^\d+$/.test(jobData.salaryMin),
             max: jobData.salaryMax && !/^\d+$/.test(jobData.salaryMax),
         })
 
-        // Validate dates
         if (jobData.startTime && jobData.endTime) {
             setDateError(new Date(jobData.endTime) <= new Date(jobData.startTime))
         }
 
-        // Validate criteria weights
         setWeightErrors(criteria.map(c => c.weight && !/^\d+$/.test(c.weight)))
     }, [jobData, criteria])
+
+    // Reset form when modal is closed
+    useEffect(() => {
+        if (!open) {
+            setJobData({
+                industryId: job?.industryId || "",
+                title: job?.title || "",
+                description: job?.description || "",
+                location: job?.location || "",
+                descRate: job?.descRate || "",
+                salaryMin: job?.salaryMin || "",
+                salaryMax: job?.salaryMax || "",
+                level: job?.level || "",
+                startTime: job?.startTime || "",
+                endTime: job?.endTime || "",
+                notes: job?.notes || "",
+            })
+            setCriteria(
+                job?.criteria?.length > 0
+                    ? job.criteria
+                    : [{ name: "", weight: "", detail: "" }]
+            )
+        }
+    }, [open, job])
 
     // Handle changes for job data fields
     const handleJobDataChange = (field, value) => {
         setJobData({ ...jobData, [field]: value })
 
-        // Validate salary fields
         if (field === "salaryMin" || field === "salaryMax") {
             if (value === "" || /^\d+$/.test(value)) {
                 setSalaryError({ ...salaryError, [field === "salaryMin" ? "min" : "max"]: false })
@@ -70,7 +88,6 @@ export default function EditJobModal({ job }) {
             }
         }
 
-        // Validate dates
         if (field === "startTime" || field === "endTime") {
             const start = field === "startTime" ? value : jobData.startTime
             const end = field === "endTime" ? value : jobData.endTime
@@ -127,18 +144,15 @@ export default function EditJobModal({ job }) {
             ...jobData,
             criteria,
         }
-        console.log("Job updated!", formData)
-        // In a real app, call an API or update function here
+        // Gọi API cập nhật ở đây nếu có
+        if (onSuccess) onSuccess(formData)
+        if (onClose) onClose()
     }
 
     const weightExceeded = totalWeight() > 100
 
     return (
-        <Dialog>
-            <DialogTrigger asChild>
-                <Button className="ml-auto">Edit Job</Button>
-            </DialogTrigger>
-
+        <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Edit Job</DialogTitle>

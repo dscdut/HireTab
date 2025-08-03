@@ -7,7 +7,7 @@ class Repository extends DataRepository {
     getPaginationCandidate(page, size) {
         const offset = (page - 1) * size;
         return this.query()
-            .innerJoin('job_postings', 'job_postings.id', 'candidates.job_posting_id') // Join với bảng job_postings
+            .innerJoin('job_postings', 'job_postings.id', 'candidates.job_posting_id')
             .select(
                 'candidates.id',
                 'candidates.name',
