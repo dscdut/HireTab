@@ -21,4 +21,10 @@ export const candidateApi = {
         }
     },
     updateStatus: (id, status) => axiosClient.patch(`/candidates/${id}/status`, { status }),
+
+    getPaginationCandidate: (page = 1, size = 10) => {
+        return axiosClient.get('/candidates/pagination-candidates', {
+            params: { page, size }
+        });
+    }
 }

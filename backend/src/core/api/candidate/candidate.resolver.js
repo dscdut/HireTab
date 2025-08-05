@@ -1,5 +1,5 @@
 import { Module } from 'packages/handler/Module';
-import { RecordId, page, size, keyword} from '../../common/swagger';
+import { RecordId, page, size, keyword } from '../../common/swagger';
 import { CandidateController } from './candidate.controller';
 import { hasHRRole } from 'core/modules/auth/guard';
 import { RecordIdInterceptor } from 'core/modules/interceptor/recordId/record-id.interceptor';
@@ -28,6 +28,15 @@ export const CandidateResolver = Module.builder()
             controller: CandidateController.findById,
         },
         {
+            route: '/pagination-candidates',
+            method: 'get',
+            params: [page, size], 
+            guards: [hasHRRole], 
+            interceptors: [], 
+            controller: CandidateController.getCandidate,
+            preAuthorization: true, 
+        },
+        {
             route: '/search',
             method: 'get',
             params: [page, size, keyword],
@@ -43,7 +52,7 @@ export const CandidateResolver = Module.builder()
             controller: CandidateController.createCandidate,
             preAuthorization: true
         },
-         {
+        {
             route: '/:id',
             method: 'delete',
             params: [RecordId],

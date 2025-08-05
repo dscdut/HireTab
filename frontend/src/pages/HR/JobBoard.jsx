@@ -2,13 +2,13 @@
 
 import { useState, useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { ChevronDown, Search, Filter, Plus, MoreVertical, Trash2, Eye } from "lucide-react"
+import { ChevronDown, Search, Filter, Plus, MoreVertical, Trash2, Edit } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { jobApi } from "@/core/services/job.service"
 import AddJobModal from "./Modal/AddJobModal"
 import EditJobModal from "./Modal/EditJobModal"
 import { toast } from "react-toastify"
-
+import { path } from "@/core/constants/path"
 export default function JobBoard() {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState("")
@@ -91,7 +91,15 @@ export default function JobBoard() {
 
   // Handle View Details - Navigate to job detail page
   const handleViewDetails = (job) => {
-    navigate(`/hr/job-detail/${job.id}`)
+    const pathWithId = path.hr.job_detail.replace(':id', job.id)
+    navigate(pathWithId)
+    setMenuOpen(null)
+  }
+
+  // Handle Edit Job
+  const handleEditJob = (job) => {
+    setSelectedJob(job)
+    setShowEditModal(true)
     setMenuOpen(null)
   }
 
@@ -108,8 +116,14 @@ export default function JobBoard() {
   }
 
   // Toggle menu
-  const toggleMenu = (jobId) => {
+  const toggleMenu = (jobId, event) => {
+    event.stopPropagation() // Prevent row click when clicking menu
     setMenuOpen(menuOpen === jobId ? null : jobId)
+  }
+
+  // Handle row click
+  const handleRowClick = (job) => {
+    handleViewDetails(job)
   }
 
   if (isLoading) {
@@ -235,7 +249,8 @@ export default function JobBoard() {
               {filteredJobs.map((job, index) => (
                 <div
                   key={index}
-                  className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-gray-50 transition-colors items-center"
+                  className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-gray-50 transition-colors items-center cursor-pointer"
+                  onClick={() => handleRowClick(job)}
                 >
                   {/* Job Title */}
                   <div className="col-span-4">
@@ -300,7 +315,7 @@ export default function JobBoard() {
                   <div className="col-span-1 flex justify-end">
                     <div className="relative">
                       <button
-                        onClick={() => toggleMenu(job.id)}
+                        onClick={(e) => toggleMenu(job.id, e)}
                         className="p-1 rounded-full hover:bg-gray-100 transition-colors"
                       >
                         <MoreVertical size={16} className="text-gray-500" />
@@ -310,14 +325,20 @@ export default function JobBoard() {
                       {menuOpen === job.id && (
                         <div className="absolute right-0 top-8 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
                           <button
-                            onClick={() => handleViewDetails(job)}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleEditJob(job)
+                            }}
                             className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 first:rounded-t-lg"
                           >
-                            <Eye size={14} />
-                            View
+                            <Edit size={14} />
+                            Edit
                           </button>
                           <button
-                            onClick={() => handleDeleteJob(job)}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDeleteJob(job)
+                            }}
                             className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600 last:rounded-b-lg"
                           >
                             <Trash2 size={14} />

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, LogOut, User } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import Logo from './Logo'
-
+import { path } from '@/core/constants/path'
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -60,7 +60,7 @@ const Header = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center"
           >
-            <Link to="/hr/job-posting">
+            <Link to={path.hr.job_posting}>
               <Logo />
             </Link>
           </motion.div>
