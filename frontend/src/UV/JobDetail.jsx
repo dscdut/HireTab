@@ -11,7 +11,7 @@ import Header from '@/components/landing/Header';
 export default function JobDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  console.log('Job ID:', id); // Kiểm tra id
+  console.log('Job ID:', id);
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleOpenModal = () => {
@@ -25,8 +25,8 @@ export default function JobDetail() {
   const handleSubmit = (formData) => {
     console.log("Form submitted:", formData)
     setIsModalOpen(false)
-    // Handle form submission logic here
   }
+  
   const { data: job, isLoading, isError } = useQuery({
     queryKey: ['job', id],
     queryFn: async () => {
@@ -40,7 +40,6 @@ export default function JobDetail() {
         toast.error('Failed to load job details!');
         throw error;
       }
-      console.log('Job data:', job);
     },
     retry: false,
   });
@@ -52,6 +51,7 @@ export default function JobDetail() {
   if (isError) {
     return <div>Error loading job details!</div>;
   }
+
   const formatSalary = (min, max) => {
     if (typeof min !== "number" || typeof max !== "number" || isNaN(min) || isNaN(max)) {
       return "Negotiable";
@@ -60,18 +60,17 @@ export default function JobDetail() {
       num.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
     return `${formatNumber(min)} - ${formatNumber(max)}`;
   }
+
   return (
     <>
       <Header />
       <div className="flex flex-col mt-24 min-h-screen">
-        {/* Hero section with blue overlay */}
         <div className="relative">
           <div className="absolute inset-0 bg-blue-600/80 z-10" />
           <div
             className="relative bg-cover bg-center h-[400px]"
             style={{ backgroundImage: "url('https://github.com/meishenry/HireNova/blob/main/%E1%BB%A8ng%20Vi%C3%AAn/M%C3%B4%20t%E1%BA%A3%20c%C3%B4ng%20vi%E1%BB%87c%20khi%20ch%C6%B0a%20apply%20(%E1%BB%A9ng%20vi%C3%AAn)/images/main-image.jpg?raw=true')" }}
           >
-            {/* Navigation */}
             <div className="relative z-20 p-6">
               <button className="flex items-center text-white hover:text-blue-100 transition"
                 onClick={() => navigate(-1)}
@@ -80,8 +79,6 @@ export default function JobDetail() {
                 <span>Open Positions</span>
               </button>
             </div>
-
-            {/* Job Title and Location */}
             <div className="relative z-20 flex flex-col justify-center h-full px-6 pb-16">
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">{job.title}</h1>
               <div className="text-white text-lg">{job.location} | Full-Time</div>
@@ -89,7 +86,6 @@ export default function JobDetail() {
           </div>
         </div>
 
-        {/* Company Information */}
         <div className="bg-gray-50 py-12">
           <div className="container mx-auto px-6 max-w-4xl">
             <h2 className="text-2xl font-bold mb-6">About GDGoC - DUT</h2>
@@ -105,8 +101,6 @@ export default function JobDetail() {
           </div>
         </div>
 
-
-        {/* Job Details */}
         <div className="container mx-auto px-6 py-12 max-w-4xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2">
@@ -174,10 +168,12 @@ export default function JobDetail() {
             onClose={handleCloseModal}
             onSubmit={handleSubmit}
             jobId={job.id}
+            jobTitle={job.title}
+            jobLocation={job.location}
+            jobLevel={job.level}
             jobDesRate={job.descRate}
-            jobDes={job.description}
+            jobDes={job.description}  // Changed from jobDes to jobDescription
           />
-
         </div>
 
         <ChatWootWidget />

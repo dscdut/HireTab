@@ -44,6 +44,7 @@
     "lodash": "^4.17.21",
     "lucide-react": "^0.475.0",
     "motion": "^12.4.2",
+    "pdfjs-dist": "^5.4.54",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
