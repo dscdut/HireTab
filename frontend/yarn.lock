@@ -925,6 +925,72 @@
     "@emnapi/runtime" "^1.4.3"
     "@tybys/wasm-util" "^0.10.0"
 
+"@napi-rs/canvas-android-arm64@0.1.76":
+  version "0.1.76"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas-android-arm64/-/canvas-android-arm64-0.1.76.tgz"
+  integrity sha512-7EAfkLBQo2QoEzpHdInFbfEUYTXsiO2hvtFo1D9zfTzcQM8n5piZdOpJ3EIkmpe8yLoSV8HLyUQtq4bv11x6Tg==
+
+"@napi-rs/canvas-darwin-arm64@0.1.76":
+  version "0.1.76"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas-darwin-arm64/-/canvas-darwin-arm64-0.1.76.tgz"
+  integrity sha512-Cs8WRMzaWSJWeWY8tvnCe+TuduHUbB0xFhZ0FmOrNy2prPxT4A6aU3FQu8hR9XJw8kKZ7v902wzaDmy9SdhG8A==
+
+"@napi-rs/canvas-darwin-x64@0.1.76":
+  version "0.1.76"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas-darwin-x64/-/canvas-darwin-x64-0.1.76.tgz"
+  integrity sha512-ya+T6gV9XAq7YAnMa2fKhWXAuRR5cpRny2IoHacoMxgtOARnUkJO/k3hIb52FtMoq7UxLi5+IFGVHU6ZiMu4Ag==
+
+"@napi-rs/canvas-linux-arm-gnueabihf@0.1.76":
+  version "0.1.76"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas-linux-arm-gnueabihf/-/canvas-linux-arm-gnueabihf-0.1.76.tgz"
+  integrity sha512-fgnPb+FKVuixACvkHGldJqYXExORBwvqGgL0K80uE6SGH2t0UKD2auHw2CtBy14DUzfg82PkupO2ix2w7kB+Xw==
+
+"@napi-rs/canvas-linux-arm64-gnu@0.1.76":
+  version "0.1.76"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas-linux-arm64-gnu/-/canvas-linux-arm64-gnu-0.1.76.tgz"
+  integrity sha512-r8OxIenvBPOa4I014k1ZWTCz2dB0ZTsxMP7+ovMOKO7jkl1Z+YZo2OTAqxArpMhN0wdEeI3Lw9zUcn2HgwEgDA==
+
+"@napi-rs/canvas-linux-arm64-musl@0.1.76":
+  version "0.1.76"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas-linux-arm64-musl/-/canvas-linux-arm64-musl-0.1.76.tgz"
+  integrity sha512-smxwzKfHYaOYG7QXUuDPrFEC7WqjL3Lx4AM6mk8/FxDAS+8o0eoZJwSu+zXsaBLimEQUozEYgEGtJ2JJ0RdL4A==
+
+"@napi-rs/canvas-linux-riscv64-gnu@0.1.76":
+  version "0.1.76"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas-linux-riscv64-gnu/-/canvas-linux-riscv64-gnu-0.1.76.tgz"
+  integrity sha512-G2PsFwsP+r4syEoNLStV3n1wtNAClwf8s/qB57bexG08R4f4WaiBd+x+d4iYS0Y5o90YIEm8/ewZn4bLIa0wNQ==
+
+"@napi-rs/canvas-linux-x64-gnu@0.1.76":
+  version "0.1.76"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas-linux-x64-gnu/-/canvas-linux-x64-gnu-0.1.76.tgz"
+  integrity sha512-SNK+vgge4DnuONYdYE3Y09LivGgUiUPQDU+PdGNZJIzIi0hRDLcA59eag8LGeQfPmJW84c1aZD04voihybKFog==
+
+"@napi-rs/canvas-linux-x64-musl@0.1.76":
+  version "0.1.76"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas-linux-x64-musl/-/canvas-linux-x64-musl-0.1.76.tgz"
+  integrity sha512-tWHLBI9iVoR1NsfpHz1MGERTkqcca8akbH/CzX6JQUNC+lJOeYYXeRuK8hKqMIg1LI+4QOMAtHNVeZu8NvjEug==
+
+"@napi-rs/canvas-win32-x64-msvc@0.1.76":
+  version "0.1.76"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas-win32-x64-msvc/-/canvas-win32-x64-msvc-0.1.76.tgz"
+  integrity sha512-ifM5HOGw2hP5QLQzCB41Riw3Pq5yKAAjZpn+lJC0sYBmyS2s/Kq6KpTOKxf0CuptkI1wMcRcYQfhLRdeWiYvIg==
+
+"@napi-rs/canvas@^0.1.74":
+  version "0.1.76"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas/-/canvas-0.1.76.tgz"
+  integrity sha512-YIk5okeNN53GzjvWmAyCQFE9xrLeQXzYpudX4TiLvqaz9SqXgIgxIuKPe4DKyB5nccsQMIev7JGKTzZaN5rFdw==
+  optionalDependencies:
+    "@napi-rs/canvas-android-arm64" "0.1.76"
+    "@napi-rs/canvas-darwin-arm64" "0.1.76"
+    "@napi-rs/canvas-darwin-x64" "0.1.76"
+    "@napi-rs/canvas-linux-arm-gnueabihf" "0.1.76"
+    "@napi-rs/canvas-linux-arm64-gnu" "0.1.76"
+    "@napi-rs/canvas-linux-arm64-musl" "0.1.76"
+    "@napi-rs/canvas-linux-riscv64-gnu" "0.1.76"
+    "@napi-rs/canvas-linux-x64-gnu" "0.1.76"
+    "@napi-rs/canvas-linux-x64-musl" "0.1.76"
+    "@napi-rs/canvas-win32-x64-msvc" "0.1.76"
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz"
@@ -3700,6 +3766,13 @@ path-type@^4.0.0:
   resolved "https://registry.npmjs.org/path-type/-/path-type-4.0.0.tgz"
   integrity sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
 
+pdfjs-dist@^5.4.54:
+  version "5.4.54"
+  resolved "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-5.4.54.tgz"
+  integrity sha512-TBAiTfQw89gU/Z4LW98Vahzd2/LoCFprVGvGbTgFt+QCB1F+woyOPmNNVgLa6djX9Z9GGTnj7qE1UzpOVJiINw==
+  optionalDependencies:
+    "@napi-rs/canvas" "^0.1.74"
+
 picocolors@^1.1.1:
   version "1.1.1"
   resolved "https://registry.npmjs.org/picocolors/-/picocolors-1.1.1.tgz"
@@ -4695,6 +4768,7 @@ tar@^7.4.3:
     lucide-react "^0.475.0"
     marked "^16.1.1"
     motion "^12.4.2"
+    pdfjs-dist "^5.4.54"
     react "^19.0.0"
     react-dom "^19.0.0"
     react-hook-form "^7.54.2"

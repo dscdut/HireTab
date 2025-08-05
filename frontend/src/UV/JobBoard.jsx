@@ -5,7 +5,7 @@ import Header from '@/components/landing/Header';
 import { Link } from 'react-router-dom';
 import { BiBrain } from 'react-icons/bi';
 import { FiSearch } from 'react-icons/fi';
-
+import ChatWootWidget from '@/components/ui/chatwoot-widget'; 
 export default function JobBoard() {
   const { data: jobListings = [], isLoading, isError } = useQuery({
     queryKey: ['jobs'],
@@ -143,6 +143,7 @@ export default function JobBoard() {
           </main>
         </div>
       </div>
+      <ChatWootWidget />
     </div>
   );
 }

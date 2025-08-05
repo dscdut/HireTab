@@ -11,7 +11,7 @@ import Header from '@/components/landing/Header';
 export default function JobDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  console.log('Job ID:', id); // Kiểm tra id
+  console.log('Job ID:', id);
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleOpenModal = () => {
@@ -25,8 +25,8 @@ export default function JobDetail() {
   const handleSubmit = (formData) => {
     console.log("Form submitted:", formData)
     setIsModalOpen(false)
-    // Handle form submission logic here
   }
+  
   const { data: job, isLoading, isError } = useQuery({
     queryKey: ['job', id],
     queryFn: async () => {
@@ -40,7 +40,6 @@ export default function JobDetail() {
         toast.error('Failed to load job details!');
         throw error;
       }
-      console.log('Job data:', job);
     },
     retry: false,
   });
@@ -52,6 +51,7 @@ export default function JobDetail() {
   if (isError) {
     return <div>Error loading job details!</div>;
   }
+
   const formatSalary = (min, max) => {
     if (typeof min !== "number" || typeof max !== "number" || isNaN(min) || isNaN(max)) {
       return "Negotiable";
@@ -60,6 +60,7 @@ export default function JobDetail() {
       num.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
     return `${formatNumber(min)} - ${formatNumber(max)}`;
   }
+
   return (
     <>
       <Header />
@@ -71,7 +72,6 @@ export default function JobDetail() {
             className="relative bg-cover bg-center h-[400px]"
             style={{ backgroundImage: "url('https://github.com/meishenry/HireNova/blob/main/%E1%BB%A8ng%20Vi%C3%AAn/M%C3%B4%20t%E1%BA%A3%20c%C3%B4ng%20vi%E1%BB%87c%20khi%20ch%C6%B0a%20apply%20(%E1%BB%A9ng%20vi%C3%AAn)/images/main-image.jpg?raw=true')" }}
           >
-            {/* Navigation */}
             <div className="relative z-20 p-6">
               <button className="flex items-center text-white transition hover:text-blue-100"
                 onClick={() => navigate(-1)}
@@ -80,8 +80,6 @@ export default function JobDetail() {
                 <span>Open Positions</span>
               </button>
             </div>
-
-            {/* Job Title and Location */}
             <div className="relative z-20 flex flex-col justify-center h-full px-6 pb-16">
               <h1 className="mb-6 text-4xl font-bold text-white md:text-5xl">{job.title}</h1>
               <div className="text-lg text-white">{job.location} | Full-Time</div>
@@ -173,8 +171,11 @@ export default function JobDetail() {
             onClose={handleCloseModal}
             onSubmit={handleSubmit}
             jobId={job.id}
+            jobTitle={job.title}
+            jobLocation={job.location}
+            jobLevel={job.level}
             jobDesRate={job.descRate}
-            jobDes={job.description}
+            jobDes={job.description}  // Changed from jobDes to jobDescription
           />
         </div>
 
