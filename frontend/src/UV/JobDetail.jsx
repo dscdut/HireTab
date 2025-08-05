@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react"
 import { useState } from "react"
 import ModalFormCandidate from './Modal/ModalFormCandidate'
 import ChatWootWidget from '@/components/ui/chatwoot-widget';
+import { marked } from "marked";
 import Header from '@/components/landing/Header';
 
 export default function JobDetail() {
@@ -106,6 +107,25 @@ export default function JobDetail() {
         </div>
 
 
+          <div className="md:col-span-1">
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold mb-4">Job Details</h3>
+
+              <div className="mb-4">
+                <p className="text-gray-500 text-sm">Industry</p>
+                <p className="font-medium">{job.industryName}</p>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-gray-500 text-sm">Job Level</p>
+                <p className="font-medium">{job.level || "Mid-Senior Level"}</p>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-gray-500 text-sm">Employment Type</p>
+                <p className="font-medium">Full-Time</p>
+              </div>
+
         {/* Job Details */}
         <div className="container mx-auto px-6 py-12 max-w-4xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -179,6 +199,23 @@ export default function JobDetail() {
           />
 
         </div>
+        <ModalFormCandidate
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSubmit={handleSubmit}
+          jobId={job.id}
+          jobDesRate={job.descRate}
+          jobDes={job.description}
+        />
+        <style>
+          {`.prose ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+    }
+    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+      font-weight: bold;
+    }`}
+        </style>
 
         <ChatWootWidget />
       </div>

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useParams, useNavigate } from "react-router-dom"
@@ -12,7 +13,6 @@ export default function JobDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [showEditModal, setShowEditModal] = useState(false)
-
   const {
     data: job,
     isLoading,
@@ -385,18 +385,15 @@ export default function JobDetail() {
           </div>
         </div>
 
-        {/* Edit Job Modal */}
-        {showEditModal && (
-          <EditJobModal
-            job={job}
-            open={showEditModal}
-            onClose={() => setShowEditModal(false)}
-            onSuccess={() => {
-              refetch()
-              setShowEditModal(false)
-            }}
-          />
-        )}
+        <style>
+          {`.prose ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+    }
+    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+      font-weight: bold;
+    }`}
+        </style>
       </div>
     </div>
   )

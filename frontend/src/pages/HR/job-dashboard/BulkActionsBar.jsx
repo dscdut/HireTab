@@ -75,6 +75,7 @@ export default function BulkActionsBar({
             {availableTransitions.map((status) => (
               <button
                 key={status}
+
                 onClick={() => handleMoveClick(status)}
                 disabled={isLoading}
                 className={`px-4 py-2 text-white text-sm font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 ${getStatusButtonClass(status)}`}
@@ -94,6 +95,7 @@ export default function BulkActionsBar({
           </div>
         </div>
       </div>
+
       {/* Modal xác nhận */}
       <ConfirmModal
         open={modal.open}
