@@ -71,7 +71,10 @@ function NotificationModal({ open, onClose, message, type = "success" }) {
           <p className="text-gray-600 leading-relaxed">{message}</p>
         </div>
         <button
-          onClick={onClose}
+          onClick={() => {
+            onClose()
+            window.location.reload()
+          }}
           className={`w-full px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-[1.02] ${isSuccess
             ? "bg-green-600 hover:bg-green-700 text-white hover:shadow-lg"
             : "bg-red-600 hover:bg-red-700 text-white hover:shadow-lg"
@@ -95,6 +98,7 @@ export default function CandidateTable({
   sortConfig,
   setSortConfig,
   onStatusTransition,
+  refetchCandidates
 }) {
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
@@ -132,7 +136,6 @@ export default function CandidateTable({
     setActiveTab(tab)
     setCurrentPage(1)
   }
-
   // Enhanced Pagination component
   const PaginationComponent = () => {
     if (sortedCandidates.length <= rowsPerPage) return null
@@ -177,6 +180,7 @@ export default function CandidateTable({
     }
 
     return (
+
       <div className="flex items-center justify-between px-8 py-6 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white">
         <div className="flex items-center text-sm font-medium text-gray-600">
           <span>
@@ -215,7 +219,6 @@ export default function CandidateTable({
               </button>
             ))}
           </div>
-
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
@@ -233,6 +236,7 @@ export default function CandidateTable({
   }
 
   return (
+
     <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
       {/* Enhanced Tabs */}
       <div className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
@@ -276,6 +280,7 @@ export default function CandidateTable({
                   type="checkbox"
                   checked={selectedCandidates.size === currentCandidates.length && currentCandidates.length > 0}
                   onChange={toggleSelectAll}
+
                   className="w-5 h-5 text-blue-600 border-2 border-gray-300 rounded-lg focus:ring-blue-500 focus:ring-2 transition-all duration-200"
                 />
               </th>
@@ -401,6 +406,7 @@ export default function CandidateTable({
               ))
             ) : (
               <tr>
+             <p className="text-sm font-medium text-gray-900">No candidates found</p>
                 <td colSpan={9} className="px-8 py-16 text-center">
                   <div className="flex flex-col items-center gap-4">
                     <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
@@ -434,6 +440,7 @@ export default function CandidateTable({
             setConfirmModal({ open: false, candidateId: null, nextStatus: null })
             onStatusTransition(confirmModal.candidateId, confirmModal.nextStatus)
             setNotifyModal({ open: true, message: "Status updated successfully!", type: "success" })
+            if (refetchCandidates) refetchCandidates()
           } catch (e) {
             setConfirmModal({ open: false, candidateId: null, nextStatus: null })
             setNotifyModal({ open: true, message: "Failed to update status. Please try again.", type: "error" })

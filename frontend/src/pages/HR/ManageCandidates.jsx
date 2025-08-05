@@ -59,6 +59,7 @@ export default function ManageCandidates() {
     data: candidates = [],
     isLoading,
     isError,
+    refetch,
   } = useQuery({
     queryKey: ["allCandidates"],
     queryFn: async () => {
@@ -70,6 +71,7 @@ export default function ManageCandidates() {
         throw error
       }
     },
+    refetchOnWindowFocus: false,
   })
 
   const bulkUpdateStatusMutation = useMutation({
@@ -434,6 +436,7 @@ export default function ManageCandidates() {
             sortConfig={sortConfig}
             setSortConfig={setSortConfig}
             onStatusTransition={handleStatusTransition}
+            refetchCandidates={refetch}
           />
         </div>
       </div>

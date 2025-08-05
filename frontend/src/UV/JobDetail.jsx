@@ -64,35 +64,37 @@ export default function JobDetail() {
   return (
     <>
       <Header />
-      <div className="flex flex-col mt-24 min-h-screen">
+      <div className="flex flex-col min-h-screen mt-24">
+        {/* Hero section with blue overlay */}
         <div className="relative">
-          <div className="absolute inset-0 bg-blue-600/80 z-10" />
+          <div className="absolute inset-0 z-10 bg-blue-600/80" />
           <div
             className="relative bg-cover bg-center h-[400px]"
             style={{ backgroundImage: "url('https://github.com/meishenry/HireNova/blob/main/%E1%BB%A8ng%20Vi%C3%AAn/M%C3%B4%20t%E1%BA%A3%20c%C3%B4ng%20vi%E1%BB%87c%20khi%20ch%C6%B0a%20apply%20(%E1%BB%A9ng%20vi%C3%AAn)/images/main-image.jpg?raw=true')" }}
           >
             <div className="relative z-20 p-6">
-              <button className="flex items-center text-white hover:text-blue-100 transition"
+              <button className="flex items-center text-white transition hover:text-blue-100"
                 onClick={() => navigate(-1)}
               >
-                <ArrowLeft className="mr-2 h-5 w-5" />
+                <ArrowLeft className="w-5 h-5 mr-2" />
                 <span>Open Positions</span>
               </button>
             </div>
             <div className="relative z-20 flex flex-col justify-center h-full px-6 pb-16">
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">{job.title}</h1>
-              <div className="text-white text-lg">{job.location} | Full-Time</div>
+              <h1 className="mb-6 text-4xl font-bold text-white md:text-5xl">{job.title}</h1>
+              <div className="text-lg text-white">{job.location} | Full-Time</div>
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-50 py-12">
-          <div className="container mx-auto px-6 max-w-4xl">
-            <h2 className="text-2xl font-bold mb-6">About GDGoC - DUT</h2>
-            <p className="text-gray-700 mb-4">
+        {/* Company Information */}
+        <div className="py-12 bg-gray-50">
+          <div className="container max-w-4xl px-6 mx-auto">
+            <h2 className="mb-6 text-2xl font-bold">About GDGoC - DUT</h2>
+            <p className="mb-4 text-gray-700">
               GDGoC - DUT (Google Developer Group of Danang University of Science and Technology) is a vibrant tech community of students passionate about programming, design, and software development. With a strong spirit of learning and sharing, GDGoC connects young talents within and beyond the university to explore new technologies and build meaningful projects together.
             </p>
-            <p className="text-gray-700 mb-4">
+            <p className="mb-4 text-gray-700">
               We believe that every student has the potential to become a great engineer. GDGoC offers hands-on workshops, inspiring talk shows, hackathons, and mentorship programs to help members sharpen their skills, grow their networks, and gain a clearer career direction.
             </p>
             <p className="text-gray-700">
@@ -101,14 +103,15 @@ export default function JobDetail() {
           </div>
         </div>
 
-        <div className="container mx-auto px-6 py-12 max-w-4xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Job Details */}
+        <div className="container max-w-4xl px-6 py-12 mx-auto">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <div className="md:col-span-2">
-              <h2 className="text-2xl font-bold mb-4">Job Description</h2>
-              <p className="text-gray-700 mb-8">{job.description}</p>
+              <h2 className="mb-4 text-2xl font-bold">Job Description</h2>
+              <p className="mb-8 text-gray-700">{job.description}</p>
 
-              <h2 className="text-2xl font-bold mb-4">Requirements</h2>
-              <ul className="list-disc pl-5 text-gray-700 mb-8">
+              <h2 className="mb-4 text-2xl font-bold">Requirements</h2>
+              <ul className="pl-5 mb-8 text-gray-700 list-disc">
                 <li className="mb-2">Bachelor's degree in Computer Science or related field</li>
                 <li className="mb-2">3+ years of experience with modern JavaScript frameworks</li>
                 <li className="mb-2">Strong understanding of web technologies and RESTful APIs</li>
@@ -116,8 +119,8 @@ export default function JobDetail() {
                 <li className="mb-2">Excellent problem-solving and communication skills</li>
               </ul>
 
-              <h2 className="text-2xl font-bold mb-4">Responsibilities</h2>
-              <ul className="list-disc pl-5 text-gray-700">
+              <h2 className="mb-4 text-2xl font-bold">Responsibilities</h2>
+              <ul className="pl-5 text-gray-700 list-disc">
                 <li className="mb-2">Develop and maintain web applications</li>
                 <li className="mb-2">Collaborate with cross-functional teams</li>
                 <li className="mb-2">Implement responsive design and ensure cross-browser compatibility</li>
@@ -127,36 +130,36 @@ export default function JobDetail() {
             </div>
 
             <div className="md:col-span-1">
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-xl font-semibold mb-4">Job Details</h3>
+              <div className="p-6 rounded-lg bg-gray-50">
+                <h3 className="mb-4 text-xl font-semibold">Job Details</h3>
 
                 <div className="mb-4">
-                  <p className="text-gray-500 text-sm">Industry</p>
+                  <p className="text-sm text-gray-500">Industry</p>
                   <p className="font-medium">{job.industryName}</p>
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-gray-500 text-sm">Job Level</p>
+                  <p className="text-sm text-gray-500">Job Level</p>
                   <p className="font-medium">{job.level || "Mid-Senior Level"}</p>
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-gray-500 text-sm">Employment Type</p>
+                  <p className="text-sm text-gray-500">Employment Type</p>
                   <p className="font-medium">Full-Time</p>
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-gray-500 text-sm">Salary Range</p>
+                  <p className="text-sm text-gray-500">Salary Range</p>
                   <p className="font-medium">{formatSalary(job.salary_min, job.salary_max)}</p>
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-gray-500 text-sm">Status</p>
+                  <p className="text-sm text-gray-500">Status</p>
                   <p className="font-medium">{job.status}</p>
                 </div>
 
                 <div className="mt-8">
-                  <button onClick={handleOpenModal} className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition font-medium">
+                  <button onClick={handleOpenModal} className="w-full py-3 font-medium text-white transition bg-blue-600 rounded-md hover:bg-blue-700">
                     Apply for this position
                   </button>
                 </div>
@@ -175,6 +178,16 @@ export default function JobDetail() {
             jobDes={job.description}  // Changed from jobDes to jobDescription
           />
         </div>
+
+        <style>
+          {`.prose ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+    }
+    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+      font-weight: bold;
+    }`}
+        </style>
 
         <ChatWootWidget />
       </div>
