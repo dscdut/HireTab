@@ -1,191 +1,384 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { jobApi } from '@/core/services/job.service';
-import { toast } from 'react-toastify';
-import { ArrowLeft } from "lucide-react"
-import { marked } from 'marked';
+
+"use client"
+
+import { useParams, useNavigate } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
+import { jobApi } from "@/core/services/job.service"
+import { toast } from "react-toastify"
+import { ArrowLeft, Calendar, MapPin, DollarSign, Users, Briefcase } from "lucide-react"
+import { useState } from "react"
+import EditJobModal from "./Modal/EditJobModal"
 
 export default function JobDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  console.log('Job ID:', id);
-
-  const { data: job, isLoading, isError } = useQuery({
-    queryKey: ['job', id],
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const [showEditModal, setShowEditModal] = useState(false)
+  const {
+    data: job,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ["job", id],
     queryFn: async () => {
       try {
-        console.log('Calling API for Job ID:', id);
-        const response = await jobApi.getJobById(id);
-        console.log('API Response:', response);
-        return response;
+        const response = await jobApi.getJobById(id)
+        return response
       } catch (error) {
-        console.error('API Error:', error);
-        toast.error('Failed to load job details!');
-        throw error;
+        toast.error("Failed to load job details!")
+        throw error
       }
     },
     retry: false,
-  });
-
-  console.log('Job Data:', job);
+  })
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
   }
 
-  if (isError) {
-    return <div>Error loading job details!</div>;
+  if (isError || !job) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-red-600 text-xl mb-4">Error loading job details!</div>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    )
   }
 
+  const calculateDaysLeft = (endTime) => {
+    if (!endTime) return "No deadline"
+    const end = new Date(endTime)
+    const now = new Date()
+    const diff = Math.ceil((end - now) / (1000 * 60 * 60 * 24))
+    if (diff < 0) return "Closed"
+    if (diff === 0) return "Last day"
+    return `${diff} day${diff > 1 ? "s" : ""} left`
+  }
+
+  // FIX: handle both salaryMin/salaryMax and salary_min/salary_max, and allow 0 salary
   const formatSalary = (min, max) => {
-    // Check if both min and max are valid numbers
-    if (!min || !max || isNaN(min) || isNaN(max)) {
-      return "Salary not specified";
+    if (
+      (typeof min !== "number" && typeof min !== "string") ||
+      (typeof max !== "number" && typeof max !== "string") ||
+      min === "" || max === "" ||
+      isNaN(Number(min)) || isNaN(Number(max))
+    ) {
+      return "Salary not specified"
     }
-
     const formatNumber = (num) =>
-      num.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
-
+      Number(num).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
     return `${formatNumber(min)} - ${formatNumber(max)}`
   }
 
-  // Helper function to safely get job property with fallback
   const getJobProperty = (property, fallback = "Not specified") => {
-    return job && job[property] ? job[property] : fallback;
+    return job && job[property] ? job[property] : fallback
   }
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "To Do":
+        return "bg-blue-500/90"
+      case "In Progress":
+        return "bg-yellow-500/90"
+      case "Done":
+        return "bg-green-500/90"
+      case "Closed":
+        return "bg-red-500/90"
+      default:
+        return "bg-gray-500/90"
+    }
+  }
+
+  // FIX: support both camelCase and snake_case for salary fields
+  const salaryMin = job.salaryMin ?? job.salary_min
+  const salaryMax = job.salaryMax ?? job.salary_max
+
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Hero section with blue overlay */}
       <div className="relative">
-        <div className="absolute inset-0 bg-blue-600/80 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-700 via-blue-600/80 to-blue-400/80 z-10" />
         <div
-          className="relative bg-cover bg-center h-[400px]"
-          style={{ backgroundImage: "url('https://github.com/meishenry/HireNova/blob/main/%E1%BB%A8ng%20Vi%C3%AAn/M%C3%B4%20t%E1%BA%A3%20c%C3%B4ng%20vi%E1%BB%87c%20khi%20ch%C6%B0a%20apply%20(%E1%BB%A9ng%20vi%C3%AAn)/images/main-image.jpg?raw=true')" }}
+          className="relative bg-cover bg-center h-[340px] md:h-[420px]"
+          style={{
+            backgroundImage:
+              "url('https://github.com/meishenry/HireNova/blob/main/%E1%BB%A8ng%20Vi%C3%AAn/M%C3%B4%20t%E1%BA%A3%20c%C3%B4ng%20vi%E1%BB%87c%20khi%20ch%C6%B0a%20apply%20(%E1%BB%A9ng%20vi%C3%AAn)/images/main-image.jpg?raw=true')",
+          }}
         >
           {/* Navigation */}
-          <div className="relative z-20 p-6">
-            <button className="flex items-center text-white hover:text-blue-100 transition"
+          <div className="relative z-20 p-6 flex items-center justify-between">
+            <button
+              className="flex items-center text-white hover:text-blue-100 transition text-lg font-medium bg-blue-700/40 px-4 py-2 rounded-lg shadow backdrop-blur-sm"
               onClick={() => navigate(-1)}
             >
               <ArrowLeft className="mr-2 h-5 w-5" />
-              <span>Open Positions</span>
+              <span>Back to Jobs</span>
             </button>
-          </div>
-
-          {/* Job Title and Location */}
-          <div className="relative z-20 flex flex-col justify-center h-full px-6 pb-16">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">{getJobProperty('title', 'Job Title')}</h1>
-            <div className="text-white text-lg">{getJobProperty('location', 'Location')} | {getJobProperty('employmentType', 'Full-Time')}</div>
           </div>
 
           {/* Apply Button */}
           <div className="absolute z-20 top-6 right-6">
-            <button className="bg-white text-blue-600 px-6 py-2 rounded-md hover:bg-blue-50 transition font-medium"
-              onClick={() => navigate(`/hr/job-dashboard/${job?.id}`)}>
+            <button
+              className="bg-white text-blue-600 px-6 py-2 rounded-lg hover:bg-blue-50 transition font-medium shadow-lg"
+              onClick={() => navigate(`/hr/job-dashboard/${job?.id}`)}
+            >
               View List Candidate
             </button>
+          </div>
+
+          {/* Job Title and Info */}
+          <div className="relative z-20 flex flex-col justify-center h-full px-6 pb-10 md:pb-16 max-w-6xl mx-auto">
+            <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg">{job.title}</h1>
+            <div className="flex flex-wrap items-center gap-3 text-white text-lg font-medium mb-4">
+              <span className="bg-blue-900/60 px-4 py-2 rounded-full text-base backdrop-blur-sm flex items-center gap-2">
+                <MapPin size={16} />
+                {job.location}
+              </span>
+              <span className="bg-blue-900/60 px-4 py-2 rounded-full text-base backdrop-blur-sm flex items-center gap-2">
+                <Briefcase size={16} />
+                Full-Time
+              </span>
+              <span className="bg-blue-900/60 px-4 py-2 rounded-full text-base backdrop-blur-sm">
+                {job.level || "Mid-Senior Level"}
+              </span>
+              <span className="bg-blue-900/60 px-4 py-2 rounded-full text-base backdrop-blur-sm">
+                {job.industryName}
+              </span>
+              <span className={`${getStatusColor(job.status)} px-4 py-2 rounded-full text-base backdrop-blur-sm`}>
+                {job.status}
+              </span>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="flex flex-wrap items-center gap-6 text-white/90 text-sm">
+              <div className="flex items-center gap-2">
+                <DollarSign size={16} />
+                <span>{formatSalary(salaryMin, salaryMax)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users size={16} />
+                <span>{job.applicationsCount || 0} Applications</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar size={16} />
+                <span>{job.end_time ? calculateDaysLeft(job.end_time) : "No deadline"}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Company Information */}
-      <div className="bg-gray-50 py-12">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <h2 className="text-2xl font-bold mb-6">About the Company</h2>
-          <p className="text-gray-700 mb-4">
-            Google Developer Student Clubs (GDSC) là chương trình toàn cầu của Google Developers dành cho sinh viên đam
-            mê công nghệ tại các trường đại học, cao đẳng và các tổ chức giáo dục khác.
-          </p>
-          <p className="text-gray-700">
-            Tụ hào là một trong những chapter của GDSC, Google Developer Student Club - Danang University of Science and
-            Technology (GDSC - DUT) là cộng đồng các bạn trẻ đam mê công nghệ cùng nhau học hỏi và xây dựng những giải
-            pháp nhằm giải quyết các vấn đề tại địa phương thông qua các sự kiện và hoạt động từ nguồn tài nguyên của
-            Google.
-          </p>
+      <div className="bg-white py-12 border-b border-gray-200">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="flex items-start gap-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-400 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+              G
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold mb-3 text-gray-900">About the Company</h2>
+              <p className="text-gray-700 mb-4 leading-relaxed">
+                Google Developer Student Clubs (GDSC) is a global program by Google Developers for students passionate
+                about technology at universities, colleges, and other educational institutions.
+              </p>
+              <p className="text-gray-700 leading-relaxed">
+                Proud to be one of the GDSC chapters, the Google Developer Student Club - Danang University of Science
+                and Technology (GDSC - DUT) is a community of young technology enthusiasts who learn together and build
+                solutions to solve local problems through events and activities supported by Google resources.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Job Details */}
-      <div className="container mx-auto px-6 py-12 max-w-4xl">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <h2 className="text-2xl font-bold mb-4">Job Description</h2>
-            {/* <p className="text-gray-700 mb-8">{getJobProperty('description', 'No description available')}</p> */}
-            <div
-              className="prose text-gray-700 mb-8"
-              dangerouslySetInnerHTML={{
-                __html: marked(getJobProperty('description', 'No description available')),
-              }}
-            />
-            <h2 className="text-2xl font-bold mb-4">Requirements</h2>
-            <ul className="list-disc pl-5 text-gray-700 mb-8">
-              {job?.requirements && Array.isArray(job.requirements) && job.requirements.length > 0 ? (
-                job.requirements.map((requirement, index) => (
-                  <li key={index} className="mb-2">{requirement}</li>
-                ))
-              ) : (
-                <>
-                  <li className="mb-2">Bachelor's degree in Computer Science or related field</li>
-                  <li className="mb-2">3+ years of experience with modern JavaScript frameworks</li>
-                  <li className="mb-2">Strong understanding of web technologies and RESTful APIs</li>
-                  <li className="mb-2">Experience with database design and optimization</li>
-                  <li className="mb-2">Excellent problem-solving and communication skills</li>
-                </>
-              )}
-            </ul>
+      <div className="container mx-auto px-6 py-12 max-w-6xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            {/* Job Description */}
+            <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Briefcase className="w-4 h-4 text-blue-600" />
+                </div>
+                Job Description
+              </h2>
+              <div className="prose prose-gray max-w-none">
+                <p className="text-gray-700 leading-relaxed">
+                  {getJobProperty("description", "No description available")}
+                </p>
+              </div>
+            </div>
 
-            <h2 className="text-2xl font-bold mb-4">Responsibilities</h2>
-            <ul className="list-disc pl-5 text-gray-700">
-              {job?.responsibilities && Array.isArray(job.responsibilities) && job.responsibilities.length > 0 ? (
-                job.responsibilities.map((responsibility, index) => (
-                  <li key={index} className="mb-2">{responsibility}</li>
-                ))
-              ) : (
-                <>
-                  <li className="mb-2">Develop and maintain web applications</li>
-                  <li className="mb-2">Collaborate with cross-functional teams</li>
-                  <li className="mb-2">Implement responsive design and ensure cross-browser compatibility</li>
-                  <li className="mb-2">Optimize applications for maximum speed and scalability</li>
-                  <li className="mb-2">Participate in code reviews and contribute to team knowledge sharing</li>
-                </>
-              )}
-            </ul>
+            {/* Requirements */}
+            <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900">Requirements</h2>
+              <ul className="space-y-3 text-gray-700">
+                {job?.requirements && Array.isArray(job.requirements) && job.requirements.length > 0 ? (
+                  job.requirements.map((requirement, index) => (
+                    <li key={index} className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">{requirement}</span>
+                    </li>
+                  ))
+                ) : (
+                  <>
+                    <li className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">Bachelor's degree in Computer Science or related field</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">3+ years of experience with modern JavaScript frameworks</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">Strong understanding of web technologies and RESTful APIs</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">Experience with database design and optimization</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">Excellent problem-solving and communication skills</span>
+                    </li>
+                  </>
+                )}
+              </ul>
+            </div>
+
+            {/* Responsibilities */}
+            <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900">Responsibilities</h2>
+              <ul className="space-y-3 text-gray-700">
+                {job?.responsibilities && Array.isArray(job.responsibilities) && job.responsibilities.length > 0 ? (
+                  job.responsibilities.map((responsibility, index) => (
+                    <li key={index} className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">{responsibility}</span>
+                    </li>
+                  ))
+                ) : (
+                  <>
+                    <li className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">Develop and maintain web applications</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">Collaborate with cross-functional teams</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">
+                        Implement responsive design and ensure cross-browser compatibility
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">Optimize applications for maximum speed and scalability</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">
+                        Participate in code reviews and contribute to team knowledge sharing
+                      </span>
+                    </li>
+                  </>
+                )}
+              </ul>
+            </div>
           </div>
 
-          <div className="md:col-span-1">
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold mb-4">Job Details</h3>
+          {/* Right: Job Info Card */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 sticky top-8">
+              <h3 className="text-xl font-bold mb-6 text-gray-900 flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Briefcase className="w-4 h-4 text-blue-600" />
+                </div>
+                Job Information
+              </h3>
 
-              <div className="mb-4">
-                <p className="text-gray-500 text-sm">Industry</p>
-                <p className="font-medium">{getJobProperty('industryName', 'Not specified')}</p>
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Briefcase className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm font-medium">Industry</p>
+                    <p className="font-semibold text-gray-900">{getJobProperty("industryName", "Not specified")}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Users className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm font-medium">Job Level</p>
+                    <p className="font-semibold text-gray-900">{getJobProperty("level", "Mid-Senior Level")}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Calendar className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm font-medium">Employment Type</p>
+                    <p className="font-semibold text-gray-900">{getJobProperty("employmentType", "Full-Time")}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <DollarSign className="w-5 h-5 text-yellow-600" />
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm font-medium">Salary Range</p>
+                    <p className="font-semibold text-gray-900">{formatSalary(salaryMin, salaryMax)}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div
+                    className={`w-10 h-10 ${getStatusColor(job?.status).replace("/90", "/20")} rounded-lg flex items-center justify-center flex-shrink-0`}
+                  >
+                    <div className={`w-3 h-3 ${getStatusColor(job?.status)} rounded-full`}></div>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm font-medium">Status</p>
+                    <p className="font-semibold text-gray-900">{getJobProperty("status", "Open")}</p>
+                  </div>
+                </div>
               </div>
 
-              <div className="mb-4">
-                <p className="text-gray-500 text-sm">Job Level</p>
-                <p className="font-medium">{getJobProperty('level', 'Mid-Senior Level')}</p>
-              </div>
-
-              <div className="mb-4">
-                <p className="text-gray-500 text-sm">Employment Type</p>
-                <p className="font-medium">{getJobProperty('employmentType', 'Full-Time')}</p>
-              </div>
-
-              <div className="mb-4">
-                <p className="text-gray-500 text-sm">Salary Range</p>
-                <p className="font-medium">{formatSalary(job?.salaryMin, job?.salaryMax)}</p>
-              </div>
-
-              <div className="mb-4">
-                <p className="text-gray-500 text-sm">Status</p>
-                <p className="font-medium">{getJobProperty('status', 'Open')}</p>
-              </div>
-
-              <div className="mt-8">
-                <button className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition font-medium"
-                  onClick={() => navigate(`/hr/job-dashboard/${job?.id}`)}>
-                  View List Candidate
+              <div className="mt-8 space-y-3">
+                <button
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white py-3 rounded-xl font-semibold text-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+                  onClick={() => navigate(`/hr/job-dashboard/${job.id}`)}
+                >
+                  View Candidates
+                </button>
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white py-3 rounded-xl font-semibold text-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+                  type="button"
+                >
+                  Edit Job
                 </button>
               </div>
             </div>
@@ -203,5 +396,5 @@ export default function JobDetail() {
         </style>
       </div>
     </div>
-  );
+  )
 }

@@ -7,7 +7,7 @@ class Repository extends DataRepository {
     getPaginationCandidate(page, size) {
         const offset = (page - 1) * size;
         return this.query()
-            .innerJoin('job_postings', 'job_postings.id', 'candidates.job_posting_id') // Join với bảng job_postings
+            .innerJoin('job_postings', 'job_postings.id', 'candidates.job_posting_id')
             .select(
                 'candidates.id',
                 'candidates.name',
@@ -19,6 +19,8 @@ class Repository extends DataRepository {
                 'candidates.resume_file as resumeFile',
                 'candidates.cover_letter as coverLetter',
                 'candidates.status',
+                'candidates.email',
+                'candidates.phone',
                 'job_postings.title as jobPostingName',
                 'candidates.created_at as createdAt',
                 'candidates.updated_at as updatedAt'
@@ -41,7 +43,7 @@ class Repository extends DataRepository {
     searchCandidatesByNameAndJob(page, size, keyword) {
         const offset = (page - 1) * size;
         return this.query()
-            .innerJoin('job_postings', 'job_postings.id', 'candidates.job_posting_id') // Join với bảng job_postings
+            .innerJoin('job_postings', 'job_postings.id', 'candidates.job_posting_id')
             .select(
                 'candidates.id',
                 'candidates.name',
@@ -128,6 +130,22 @@ class Repository extends DataRepository {
             .where('id', id)
             .del();
     }
+    updateCandidateStatus(id, status) {
+    return this.query()
+        .where('id', id)
+        .whereNull('deleted_at') 
+        .update({
+            status: status,
+            updated_at: new Date()
+        })
+        .returning([
+            'id',
+            'name', 
+            'email',
+            'status',
+            'updated_at as updatedAt'
+        ]);
+}
 }
 
 export const CandidateRepository = new Repository('candidates');

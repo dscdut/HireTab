@@ -1,70 +1,50 @@
 import { motion } from 'framer-motion'
-import { Upload, Search, FileCheck, UserCheck } from 'lucide-react'
+import ConfirmIcon from '@/assets/icons/confirm.svg'
 
-const steps = [
-  {
-    icon: <Upload className="w-12 h-12 text-blue-600" />,
-    title: 'Upload Resumes',
-    description: 'Upload candidate resumes or connect with recruitment sources'
-  },
-  {
-    icon: <Search className="w-12 h-12 text-blue-600" />,
-    title: 'AI Analysis',
-    description: 'The AI system analyzes and evaluates resumes based on criteria'
-  },
-  {
-    icon: <FileCheck className="w-12 h-12 text-blue-600" />,
-    title: 'Automated Screening',
-    description: 'Automatically screen and rank the most suitable candidates'
-  },
-  {
-    icon: <UserCheck className="w-12 h-12 text-blue-600" />,
-    title: 'Interview',
-    description: 'Focus on interviewing the most promising candidates'
-  }
-]
-
-const HowItWorks = () => {
+const ChallengesSection = () => {
   return (
     <section className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-14 items-center">
+        {/* Text Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, x: -40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
-          <p className="text-xl text-gray-600">
-            A simple, efficient, and time-saving process
+          <h2 className="text-4xl font-extrabold text-gray-900 mb-6">
+            Share your challenges!! <br />
+          </h2>
+          <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+            Together, we will explore:
           </p>
+          <ul className="space-y-4 text-gray-700 font-medium">
+            <li>🚀 Opportunities to learn and develop technology skills</li>
+            <li>🤝 Strategies to expand your team and connect with the tech community</li>
+            <li>🧠 How to build sustainable projects that fit future trends</li>
+          </ul>
+          <button className="mt-8 px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition">
+            Join GDGoC
+          </button>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((step, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.2 }}
-              viewport={{ once: true }}
-              className="relative"
-            >
-              <div className="p-6 rounded-xl bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="mb-4">{step.icon}</div>
-                <div className="absolute -top-4 -left-4 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
-                  {index + 1}
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{step.title}</h3>
-                <p className="text-gray-600">{step.description}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        {/* Image Section */}
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="flex justify-center"
+        >
+          <img
+            src={ConfirmIcon}
+            alt="Confirm"
+            className="w-full max-w-md"
+          />
+        </motion.div>
       </div>
     </section>
   )
 }
 
-export default HowItWorks
+export default ChallengesSection
