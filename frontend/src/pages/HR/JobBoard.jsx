@@ -9,7 +9,7 @@ import {
   Plus,
   MoreVertical,
   Trash2,
-  Eye,
+  Edit,
   MapPin,
   Calendar,
   Users,
@@ -21,7 +21,7 @@ import { jobApi } from "@/core/services/job.service"
 import AddJobModal from "./Modal/AddJobModal"
 import EditJobModal from "./Modal/EditJobModal"
 import { toast } from "react-toastify"
-
+import { path } from "@/core/constants/path"
 export default function JobBoard() {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState("")
@@ -103,7 +103,15 @@ export default function JobBoard() {
   }
 
   const handleViewDetails = (job) => {
-    navigate(`/hr/job-detail/${job.id}`)
+    const pathWithId = path.hr.job_detail.replace(':id', job.id)
+    navigate(pathWithId)
+    setMenuOpen(null)
+  }
+
+  // Handle Edit Job
+  const handleEditJob = (job) => {
+    setSelectedJob(job)
+    setShowEditModal(true)
     setMenuOpen(null)
   }
 
@@ -118,16 +126,22 @@ export default function JobBoard() {
     }
   }
 
+  // Toggle menu
   const toggleMenu = (jobId) => {
     setMenuOpen(menuOpen === jobId ? null : jobId)
   }
 
+  // Handle row click
+  const handleRowClick = (job) => {
+    handleViewDetails(job)
+  }
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600 font-medium">Loading jobs...</p>
+          <div className="w-12 h-12 mx-auto mb-4 border-4 rounded-full border-slate-200 border-t-slate-600 animate-spin"></div>
+          <p className="font-medium text-slate-600">Loading jobs...</p>
         </div>
       </div>
     )
@@ -135,12 +149,12 @@ export default function JobBoard() {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-        <div className="text-center bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-          <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="p-8 text-center bg-white border shadow-sm rounded-2xl border-slate-200">
+          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-rose-100">
             <Filter className="w-8 h-8 text-rose-600" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">Error loading jobs</h3>
+          <h3 className="mb-2 text-lg font-semibold text-slate-900">Error loading jobs</h3>
           <p className="text-slate-600">Please try refreshing the page</p>
         </div>
       </div>
@@ -154,19 +168,19 @@ export default function JobBoard() {
         <div className="px-6 py-4">
           {/* Title Section */}
           <div className="mb-4">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Job Board</h1>
+            <h1 className="mb-1 text-2xl font-bold text-gray-900">Job Board</h1>
             <p className="text-gray-600">
               Manage and track all your job postings.
             </p>
           </div>
 
           {/* Search and Filters */}
-          <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between">
-            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center flex-1 w-full lg:w-auto">
+          <div className="flex flex-col items-start justify-between gap-3 lg:flex-row lg:items-center">
+            <div className="flex flex-col items-start flex-1 w-full gap-3 sm:flex-row sm:items-center lg:w-auto">
               {/* Enhanced Search Input */}
               <div className="relative flex-grow min-w-[250px] max-w-sm">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                  <Search className="w-5 h-5 text-gray-400" />
                 </div>
                 <input
                   type="text"
@@ -186,17 +200,17 @@ export default function JobBoard() {
                     onClick={() => setShowLocationDropdown(!showLocationDropdown)}
                   >
                     <MapPin className="w-4 h-4 text-gray-500" />
-                    <span className="truncate text-sm">{location}</span>
+                    <span className="text-sm truncate">{location}</span>
                     <ChevronDown
                       className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${showLocationDropdown ? "rotate-180" : ""}`}
                     />
                   </button>
                   {showLocationDropdown && (
-                    <div className="absolute z-30 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                    <div className="absolute z-30 w-56 mt-2 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg">
                       {locations.map((loc) => (
                         <button
                           key={loc}
-                          className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-150 text-gray-700 border-b border-gray-100 last:border-b-0"
+                          className="w-full px-4 py-3 text-left text-gray-700 transition-colors duration-150 border-b border-gray-100 hover:bg-gray-50 last:border-b-0"
                           onClick={() => {
                             setLocation(loc)
                             setShowLocationDropdown(false)
@@ -216,17 +230,17 @@ export default function JobBoard() {
                     onClick={() => setShowStatusDropdown(!showStatusDropdown)}
                   >
                     <Filter className="w-4 h-4 text-gray-500" />
-                    <span className="truncate text-sm">{status}</span>
+                    <span className="text-sm truncate">{status}</span>
                     <ChevronDown
                       className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${showStatusDropdown ? "rotate-180" : ""}`}
                     />
                   </button>
                   {showStatusDropdown && (
-                    <div className="absolute z-30 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                    <div className="absolute z-30 w-56 mt-2 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg">
                       {statuses.map((stat) => (
                         <button
                           key={stat}
-                          className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-150 text-gray-700 border-b border-gray-100 last:border-b-0"
+                          className="w-full px-4 py-3 text-left text-gray-700 transition-colors duration-150 border-b border-gray-100 hover:bg-gray-50 last:border-b-0"
                           onClick={() => {
                             setStatus(stat)
                             setShowStatusDropdown(false)
@@ -256,27 +270,27 @@ export default function JobBoard() {
       {/* Main Content */}
       <div className="px-6 py-8">
         {filteredJobs.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="p-12 text-center bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full">
               <Briefcase className="w-10 h-10 text-gray-400" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No jobs found</h3>
-            <p className="text-gray-600 mb-6">No jobs match your current search criteria</p>
+            <h3 className="mb-2 text-xl font-semibold text-gray-900">No jobs found</h3>
+            <p className="mb-6 text-gray-600">No jobs match your current search criteria</p>
             <button
               onClick={() => {
                 setSearchTerm("")
                 setLocation("All Locations")
                 setStatus("All Statuses")
               }}
-              className="px-4 py-2 text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200"
+              className="px-4 py-2 font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700"
             >
               Clear all filters
             </button>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
             {/* Table Header */}
-            <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
+            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
               <div className="grid grid-cols-12 gap-4 text-sm font-semibold text-gray-700">
                 <div className="col-span-3">Job Title</div>
                 <div className="col-span-1">Status</div>
@@ -291,29 +305,21 @@ export default function JobBoard() {
             {/* Table Body */}
             <div className="divide-y divide-gray-100">
               {filteredJobs.map((job, index) => (
-                <div key={index} className="px-6 py-5 hover:bg-gray-50 transition-colors duration-150 group">
-                  <div className="grid grid-cols-12 gap-4 items-center">
-                    {/* Job Title */}
-                    <div className="col-span-3">
-                      <div className="flex flex-col">
-                        <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors duration-200">
-                          {job.title}
-                        </h3>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <MapPin className="w-3 h-3" />
-                          <span>{job.location || "Remote"}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
-                          <DollarSign className="w-3 h-3" />
-                          <span className="font-medium">
-                            {typeof job.salary_min === "number" && typeof job.salary_max === "number"
-                              ? `${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()}`
-                              : "Negotiable"}{" "}
-                            $
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                <div
+                  key={index}
+                  className="grid items-center grid-cols-12 gap-4 px-6 py-4 transition-colors cursor-pointer hover:bg-gray-50"
+                  onClick={() => handleRowClick(job)}
+                >
+                  {/* Job Title */}
+                  <div className="col-span-4">
+                    <h3 className="mb-1 font-medium text-gray-900">{job.title}</h3>
+                    <p className="mb-1 text-sm text-gray-500">{job.location}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {typeof job.salary_min === "number" && typeof job.salary_max === "number"
+                        ? `${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()}`
+                        : "Negotiable"} $
+                    </p>
+                  </div>
 
                     {/* Status */}
                     <div className="col-span-1">
@@ -376,34 +382,41 @@ export default function JobBoard() {
                       </div>
                     </div>
 
-                    {/* Actions Menu */}
-                    <div className="col-span-1 flex justify-end">
-                      <div className="relative">
-                        <button
-                          onClick={() => toggleMenu(job.id)}
-                          className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 opacity-0 group-hover:opacity-100"
-                        >
-                          <MoreVertical className="w-5 h-5 text-gray-500" />
-                        </button>
-                        {menuOpen === job.id && (
-                          <div className="absolute right-0 top-10 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-30 overflow-hidden">
-                            <button
-                              onClick={() => handleViewDetails(job)}
-                              className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-3 text-gray-700 border-b border-gray-100"
-                            >
-                              <Eye className="w-4 h-4" />
-                              View Details
-                            </button>
-                            <button
-                              onClick={() => handleDeleteJob(job)}
-                              className="w-full px-4 py-3 text-left text-sm hover:bg-red-50 flex items-center gap-3 text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                              Delete Job
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                  {/* Actions Menu */}
+                  <div className="flex justify-end col-span-1">
+                    <div className="relative">
+                      <button
+                        onClick={(e) => toggleMenu(job.id, e)}
+                        className="p-1 transition-colors rounded-full hover:bg-gray-100"
+                      >
+                        <MoreVertical size={16} className="text-gray-500" />
+                      </button>
+
+                      {/* Dropdown Menu */}
+                      {menuOpen === job.id && (
+                        <div className="absolute right-0 z-20 w-32 bg-white border border-gray-200 rounded-lg shadow-lg top-8">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleEditJob(job)
+                            }}
+                            className="flex items-center w-full gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 first:rounded-t-lg"
+                          >
+                            <Edit size={14} />
+                            Edit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDeleteJob(job)
+                            }}
+                            className="flex items-center w-full gap-2 px-3 py-2 text-sm text-left text-red-600 hover:bg-gray-50 last:rounded-b-lg"
+                          >
+                            <Trash2 size={14} />
+                            Delete
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
