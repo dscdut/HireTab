@@ -19,6 +19,8 @@ class Repository extends DataRepository {
                 'candidates.resume_file as resumeFile',
                 'candidates.cover_letter as coverLetter',
                 'candidates.status',
+                'candidates.email',
+                'candidates.phone',
                 'job_postings.title as jobPostingName',
                 'candidates.created_at as createdAt',
                 'candidates.updated_at as updatedAt'

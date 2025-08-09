@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query"
 import { XCircle } from "lucide-react"
-import { manageCandidateApi } from "./test-candidate-services/manageCandidateApi"
+import { candidateApi } from "@/core/services/candidate.service";
 import { toast } from "react-toastify"
 
 import { CANDIDATE_STATUSES } from "./job-dashboard/constants/candidateConstants"
@@ -59,22 +59,26 @@ export default function ManageCandidates() {
     data: candidates = [],
     isLoading,
     isError,
+    refetch,
   } = useQuery({
     queryKey: ["allCandidates"],
     queryFn: async () => {
       try {
-        const response = await manageCandidateApi.getAllCandidates()
-        return response || []
+        const response = await candidateApi.getPaginationCandidate(1, 100) // Adjust page/size as needed
+        return response.data || [] // Adjust based on response structure
       } catch (error) {
         console.error("Failed to fetch all candidates:", error)
         throw error
       }
     },
+    refetchOnWindowFocus: false,
   })
 
   const bulkUpdateStatusMutation = useMutation({
-    mutationFn: ({ candidateIds, status, currentStatuses }) =>
-      manageCandidateApi.bulkUpdateStatus(candidateIds, { status, currentStatuses }),
+    mutationFn: ({ candidateIds, status }) =>
+      Promise.all(
+        candidateIds.map((id) => candidateApi.updateStatus(id, status))
+      ),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries(["allCandidates"])
       toast.success(`Updated ${variables.candidateIds.length} candidates to ${variables.status}`)
@@ -177,7 +181,6 @@ export default function ManageCandidates() {
     bulkUpdateStatusMutation.mutate({
       candidateIds: validCandidates.map((c) => c.id),
       status: newStatus,
-      currentStatuses: validCandidates.map((c) => c.status),
     })
   }
 
@@ -433,6 +436,7 @@ export default function ManageCandidates() {
             sortConfig={sortConfig}
             setSortConfig={setSortConfig}
             onStatusTransition={handleStatusTransition}
+            refetchCandidates={refetch}
           />
         </div>
       </div>

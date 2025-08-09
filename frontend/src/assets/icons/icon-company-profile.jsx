@@ -1,7 +1,7 @@
 import { ICON_SIZE_LARGE } from '@/core/configs/icon-size'
 
 // Icon cho Company Profile (Home icon)
-const IconCompanyProfile = props => {
+const IconHrDashboard = props => {
     return (
         <svg
             width={ICON_SIZE_LARGE}
@@ -21,4 +21,4 @@ const IconCompanyProfile = props => {
     )
 }
 
-export default IconCompanyProfile
+export default IconHrDashboard

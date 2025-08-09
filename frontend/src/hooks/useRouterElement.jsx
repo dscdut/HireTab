@@ -4,7 +4,6 @@ import { path } from '@/core/constants/path'
 import HomePage from '@/pages/home/HomePage'
 import Login from '@/pages/login/Login'
 import Register from '@/pages/register/Register'
-import Dashboard from '@/pages/dashboard/Dashboard'
 import LayoutMain from '@/app/layout/LayoutMain'
 import PageNotFound from '@/pages/404/PageNotFound'
 import JobBoard from '@/UV/JobBoard'
@@ -14,6 +13,7 @@ import JobBoardHR from '@/pages/HR/JobBoard'
 import JobDetailHR from '@/pages/HR/JobDetail'
 import ProtectedRoute from '@/components/landing/ProtectedRoute'
 import ManageCandidates from '@/pages/HR/ManageCandidates'
+import HRDashboard from '@/pages/HR/Dashboard/Hr_Dashboard'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -21,14 +21,14 @@ export default function useRoutesElements() {
     { path: path.home, element: <HomePage /> },
     { path: path.login, element: <Login /> },
     { path: path.register, element: <Register /> },
-    {
-      path: path.admin.dashboard,
-      element: (
-        <LayoutMain>
-          <Dashboard />
-        </LayoutMain>
-      )
-    },
+    // {
+    //   path: path.admin.dashboard,
+    //   element: (
+    //     <LayoutMain>
+    //       <Dashboard />
+    //     </LayoutMain>
+    //   )
+    // },
     {
       path: path.candidate.job,
       element: (
@@ -40,8 +40,16 @@ export default function useRoutesElements() {
     },
     {
       path: path.candidate.jobDetail,
+      element: <JobDetail />
+    },
+    {
+      path: path.hr.hr_dashboard,
       element: (
-        <JobDetail />
+        <LayoutMain>
+          <ProtectedRoute allowedRoles={['HR']}>
+            <HRDashboard />
+          </ProtectedRoute>
+        </LayoutMain>
       )
     },
     {
@@ -52,8 +60,6 @@ export default function useRoutesElements() {
             <JobPostingDashboard />
           </ProtectedRoute>
         </LayoutMain>
-
-
       )
     },
     {
@@ -72,9 +78,18 @@ export default function useRoutesElements() {
         <LayoutMain>
           <ProtectedRoute allowedRoles={['HR']}>
             <JobDetailHR />
-          </ProtectedRoute >
+          </ProtectedRoute>
         </LayoutMain>
-
+      )
+    },
+    {
+      path: path.hr.candidates_manage,
+      element: (
+        <LayoutMain>
+          <ProtectedRoute allowedRoles={['HR']}>
+            <ManageCandidates />
+          </ProtectedRoute>
+        </LayoutMain>
       )
     },
     {
