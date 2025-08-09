@@ -30,15 +30,13 @@ export default function CandidateTableWithJobName({
   ]
 
   const columns = [
-    { key: "name", label: "Candidate", icon: Users },
-    { key: "jobPostingName", label: "Job Position", icon: Briefcase },
-    { key: "createdAt", label: "Applied Date", icon: Calendar },
-    { key: "resumeFile", label: "Resume", icon: FileText },
-    { key: "status", label: "Status", icon: null },
-    { key: "score", label: "Score", icon: null },
-    { key: null, label: "Actions", icon: null },
-    { key: "email", label: "Email", icon: Mail },
-    { key: "phone", label: "Phone", icon: null },
+    { key: "name", label: "Candidate", icon: Users, width: "w-56" },
+    { key: "jobPostingName", label: "Position", icon: Briefcase, width: "w-40" },
+    { key: "createdAt", label: "Applied", icon: Calendar, width: "w-28" },
+    { key: "resumeFile", label: "Resume", icon: FileText, width: "w-24" },
+    { key: "status", label: "Status", icon: null, width: "w-32" },
+    { key: "score", label: "Score", icon: null, width: "w-28" },
+    { key: null, label: "Actions", icon: null, width: "w-32" },
   ]
 
   // Pagination logic
@@ -202,11 +200,11 @@ export default function CandidateTableWithJobName({
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
+      <div className="overflow-hidden">
+        <table className="w-full table-fixed">
           <thead className="bg-blue-50 border-b border-blue-100">
             <tr>
-              <th className="px-6 py-4 text-left">
+              <th className="px-4 py-4 text-left w-12">
                 <input
                   type="checkbox"
                   checked={selectedCandidates.size === currentCandidates.length && currentCandidates.length > 0}
@@ -217,28 +215,28 @@ export default function CandidateTableWithJobName({
               {columns.map((column) => (
                 <th
                   key={column.key || column.label}
-                  className="px-6 py-4 text-left text-sm font-semibold text-gray-900"
+                  className={`px-4 py-4 text-left text-sm font-semibold text-gray-900 ${column.width}`}
                 >
                   {column.key ? (
                     <button
-                      className="flex items-center space-x-2 hover:text-blue-600 transition-colors"
+                      className="flex items-center space-x-2 hover:text-blue-600 transition-colors w-full"
                       onClick={() => {
                         const direction =
                           sortConfig.key === column.key && sortConfig.direction === "asc" ? "desc" : "asc"
                         setSortConfig({ key: column.key, direction })
                       }}
                     >
-                      {column.icon && <column.icon className="w-4 h-4" />}
-                      <span>{column.label}</span>
+                      {column.icon && <column.icon className="w-4 h-4 flex-shrink-0" />}
+                      <span className="truncate">{column.label}</span>
                       <ChevronDown
-                        className={`w-4 h-4 transition-transform ${sortConfig.key === column.key && sortConfig.direction === "asc" ? "rotate-180" : ""
+                        className={`w-4 h-4 transition-transform flex-shrink-0 ${sortConfig.key === column.key && sortConfig.direction === "asc" ? "rotate-180" : ""
                           }`}
                       />
                     </button>
                   ) : (
                     <div className="flex items-center space-x-2">
-                      {column.icon && <column.icon className="w-4 h-4" />}
-                      <span>{column.label}</span>
+                      {column.icon && <column.icon className="w-4 h-4 flex-shrink-0" />}
+                      <span className="truncate">{column.label}</span>
                     </div>
                   )}
                 </th>
@@ -253,7 +251,7 @@ export default function CandidateTableWithJobName({
                   className={`hover:bg-gray-50 transition-colors ${selectedCandidates.has(candidate.id) ? "bg-blue-50" : ""
                     }`}
                 >
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-4 w-12">
                     <input
                       type="checkbox"
                       checked={selectedCandidates.has(candidate.id)}
@@ -261,26 +259,40 @@ export default function CandidateTableWithJobName({
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                   </td>
-                  <td className="px-6 py-4">
+                  
+                  {/* Candidate Column */}
+                  <td className="px-4 py-4 w-56">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-sm font-medium text-blue-600">
                           {candidate.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{candidate.name}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-gray-900 truncate">{candidate.name}</div>
+                        <div className="text-xs text-gray-500 truncate">{candidate.email}</div>
+                        <div className="text-xs text-gray-400">{candidate.phone || "—"}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  
+                  {/* Position Column */}
+                  <td className="px-4 py-4 w-40">
                     <div className="flex items-center space-x-2">
-                      <Briefcase className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm font-medium text-gray-900">{candidate.jobPostingName}</span>
+                      <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <span className="text-sm font-medium text-gray-900 truncate">
+                        {candidate.jobPostingName}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{formatDate(candidate.createdAt)}</td>
-                  <td className="px-6 py-4">
+                  
+                  {/* Applied Date Column */}
+                  <td className="px-4 py-4 w-28">
+                    <div className="text-sm text-gray-600">{formatDate(candidate.createdAt)}</div>
+                  </td>
+                  
+                  {/* Resume Column */}
+                  <td className="px-4 py-4 w-24">
                     {candidate.resumeFile ? (
                       <a
                         href={candidate.resumeFile}
@@ -292,16 +304,20 @@ export default function CandidateTableWithJobName({
                         <span>View</span>
                       </a>
                     ) : (
-                      <span className="text-gray-400 text-sm">No file</span>
+                      <span className="text-gray-400 text-sm">—</span>
                     )}
                   </td>
-                  <td className="px-6 py-4">
+                  
+                  {/* Status Column */}
+                  <td className="px-4 py-4 w-32">
                     <StatusBadge status={candidate.status} />
                   </td>
-                  <td className="px-6 py-4">
+                  
+                  {/* Score Column */}
+                  <td className="px-4 py-4 w-28">
                     <div className="flex items-center space-x-2">
                       <div className="text-sm font-medium text-gray-900">{candidate.score}%</div>
-                      <div className="w-16 bg-gray-200 rounded-full h-2">
+                      <div className="w-12 bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-blue-500 h-2 rounded-full transition-all"
                           style={{ width: `${candidate.score}%` }}
@@ -309,7 +325,9 @@ export default function CandidateTableWithJobName({
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  
+                  {/* Actions Column */}
+                  <td className="px-4 py-4 w-32">
                     {getNextStatus(candidate.status) ? (
                       <button
                         onClick={() => onStatusTransition(candidate.id, candidate.status)}
@@ -318,16 +336,14 @@ export default function CandidateTableWithJobName({
                         → {getNextStatus(candidate.status)}
                       </button>
                     ) : (
-                      <span className="text-gray-400 text-xs font-medium">Final Status</span>
+                      <span className="text-gray-400 text-xs font-medium">Final</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{candidate.email}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{candidate.phone || "—"}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={10} className="px-6 py-12 text-center">
+                <td colSpan={7} className="px-4 py-12 text-center">
                   <div className="flex flex-col items-center space-y-3">
                     <Users className="w-12 h-12 text-gray-300" />
                     <div>
