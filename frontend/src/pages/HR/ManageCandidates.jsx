@@ -14,6 +14,7 @@ import BulkActionsBar from "./job-dashboard/BulkActionsBar"
 import CandidateTableWithJobName from "./job-dashboard/CandidateTableWithJobName"
 import FilterModal from "./job-dashboard/FilterModal"
 import EmailModal from "./job-dashboard/EmailModal"
+import ConfirmModal from "./job-dashboard/ConfirmModal"
 
 export default function ManageCandidates() {
   const [activeTab, setActiveTab] = useState(CANDIDATE_STATUSES.ALL)
@@ -23,6 +24,15 @@ export default function ManageCandidates() {
   const [showFilterPanel, setShowFilterPanel] = useState(false)
   const [filters, setFilters] = useState([])
   const [filterLogic, setFilterLogic] = useState("all")
+
+  // Status Confirmation Modal
+  const [statusConfirmModal, setStatusConfirmModal] = useState({
+    isOpen: false,
+    candidateId: null,
+    candidateName: "",
+    currentStatus: "",
+    nextStatus: "",
+  })
 
   // Email Modal States
   const [emailModalState, setEmailModalState] = useState("closed")
@@ -148,7 +158,47 @@ export default function ManageCandidates() {
   const handleStatusTransition = (candidateId, currentStatus) => {
     const nextStatus = getNextStatus(currentStatus)
     if (!nextStatus) return
-    console.log(`Transitioning candidate ${candidateId} from ${currentStatus} to ${nextStatus}`)
+    
+    // Find candidate name for confirmation modal
+    const candidate = candidates.find(c => c.id === candidateId)
+    
+    // Show confirmation modal
+    setStatusConfirmModal({
+      isOpen: true,
+      candidateId,
+      candidateName: candidate?.name || "Unknown",
+      currentStatus,
+      nextStatus,
+    })
+  }
+
+  const handleStatusConfirm = () => {
+    const { candidateId, nextStatus } = statusConfirmModal
+    
+    // Update status after confirmation
+    bulkUpdateStatusMutation.mutate({
+      candidateIds: [candidateId],
+      status: nextStatus,
+    })
+    
+    // Close modal
+    setStatusConfirmModal({
+      isOpen: false,
+      candidateId: null,
+      candidateName: "",
+      currentStatus: "",
+      nextStatus: "",
+    })
+  }
+
+  const handleStatusCancel = () => {
+    setStatusConfirmModal({
+      isOpen: false,
+      candidateId: null,
+      candidateName: "",
+      currentStatus: "",
+      nextStatus: "",
+    })
   }
 
   const handleBulkStatusUpdate = (newStatus) => {
@@ -173,11 +223,7 @@ export default function ManageCandidates() {
       return
     }
 
-    const confirmed = window.confirm(
-      `Update status to "${newStatus}" for ${validCandidates.length} selected candidates?`,
-    )
-    if (!confirmed) return
-
+    // Directly update without confirmation popup
     bulkUpdateStatusMutation.mutate({
       candidateIds: validCandidates.map((c) => c.id),
       status: newStatus,
@@ -311,11 +357,11 @@ export default function ManageCandidates() {
         setQuickReplyPrompt("")
       } else {
         console.error("Unexpected API response:", data)
-        alert("Failed to generate content. Please try again.")
+        toast.error("Failed to generate content. Please try again.")
       }
     } catch (error) {
       console.error("Error generating content:", error)
-      alert("Failed to generate content. Please check your connection and try again.")
+      toast.error("Failed to generate content. Please check your connection and try again.")
     } finally {
       setIsGeneratingContent(false)
     }
@@ -329,7 +375,7 @@ export default function ManageCandidates() {
     input.onchange = (e) => {
       const files = Array.from(e.target.files)
       console.log("Selected files:", files)
-      alert(`Selected ${files.length} file(s) for attachment`)
+      toast.success(`Selected ${files.length} file(s) for attachment`)
     }
     input.click()
   }
@@ -363,7 +409,7 @@ export default function ManageCandidates() {
       const file = e.target.files[0]
       if (file) {
         console.log("Selected image:", file)
-        alert(`Selected image: ${file.name}`)
+        toast.success(`Selected image: ${file.name}`)
       }
     }
     input.click()
@@ -486,6 +532,15 @@ export default function ManageCandidates() {
         onInsertLink={handleInsertLink}
         onInsertEmoji={handleInsertEmoji}
         onInsertImage={handleInsertImage}
+      />
+
+      {/* Status Confirmation Modal */}
+      <ConfirmModal
+        open={statusConfirmModal.isOpen}
+        message={`Are you sure you want to change ${statusConfirmModal.candidateName}'s status from "${statusConfirmModal.currentStatus}" to "${statusConfirmModal.nextStatus}"?`}
+        isLoading={bulkUpdateStatusMutation.isPending}
+        onClose={handleStatusCancel}
+        onConfirm={handleStatusConfirm}
       />
     </div>
   )

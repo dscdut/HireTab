@@ -291,14 +291,14 @@ export default function JobBoard() {
           <div className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
             {/* Table Header */}
             <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-              <div className="grid grid-cols-12 gap-4 text-sm font-semibold text-gray-700">
+              <div className="grid grid-cols-12 gap-6 text-sm font-semibold text-gray-700">
                 <div className="col-span-3">Job Title</div>
                 <div className="col-span-1">Status</div>
                 <div className="col-span-2">Start Date</div>
                 <div className="col-span-2">End Date</div>
-                <div className="col-span-1">Type</div>
-                <div className="col-span-2">Applications</div>
-                <div className="col-span-1"></div>
+                <div className="col-span-2">Type</div>
+                <div className="col-span-1">Applications</div>
+                <div className="col-span-1 text-right">Actions</div>
               </div>
             </div>
 
@@ -307,11 +307,11 @@ export default function JobBoard() {
               {filteredJobs.map((job, index) => (
                 <div
                   key={index}
-                  className="grid items-center grid-cols-12 gap-4 px-6 py-4 transition-colors cursor-pointer hover:bg-gray-50"
+                  className="grid items-center grid-cols-12 gap-6 px-6 py-4 transition-colors cursor-pointer hover:bg-gray-50"
                   onClick={() => handleRowClick(job)}
                 >
                   {/* Job Title */}
-                  <div className="col-span-4">
+                  <div className="col-span-3">
                     <h3 className="mb-1 font-medium text-gray-900">{job.title}</h3>
                     <p className="mb-1 text-sm text-gray-500">{job.location}</p>
                     <p className="text-sm font-medium text-gray-900">
@@ -363,7 +363,7 @@ export default function JobBoard() {
                     </div>
 
                     {/* Job Type */}
-                    <div className="col-span-1">
+                    <div className="col-span-2">
                       <span
                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getJobTypeColor(job.type || "Fulltime")}`}
                       >
@@ -372,7 +372,7 @@ export default function JobBoard() {
                     </div>
 
                     {/* Applications */}
-                    <div className="col-span-2">
+                    <div className="col-span-1">
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4 text-gray-400" />
                         <div className="flex items-center gap-1">
@@ -386,7 +386,10 @@ export default function JobBoard() {
                   <div className="flex justify-end col-span-1">
                     <div className="relative">
                       <button
-                        onClick={(e) => toggleMenu(job.id, e)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleMenu(job.id)
+                        }}
                         className="p-1 transition-colors rounded-full hover:bg-gray-100"
                       >
                         <MoreVertical size={16} className="text-gray-500" />
