@@ -2,8 +2,8 @@ import { useLocation, useRoutes } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { path } from '@/core/constants/path'
 import HomePage from '@/pages/home/HomePage'
-import Login from '@/pages/login/Login'
-import Register from '@/pages/register/Register'
+import LoginPage from '@/pages/login/LoginPage'
+import Register from '@/pages/register/RegisterPage'
 import LayoutMain from '@/app/layout/LayoutMain'
 import PageNotFound from '@/pages/404/PageNotFound'
 import JobBoard from '@/UV/JobBoard'
@@ -19,7 +19,7 @@ export default function useRoutesElements() {
 
   const routes = [
     { path: path.home, element: <HomePage /> },
-    { path: path.login, element: <Login /> },
+    { path: path.login, element: <LoginPage /> },
     { path: path.register, element: <Register /> },
     // {
     //   path: path.admin.dashboard,

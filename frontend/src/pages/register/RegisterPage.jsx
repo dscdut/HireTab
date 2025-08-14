@@ -1,3 +1,7 @@
+/*
+Deprecated, dont use it now!
+*/
+
 import { IconEye, IconNonEye } from '@/assets/icons'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
