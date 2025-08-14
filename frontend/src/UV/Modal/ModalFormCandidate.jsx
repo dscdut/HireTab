@@ -4,15 +4,18 @@ import { useState, useRef, useEffect } from "react"
 import { candidateApi } from "@/core/services/candidate.service"
 import { toast } from "react-toastify"
 import { jwtDecode } from "jwt-decode"
-import { X, Upload, FileText, Brain, CheckCircle, AlertCircle } from "lucide-react"
+import { X, Upload, FileText, Brain, CheckCircle, AlertCircle, Plus } from "lucide-react"
 import * as pdfjsLib from "pdfjs-dist"
+import ResumeBuilder from "./ResumeBuilder"
+
 // Đặt worker URL sử dụng dynamic import
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/build/pdf.worker.mjs',
     import.meta.url
 ).toString()
 
-const ModalFormCandidate = ({ isOpen,
+const ModalFormCandidate = ({
+    isOpen,
     onClose,
     onSubmit,
     jobId,
@@ -20,7 +23,7 @@ const ModalFormCandidate = ({ isOpen,
     jobLocation,
     jobLevel,
     jobDesRate,
-    jobDes
+    jobDes,
 }) => {
     const [userId, setUserId] = useState("")
     const [formData, setFormData] = useState({
@@ -38,6 +41,7 @@ const ModalFormCandidate = ({ isOpen,
     const [isAnalyzing, setIsAnalyzing] = useState(false)
     const [matchingResult, setMatchingResult] = useState(null)
     const [analysisError, setAnalysisError] = useState(null)
+    const [showResumeBuilder, setShowResumeBuilder] = useState(false)
     const fileInputRef = useRef(null)
 
     const handleChange = (e) => {
@@ -122,7 +126,6 @@ const ModalFormCandidate = ({ isOpen,
                         .replace(/\n\s*\n/g, '\n')
                         .trim()
 
-                    // Log extracted text to console
                     console.log("Extracted PDF Content:", cleanedText)
 
                     const extractedInfo = extractMeaningfulInfo(cleanedText)
@@ -231,7 +234,7 @@ const ModalFormCandidate = ({ isOpen,
         return info.join('\n\n')
     }
 
-    // Function to analyze CV with Gemini API (from second code snippet)
+    // Function to analyze CV with Gemini API
     const analyzeWithGemini = async (cvText, jobDescription) => {
         try {
             const apiKey = import.meta.env.VITE_GEMINI_API_KEY
@@ -447,6 +450,48 @@ const ModalFormCandidate = ({ isOpen,
         e.preventDefault()
     }
 
+    const handleResumeBuilderSave = async (resumeFile) => {
+        if (resumeFile.type !== "application/pdf") {
+            toast.error("Resume must be in PDF format")
+            return
+        }
+
+        if (resumeFile.size > 10 * 1024 * 1024) {
+            toast.error("Resume size must be less than 10MB")
+            return
+        }
+
+        try {
+            toast.info("Validating CV content...")
+            const validation = await validatePdfContent(resumeFile)
+
+            if (validation.isValid) {
+                setFile(resumeFile)
+                setShowResumeBuilder(false)
+                toast.success("Resume created successfully!")
+
+                setIsAnalyzing(true)
+                setAnalysisError(null)
+                try {
+                    const cvText = await extractTextFromPDF(resumeFile)
+                    const jobDescription = `${jobDes}\n${jobDesRate}`
+                    const analysisResult = await analyzeWithGemini(cvText, jobDescription)
+                    setMatchingResult(analysisResult)
+                    toast.success("CV analysis completed!")
+                } catch (error) {
+                    setAnalysisError("Failed to analyze CV due to server issues. You can still submit your application.")
+                    toast.error("CV analysis failed. You can still proceed with submission.")
+                } finally {
+                    setIsAnalyzing(false)
+                }
+            }
+        } catch (error) {
+            console.error("PDF validation or analysis error:", error)
+            toast.error(error.message)
+            setIsAnalyzing(false)
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
 
@@ -563,7 +608,6 @@ const ModalFormCandidate = ({ isOpen,
                     <div className="p-6">
                         <div className="mb-6">
                             <h3 className="text-xl font-semibold text-gray-900 mb-2">Submit your application</h3>
-                            <p className="text-sm text-gray-600">The following is required and will only be shared with JobHunty</p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-5">
@@ -686,35 +730,64 @@ const ModalFormCandidate = ({ isOpen,
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Attach your resume</label>
-                                <div
-                                    className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-all"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    onDrop={handleDrop}
-                                    onDragOver={handleDragOver}
-                                >
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={handleFileChange}
-                                        className="hidden"
-                                        accept=".pdf"
-                                        required
-                                    />
-                                    <div className="flex flex-col items-center">
-                                        {file ? (
-                                            <>
-                                                <FileText className="w-8 h-8 text-blue-500 mb-2" />
-                                                <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                                                <p className="text-xs text-gray-500">PDF • {(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                                                <p className="text-sm font-medium text-gray-900 mb-1">Attach Resume/CV</p>
-                                                <p className="text-xs text-gray-500">Drag and drop or click to upload (PDF only)</p>
-                                            </>
-                                        )}
+
+                                {/* Resume Options */}
+                                <div className="space-y-3 mb-4">
+                                    <div
+                                        className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-all"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        onDrop={handleDrop}
+                                        onDragOver={handleDragOver}
+                                    >
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                            accept=".pdf"
+                                            required={!file}
+                                        />
+                                        <div className="flex flex-col items-center">
+                                            {file ? (
+                                                <>
+                                                    <FileText className="w-8 h-8 text-blue-500 mb-2" />
+                                                    <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                                                    <p className="text-xs text-gray-500">PDF • {(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                                                    <p className="text-sm font-medium text-gray-900 mb-1">Upload Resume/CV</p>
+                                                    <p className="text-xs text-gray-500">Drag and drop or click to upload (PDF only)</p>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
+
+                                    {/* OR Divider */}
+                                    <div className="relative">
+                                        <div className="absolute inset-0 flex items-center">
+                                            <div className="w-full border-t border-gray-200"></div>
+                                        </div>
+                                        <div className="relative flex justify-center text-sm">
+                                            <span className="px-2 bg-white text-gray-500">OR</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Create Resume Button */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowResumeBuilder(true)}
+                                        className="w-full border-2 border-blue-200 bg-blue-50 rounded-lg p-4 text-center hover:border-blue-300 hover:bg-blue-100 transition-all group"
+                                    >
+                                        <div className="flex flex-col items-center">
+                                            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mb-2 group-hover:bg-blue-700 transition-colors">
+                                                <Plus className="w-5 h-5 text-white" />
+                                            </div>
+                                            <p className="text-sm font-medium text-blue-900 mb-1">Create a Resume</p>
+                                            <p className="text-xs text-blue-700">Build a professional resume from templates</p>
+                                        </div>
+                                    </button>
                                 </div>
 
                                 {isAnalyzing && (
@@ -826,6 +899,15 @@ const ModalFormCandidate = ({ isOpen,
                     </p>
                 </div>
             </div>
+
+            {/* Resume Builder Modal */}
+            <ResumeBuilder
+                isOpen={showResumeBuilder}
+                onClose={() => setShowResumeBuilder(false)}
+                onSaveResume={handleResumeBuilderSave}
+                jobDescription={jobDes}
+                jobDesRate={jobDesRate}
+            />
         </div>
     )
 }
