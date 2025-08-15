@@ -1,4 +1,4 @@
-import GDGOCIcon from '@/assets/icons/GDGOC.svg'
+import HireTabLogo from '@/assets/images/hiretab-logo.png'
 import { Link } from 'react-router-dom'
 import { path } from '@/core/constants/path'
 
@@ -31,7 +31,8 @@ const Logo = ({ className = '' }) => {
     //           rotate: [0, -5, 0]
     //         }}
     //         transition={{
-    //           duration: 2,
+    //           duration: 2,      <img src={HireTabLogo} alt="GDGOC Logo" className="w-12 h-12" />
+
     //           repeat: Infinity,
     //           repeatType: 'reverse'
     //         }}
@@ -44,9 +45,9 @@ const Logo = ({ className = '' }) => {
     //   </motion.div>
 
     <Link to={path.home} className={`flex items-center space-x-3 ${className}`}>
-      <img src={GDGOCIcon} alt="GDGOC Logo" className="w-12 h-12" />
+      <img src={HireTabLogo} alt="GDGOC Logo" className="w-12 h-12" />
       <span className="text-2xl font-bold text-gray-900 whitespace-nowrap">
-        Google Developer Groups <span className="block text-base font-medium text-gray-500 leading-tight">on Campus</span>
+        Google Developer Groups <span className="block text-base font-medium leading-tight text-gray-500">on Campus</span>
       </span>
     </Link>
   )
