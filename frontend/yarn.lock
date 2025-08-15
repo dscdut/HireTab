@@ -2761,7 +2761,7 @@ html-parse-stringify@^3.0.1:
   dependencies:
     void-elements "3.1.0"
 
-html2canvas@^1.0.0-rc.5:
+html2canvas@^1.0.0-rc.5, html2canvas@^1.4.1:
   version "1.4.1"
   resolved "https://registry.npmjs.org/html2canvas/-/html2canvas-1.4.1.tgz"
   integrity sha512-fPU6BHNpsyIhr8yyMpTLLxAbkaK8ArIBcmZIRiBLiDhjeqvXolaEmDGmELFuX9I4xDcaKKcJl+TKZLqruBbmWA==
@@ -4625,6 +4625,7 @@ tar@^7.4.3:
     eslint-config-prettier "^10.0.1"
     eslint-plugin-prettier "^5.2.3"
     framer-motion "^12.4.2"
+    html2canvas "^1.4.1"
     i18next "^23.12.3"
     i18next-browser-languagedetector "^8.0.4"
     input-otp "^1.4.2"
