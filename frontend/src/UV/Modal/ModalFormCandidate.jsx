@@ -2,11 +2,11 @@
 
 import { useState, useRef, useEffect } from "react"
 import { candidateApi } from "@/core/services/candidate.service"
-import { toast } from "react-toastify"
+import { toast, Toaster } from "react-hot-toast"
 import { jwtDecode } from "jwt-decode"
 import { X, Upload, FileText, Brain, CheckCircle, AlertCircle, Plus } from "lucide-react"
 import * as pdfjsLib from "pdfjs-dist"
-import ResumeBuilder from "./ResumeBuilder"
+import { path } from "@/core/constants/path"
 
 // Đặt worker URL sử dụng dynamic import
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -41,7 +41,6 @@ const ModalFormCandidate = ({
     const [isAnalyzing, setIsAnalyzing] = useState(false)
     const [matchingResult, setMatchingResult] = useState(null)
     const [analysisError, setAnalysisError] = useState(null)
-    const [showResumeBuilder, setShowResumeBuilder] = useState(false)
     const fileInputRef = useRef(null)
 
     const handleChange = (e) => {
@@ -175,7 +174,7 @@ const ModalFormCandidate = ({
 
         const phoneRegex = /(?:\+\d{1,3}\s?)?(?:\(\d{1,4}\))?\s?\d{1,4}[\s.-]?\d{1,4}[\s.-]?\d{1,9}/g
         const phones = text.match(phoneRegex)?.filter(phone => {
-            const cleanPhone = phone.replace(/\D/g, '')
+            const cleanPhone = phone.replace(/\s+/g, '')
             return cleanPhone.length >= 8 && cleanPhone.length <= 15
         })
         if (phones) {
@@ -236,6 +235,7 @@ const ModalFormCandidate = ({
 
     // Function to analyze CV with Gemini API
     const analyzeWithGemini = async (cvText, jobDescription) => {
+        const toastId = toast.loading("Analyzing matching score...")
         try {
             const apiKey = import.meta.env.VITE_GEMINI_API_KEY
             if (!apiKey) {
@@ -293,6 +293,7 @@ const ModalFormCandidate = ({
                     const generatedText = data.candidates[0].content.parts[0].text
                     const jsonMatch = generatedText.match(/\{[\s\S]*\}/)
                     if (jsonMatch) {
+                        toast.success("Matching score analysis completed!", { id: toastId })
                         return JSON.parse(jsonMatch[0])
                     } else {
                         throw new Error("Could not parse analysis result")
@@ -305,6 +306,7 @@ const ModalFormCandidate = ({
                 }
             }
         } catch (error) {
+            toast.error("Failed to analyze matching score.", { id: toastId })
             console.error("Error analyzing with Gemini:", error)
             throw error
         }
@@ -325,20 +327,33 @@ const ModalFormCandidate = ({
                         return
                     }
 
-                    const page = await pdf.getPage(1)
-                    const textContent = await page.getTextContent()
-                    const textItems = textContent.items.map(item => item.str).join(' ')
+                    let textContent = ""
+                    for (let i = 1; i <= Math.min(pdf.numPages, 5); i++) { // Process up to 5 pages for validation
+                        const page = await pdf.getPage(i)
+                        const pageTextContent = await page.getTextContent()
+                        textContent += pageTextContent.items.map(item => item.str).join(" ")
+                    }
 
-                    if (textItems.trim().length < 50) {
-                        reject(new Error("PDF content appears to be too short or may be scanned images only"))
+                    if (textContent.trim().length < 50) {
+                        // Fallback: Check file size as a secondary validation
+                        if (file.size > 10 * 1024 * 1024) {
+                            resolve({
+                                isValid: true,
+                                pageCount: pdf.numPages,
+                                textLength: textContent.length,
+                                hasText: false, // Indicates the file may have limited text
+                            })
+                        } else {
+                            reject(new Error("PDF content appears to be too short or may be scanned images only"))
+                        }
                         return
                     }
 
                     resolve({
                         isValid: true,
                         pageCount: pdf.numPages,
-                        textLength: textItems.length,
-                        hasText: textItems.trim().length > 0
+                        textLength: textContent.length,
+                        hasText: true,
                     })
                 } catch (error) {
                     reject(new Error(`Failed to read PDF: ${error.message}`))
@@ -363,14 +378,14 @@ const ModalFormCandidate = ({
                 return
             }
 
-            if (selectedFile.size > 10 * 1024 * 1024) {
-                toast.error("File size must be less than 10MB")
+            if (selectedFile.size > 30 * 1024 * 1024) { // Updated to 30MB
+                toast.error("File size must be less than 30MB")
                 e.target.value = ""
                 return
             }
 
             try {
-                toast.info("Validating CV content...")
+                const toastId = toast.loading("Validating CV content...")
                 const validation = await validatePdfContent(selectedFile)
 
                 if (validation.isValid) {
@@ -383,10 +398,10 @@ const ModalFormCandidate = ({
                         const jobDescription = `${jobDes}\n${jobDesRate}`
                         const analysisResult = await analyzeWithGemini(cvText, jobDescription)
                         setMatchingResult(analysisResult)
-                        toast.success("CV analysis completed!")
+                        toast.success("CV analysis completed!", { id: toastId })
                     } catch (error) {
                         setAnalysisError("Failed to analyze CV due to server issues. You can still submit your application.")
-                        toast.error("CV analysis failed. You can still proceed with submission.")
+                        toast.error("CV analysis failed. You can still proceed with submission.", { id: toastId })
                     } finally {
                         setIsAnalyzing(false)
                     }
@@ -410,18 +425,18 @@ const ModalFormCandidate = ({
                 return
             }
 
-            if (droppedFile.size > 10 * 1024 * 1024) {
-                toast.error("File size must be less than 10MB")
+            if (droppedFile.size > 30 * 1024 * 1024) { // Updated to 30MB
+                toast.error("File size must be less than 30MB")
                 return
             }
 
             try {
-                toast.info("Validating CV content...")
+                const toastId = toast.loading("Validating CV content...")
                 const validation = await validatePdfContent(droppedFile)
 
                 if (validation.isValid) {
                     setFile(droppedFile)
-                    toast.success(`PDF validated! ${validation.pageCount} pages, ${validation.textLength} characters detected.`)
+                    toast.success(`PDF validated! ${validation.pageCount} pages, ${validation.textLength} characters detected.`, { id: toastId })
 
                     setIsAnalyzing(true)
                     setAnalysisError(null)
@@ -430,10 +445,10 @@ const ModalFormCandidate = ({
                         const jobDescription = `${jobDes}\n${jobDesRate}`
                         const analysisResult = await analyzeWithGemini(cvText, jobDescription)
                         setMatchingResult(analysisResult)
-                        toast.success("CV analysis completed!")
+                        toast.success("CV analysis completed!", { id: toastId })
                     } catch (error) {
                         setAnalysisError("Failed to analyze CV due to server issues. You can still submit your application.")
-                        toast.error("CV analysis failed. You can still proceed with submission.")
+                        toast.error("CV analysis failed. You can still proceed with submission.", { id: toastId })
                     } finally {
                         setIsAnalyzing(false)
                     }
@@ -448,48 +463,6 @@ const ModalFormCandidate = ({
 
     const handleDragOver = (e) => {
         e.preventDefault()
-    }
-
-    const handleResumeBuilderSave = async (resumeFile) => {
-        if (resumeFile.type !== "application/pdf") {
-            toast.error("Resume must be in PDF format")
-            return
-        }
-
-        if (resumeFile.size > 10 * 1024 * 1024) {
-            toast.error("Resume size must be less than 10MB")
-            return
-        }
-
-        try {
-            toast.info("Validating CV content...")
-            const validation = await validatePdfContent(resumeFile)
-
-            if (validation.isValid) {
-                setFile(resumeFile)
-                setShowResumeBuilder(false)
-                toast.success("Resume created successfully!")
-
-                setIsAnalyzing(true)
-                setAnalysisError(null)
-                try {
-                    const cvText = await extractTextFromPDF(resumeFile)
-                    const jobDescription = `${jobDes}\n${jobDesRate}`
-                    const analysisResult = await analyzeWithGemini(cvText, jobDescription)
-                    setMatchingResult(analysisResult)
-                    toast.success("CV analysis completed!")
-                } catch (error) {
-                    setAnalysisError("Failed to analyze CV due to server issues. You can still submit your application.")
-                    toast.error("CV analysis failed. You can still proceed with submission.")
-                } finally {
-                    setIsAnalyzing(false)
-                }
-            }
-        } catch (error) {
-            console.error("PDF validation or analysis error:", error)
-            toast.error(error.message)
-            setIsAnalyzing(false)
-        }
     }
 
     const handleSubmit = async (e) => {
@@ -580,6 +553,7 @@ const ModalFormCandidate = ({
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+            <Toaster position="top-right" reverseOrder={false} />
             <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl relative z-10 max-h-[90vh] overflow-hidden flex flex-col">
                 {/* Header */}
@@ -774,11 +748,12 @@ const ModalFormCandidate = ({
                                         </div>
                                     </div>
 
-                                    {/* Create Resume Button */}
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowResumeBuilder(true)}
-                                        className="w-full border-2 border-blue-200 bg-blue-50 rounded-lg p-4 text-center hover:border-blue-300 hover:bg-blue-100 transition-all group"
+                                    {/* Create Resume Link */}
+                                    <a
+                                        href={path.create_resume}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="block w-full border-2 border-blue-200 bg-blue-50 rounded-lg p-4 text-center hover:border-blue-300 hover:bg-blue-100 transition-all group"
                                     >
                                         <div className="flex flex-col items-center">
                                             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mb-2 group-hover:bg-blue-700 transition-colors">
@@ -787,7 +762,7 @@ const ModalFormCandidate = ({
                                             <p className="text-sm font-medium text-blue-900 mb-1">Create a Resume</p>
                                             <p className="text-xs text-blue-700">Build a professional resume from templates</p>
                                         </div>
-                                    </button>
+                                    </a>
                                 </div>
 
                                 {isAnalyzing && (
@@ -806,7 +781,7 @@ const ModalFormCandidate = ({
                                     <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
                                         <div className="flex items-center space-x-2 mb-3">
                                             <AlertCircle className="w-5 h-5 text-red-600" />
-                                            <h4 className="text-sm font-semibold text-red-900">CV Analysis Failed</h4>
+                                            <h4 className="text-sm font-semibold text-red-600">CV Analysis Failed</h4>
                                         </div>
                                         <p className="text-xs text-red-700">{analysisError}</p>
                                     </div>
@@ -899,15 +874,6 @@ const ModalFormCandidate = ({
                     </p>
                 </div>
             </div>
-
-            {/* Resume Builder Modal */}
-            <ResumeBuilder
-                isOpen={showResumeBuilder}
-                onClose={() => setShowResumeBuilder(false)}
-                onSaveResume={handleResumeBuilderSave}
-                jobDescription={jobDes}
-                jobDesRate={jobDesRate}
-            />
         </div>
     )
 }

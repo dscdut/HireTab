@@ -18,14 +18,12 @@ export default function ResumePreview({
 
   const downloadPDF = async () => {
     try {
-      // Dynamic import để giảm bundle size
-      const html2canvas = (await import('html2canvas')).default
-      const jsPDF = (await import('jspdf')).jsPDF
+      const html2canvas = (await import('html2canvas')).default;
+      const jsPDF = (await import('jspdf')).jsPDF;
 
-      const element = resumeRef.current
-      if (!element) return
+      const element = resumeRef.current;
+      if (!element) return;
 
-      // Tạo canvas từ element với cấu hình tối ưu
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -35,77 +33,67 @@ export default function ResumePreview({
         scrollY: 0,
         width: element.offsetWidth,
         height: element.offsetHeight,
-      })
+      });
 
-      const imgData = canvas.toDataURL('image/png')
-
-      // Tạo PDF
+      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
-      })
+        format: 'a4',
+      });
 
-      const pageWidth = pdf.internal.pageSize.getWidth()
-      const pageHeight = pdf.internal.pageSize.getHeight()
-      const margin = 10
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15; // Increased margin for better padding (previously 10)
 
-      // Tính toán kích thước ảnh để fit với trang A4
-      const availableWidth = pageWidth - (margin * 2)
-      const availableHeight = pageHeight - (margin * 2)
+      const availableWidth = pageWidth - (margin * 2);
+      const availableHeight = pageHeight - (margin * 2);
 
-      // Tính tỷ lệ để ảnh vừa với trang
-      const imgAspectRatio = canvas.width / canvas.height
-      const pageAspectRatio = availableWidth / availableHeight
+      const imgAspectRatio = canvas.width / canvas.height;
+      const pageAspectRatio = availableWidth / availableHeight;
 
-      let finalWidth, finalHeight
+      let finalWidth, finalHeight;
 
       if (imgAspectRatio > pageAspectRatio) {
-        // Ảnh rộng hơn trang, scale theo width
-        finalWidth = availableWidth
-        finalHeight = availableWidth / imgAspectRatio
+        finalWidth = availableWidth;
+        finalHeight = availableWidth / imgAspectRatio;
       } else {
-        // Ảnh cao hơn trang, scale theo height
-        finalHeight = availableHeight
-        finalWidth = availableHeight * imgAspectRatio
+        finalHeight = availableHeight;
+        finalWidth = availableHeight * imgAspectRatio;
       }
 
-      // Center ảnh trên trang
-      const x = (pageWidth - finalWidth) / 2
-      const y = (pageHeight - finalHeight) / 2
+      const x = (pageWidth - finalWidth) / 2;
+      const y = margin; // Use margin for top positioning
 
-      // Nếu ảnh vừa với một trang
       if (finalHeight <= availableHeight) {
-        pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight)
+        pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
       } else {
-        // Nếu ảnh quá cao, chia thành nhiều trang
-        const imgHeightPerPage = availableHeight
-        const imgWidthPerPage = imgHeightPerPage * imgAspectRatio
+        const imgHeightPerPage = availableHeight;
+        const imgWidthPerPage = imgHeightPerPage * imgAspectRatio;
 
-        let currentY = 0
-        let pageCount = 0
+        let currentY = 0;
+        let pageCount = 0;
 
         while (currentY < canvas.height) {
           if (pageCount > 0) {
-            pdf.addPage()
+            pdf.addPage();
           }
 
-          // Tạo canvas cho trang hiện tại
-          const pageCanvas = document.createElement('canvas')
-          pageCanvas.width = canvas.width
-          pageCanvas.height = Math.min(canvas.height / finalHeight * imgHeightPerPage * 2, canvas.height - currentY)
+          const pageCanvas = document.createElement('canvas');
+          pageCanvas.width = canvas.width;
+          pageCanvas.height = Math.min(canvas.height / finalHeight * imgHeightPerPage * 2, canvas.height - currentY);
 
-          const ctx = pageCanvas.getContext('2d')
+          const ctx = pageCanvas.getContext('2d');
           ctx.drawImage(
             canvas,
             0, currentY,
             canvas.width, pageCanvas.height,
             0, 0,
             canvas.width, pageCanvas.height
-          )
+          );
 
-          const pageImgData = pageCanvas.toDataURL('image/png')
-          const pageImgHeight = pageCanvas.height / canvas.height * finalHeight
+          const pageImgData = pageCanvas.toDataURL('image/png');
+          const pageImgHeight = pageCanvas.height / canvas.height * finalHeight;
 
           pdf.addImage(
             pageImgData,
@@ -114,23 +102,20 @@ export default function ResumePreview({
             margin,
             imgWidthPerPage,
             pageImgHeight
-          )
+          );
 
-          currentY += pageCanvas.height
-          pageCount++
+          currentY += pageCanvas.height;
+          pageCount++;
         }
       }
 
-      // Tải file
-      const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`
-      pdf.save(fileName)
-
+      const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`;
+      pdf.save(fileName);
     } catch (error) {
-      console.error('Lỗi khi tạo PDF:', error)
-      // Fallback: sử dụng window.print()
-      window.print()
+      console.error('Error generating PDF:', error);
+      window.print();
     }
-  }
+  };
 
   const getTemplateStyles = () => {
     const colorSchemes = {
