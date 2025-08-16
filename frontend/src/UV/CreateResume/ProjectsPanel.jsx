@@ -1,10 +1,83 @@
 "use client"
 
-import { useState } from "react"
-import { X, Plus, Trash2 } from "lucide-react"
+import { useState, useEffect } from "react"
+import { X, Plus, Trash2, Loader2 } from "lucide-react"
+import toast from "react-hot-toast"
 
 export default function ProjectsPanel({ projects = [], onUpdateProjects, onClose }) {
   const [projectList, setProjectList] = useState(projects)
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  useEffect(() => {
+    setProjectList(projects);
+  }, [projects]);
+
+  const callGeminiAPI = async (data) => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("Gemini API key not configured");
+    }
+
+    const prompt = `
+    Please format the following projects data to match this exact structure and improve the content quality:
+
+    Expected format:
+    [
+      {
+        "id": number,
+        "name": "Professional Project Name",
+        "description": "Compelling 2-3 sentence description highlighting impact, technologies used, and your role",
+        "technologies": ["Technology1", "Technology2", "Technology3"],
+        "url": "Valid URL or empty string"
+      }
+    ]
+
+    Input data:
+    ${JSON.stringify(data, null, 2)}
+
+    Rules:
+    1. Make project names professional and descriptive
+    2. Improve descriptions to highlight impact, technical challenges, and achievements
+    3. Standardize technology names with proper capitalization
+    4. Ensure URLs are valid or empty
+    5. Focus on business value and technical complexity in descriptions
+    6. Remove duplicates and empty entries
+    7. Return ONLY the JSON array, no additional text
+
+    Formatted data:
+    `;
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }]
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    const generatedText = result.candidates[0].content.parts[0].text;
+    const jsonMatch = generatedText.match(/\[[\s\S]*\]/);
+    
+    if (!jsonMatch) {
+      throw new Error("Could not parse JSON from Gemini response");
+    }
+
+    return JSON.parse(jsonMatch[0]);
+  };
 
   const addProject = () => {
     const newProject = {
@@ -33,15 +106,39 @@ export default function ProjectsPanel({ projects = [], onUpdateProjects, onClose
     setProjectList(projectList.filter((project) => project.id !== id))
   }
 
-  const handleSave = () => {
-    onUpdateProjects(projectList.filter((project) => project.name.trim() !== ""))
+  const handleSave = async () => {
+    // Filter out empty projects
+    const validProjects = projectList.filter(project => project.name.trim() !== "");
+
+    if (validProjects.length === 0) {
+      onUpdateProjects([]);
+      onClose();
+      return;
+    }
+
+    setIsProcessing(true);
+    const toastId = toast.loading("Processing projects with AI...");
+    
+    try {
+      const formattedData = await callGeminiAPI(validProjects);
+      onUpdateProjects(formattedData);
+      toast.success("Projects updated and formatted!", { id: toastId });
+      onClose();
+    } catch (error) {
+      console.error("Error formatting data:", error);
+      toast.error("AI formatting failed, using your input as-is", { id: toastId });
+      onUpdateProjects(validProjects);
+      onClose();
+    } finally {
+      setIsProcessing(false);
+    }
   }
 
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-lg font-semibold">Key Projects</h2>
-        <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
+        <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded" disabled={isProcessing}>
           <X className="w-5 h-5" />
         </button>
       </div>
@@ -51,53 +148,75 @@ export default function ProjectsPanel({ projects = [], onUpdateProjects, onClose
           <div key={project.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
             <div className="flex justify-between items-start">
               <h3 className="font-medium">Project {projectList.indexOf(project) + 1}</h3>
-              <button onClick={() => removeProject(project.id)} className="p-1 hover:bg-red-100 rounded text-red-600">
+              <button 
+                onClick={() => removeProject(project.id)} 
+                className="p-1 hover:bg-red-100 rounded text-red-600"
+                disabled={isProcessing}
+              >
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Project Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Project Name <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   value={project.name}
                   onChange={(e) => updateProject(project.id, "name", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., E-commerce Platform"
+                  className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., E-commerce Platform with Real-time Analytics"
+                  disabled={isProcessing}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Project Description <span className="text-red-500">*</span>
+                </label>
                 <textarea
                   value={project.description}
                   onChange={(e) => updateProject(project.id, "description", e.target.value)}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Brief description of the project and your role"
+                  rows={4}
+                  className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Describe the project's purpose, your role, key challenges solved, and impact achieved. Focus on technical complexity and business value."
+                  disabled={isProcessing}
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  AI will enhance this to highlight impact, technical challenges, and achievements
+                </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Technologies Used</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Technologies Used <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   value={project.technologies.join(", ")}
                   onChange={(e) => updateTechnologies(project.id, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., React, Node.js, MongoDB (comma separated)"
+                  className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., React, Node.js, MongoDB, Docker, AWS (comma separated)"
+                  disabled={isProcessing}
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Separate technologies with commas. AI will standardize naming and formatting.
+                </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Project URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Project URL (Optional)
+                </label>
                 <input
                   type="url"
                   value={project.url}
                   onChange={(e) => updateProject(project.id, "url", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://github.com/username/project"
+                  className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="https://github.com/username/project or https://project-demo.com"
+                  disabled={isProcessing}
                 />
               </div>
             </div>
@@ -106,23 +225,34 @@ export default function ProjectsPanel({ projects = [], onUpdateProjects, onClose
 
         <button
           onClick={addProject}
-          className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors flex items-center justify-center space-x-2"
+          className="w-full py-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors flex items-center justify-center space-x-2"
+          disabled={isProcessing}
         >
           <Plus className="w-5 h-5 text-gray-500" />
           <span className="text-gray-500">Add Project</span>
         </button>
+
       </div>
 
       <div className="p-4 border-t flex space-x-2">
         <button
           onClick={handleSave}
-          className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+          className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+          disabled={isProcessing}
         >
-          DONE
+          {isProcessing ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Processing with AI...</span>
+            </>
+          ) : (
+            <span>DONE</span>
+          )}
         </button>
         <button
           onClick={onClose}
-          className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+          className="flex-1 bg-gray-200 text-gray-800 py-3 px-4 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50"
+          disabled={isProcessing}
         >
           CANCEL
         </button>
