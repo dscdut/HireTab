@@ -35,7 +35,7 @@ export default function ColorSelector({ selectedColor, onSelectColor, onClose })
   ]
 
   return (
-    <div className="absolute top-16 left-40 bg-white rounded-lg shadow-2xl border border-gray-200 p-6 z-50 w-80">
+    <div className="absolute top-16 right-32 bg-white rounded-lg shadow-2xl border border-gray-200 p-6 z-50 w-80">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Choose Color Scheme</h3>
         <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">

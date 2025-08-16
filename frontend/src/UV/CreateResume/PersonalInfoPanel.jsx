@@ -1,30 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X, ArrowLeft } from "lucide-react"
 
 export default function PersonalInfoPanel({ personalInfo, onUpdatePersonalInfo, onClose }) {
   const [formData, setFormData] = useState(personalInfo)
 
+  useEffect(() => {
+    setFormData(personalInfo);
+  }, [personalInfo]);
+
   const handleSubmit = () => {
-    onUpdatePersonalInfo(formData)
+    onClose();
   }
 
   const handleChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
+    const newData = {
+      ...formData,
       [field]: value,
-    }))
-  }
-
-  const handleSocialLinkChange = (platform, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      socialLinks: {
-        ...prev.socialLinks,
-        [platform]: value,
-      },
-    }))
+    };
+    setFormData(newData);
+    // Real-time update to preview
+    onUpdatePersonalInfo(newData);
   }
 
   return (
@@ -44,9 +41,10 @@ export default function PersonalInfoPanel({ personalInfo, onUpdatePersonalInfo, 
           <label className="block text-sm font-medium mb-1">Full Name</label>
           <input
             type="text"
-            value={formData.fullName}
+            value={formData.fullName || ""}
             onChange={(e) => handleChange("fullName", e.target.value)}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your full name"
           />
         </div>
 
@@ -54,9 +52,10 @@ export default function PersonalInfoPanel({ personalInfo, onUpdatePersonalInfo, 
           <label className="block text-sm font-medium mb-1">Job Title</label>
           <input
             type="text"
-            value={formData.title}
+            value={formData.title || ""}
             onChange={(e) => handleChange("title", e.target.value)}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            placeholder="e.g., Senior Software Engineer"
           />
         </div>
 
@@ -64,9 +63,10 @@ export default function PersonalInfoPanel({ personalInfo, onUpdatePersonalInfo, 
           <label className="block text-sm font-medium mb-1">Email</label>
           <input
             type="email"
-            value={formData.email}
+            value={formData.email || ""}
             onChange={(e) => handleChange("email", e.target.value)}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            placeholder="your.email@example.com"
           />
         </div>
 
@@ -74,9 +74,10 @@ export default function PersonalInfoPanel({ personalInfo, onUpdatePersonalInfo, 
           <label className="block text-sm font-medium mb-1">Phone</label>
           <input
             type="tel"
-            value={formData.phone}
+            value={formData.phone || ""}
             onChange={(e) => handleChange("phone", e.target.value)}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            placeholder="(555) 123-4567"
           />
         </div>
 
@@ -84,70 +85,64 @@ export default function PersonalInfoPanel({ personalInfo, onUpdatePersonalInfo, 
           <label className="block text-sm font-medium mb-1">Location</label>
           <input
             type="text"
-            value={formData.location}
+            value={formData.location || ""}
             onChange={(e) => handleChange("location", e.target.value)}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            placeholder="City, Country"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1">Summary</label>
           <textarea
-            value={formData.summary}
+            value={formData.summary || ""}
             onChange={(e) => handleChange("summary", e.target.value)}
             rows={4}
-            className="w-full p-2 border rounded-md"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Relevant Experience</label>
-          <input
-            type="text"
-            value={formData.relevantExperience}
-            onChange={(e) => handleChange("relevantExperience", e.target.value)}
-            className="w-full p-2 border rounded-md"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Total Experience</label>
-          <input
-            type="text"
-            value={formData.totalExperience}
-            onChange={(e) => handleChange("totalExperience", e.target.value)}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            placeholder="Write a compelling professional summary..."
           />
         </div>
 
         <div className="space-y-2">
-          <h4 className="font-medium">Social Links</h4>
+          <h4 className="font-medium">Professional Links</h4>
           <div>
             <label className="block text-sm font-medium mb-1">LinkedIn</label>
             <input
               type="url"
-              value={formData.socialLinks?.linkedin || ""}
-              onChange={(e) => handleSocialLinkChange("linkedin", e.target.value)}
-              className="w-full p-2 border rounded-md"
+              value={formData.linkedinUrl || ""}
+              onChange={(e) => handleChange("linkedinUrl", e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              placeholder="https://linkedin.com/in/yourprofile"
             />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">GitHub</label>
             <input
               type="url"
-              value={formData.socialLinks?.github || ""}
-              onChange={(e) => handleSocialLinkChange("github", e.target.value)}
-              className="w-full p-2 border rounded-md"
+              value={formData.githubUrl || ""}
+              onChange={(e) => handleChange("githubUrl", e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              placeholder="https://github.com/yourusername"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Website/Portfolio</label>
+            <input
+              type="url"
+              value={formData.websiteUrl || ""}
+              onChange={(e) => handleChange("websiteUrl", e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              placeholder="https://yourportfolio.com"
             />
           </div>
         </div>
       </div>
 
       <div className="p-4 border-t flex space-x-2">
-        <button onClick={handleSubmit} className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+        <button onClick={handleSubmit} className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700">
           DONE
         </button>
-        <button onClick={onClose} className="flex-1 border border-gray-300 py-2 px-4 rounded-md hover:bg-gray-50">
+        <button onClick={onClose} className="flex-1 border border-gray-300 py-3 px-4 rounded-md hover:bg-gray-50">
           CANCEL
         </button>
       </div>

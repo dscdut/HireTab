@@ -1,16 +1,24 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Plus, Trash2, Loader2 } from "lucide-react"
+import { X, Plus, Trash2, Loader2, GripVertical } from "lucide-react"
 import toast from "react-hot-toast"
 
 export default function CertificationsPanel({ certifications = [], onUpdateCertifications, onClose }) {
   const [certs, setCerts] = useState(certifications)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [draggedItem, setDraggedItem] = useState(null)
+  const [dragOverItem, setDragOverItem] = useState(null)
 
   useEffect(() => {
     setCerts(certifications);
   }, [certifications]);
+
+  // Real-time update function
+  const updateCertsRealTime = (newList) => {
+    setCerts(newList);
+    onUpdateCertifications(newList);
+  }
 
   const callGeminiAPI = async (data) => {
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -71,7 +79,7 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
     const result = await response.json();
     const generatedText = result.candidates[0].content.parts[0].text;
     const jsonMatch = generatedText.match(/\[[\s\S]*\]/);
-    
+
     if (!jsonMatch) {
       throw new Error("Could not parse JSON from Gemini response");
     }
@@ -87,39 +95,75 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
       date: "",
       credentialId: "",
     }
-    setCerts([...certs, newCert])
+    const newList = [...certs, newCert];
+    updateCertsRealTime(newList);
   }
 
   const updateCertification = (id, field, value) => {
-    setCerts(certs.map((cert) => (cert.id === id ? { ...cert, [field]: value } : cert)))
+    const newList = certs.map((cert) => (cert.id === id ? { ...cert, [field]: value } : cert));
+    updateCertsRealTime(newList);
   }
 
   const removeCertification = (id) => {
-    setCerts(certs.filter((cert) => cert.id !== id))
+    const newList = certs.filter((cert) => cert.id !== id);
+    updateCertsRealTime(newList);
   }
+
+  // Drag and drop functions
+  const handleDragStart = (e, index) => {
+    setDraggedItem(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    setDragOverItem(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverItem(null);
+  };
+
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
+    if (draggedItem === dropIndex) return;
+
+    const newList = [...certs];
+    const draggedCert = newList[draggedItem];
+
+    // Remove the dragged item
+    newList.splice(draggedItem, 1);
+
+    // Insert at new position
+    newList.splice(dropIndex, 0, draggedCert);
+
+    updateCertsRealTime(newList);
+    setDraggedItem(null);
+    setDragOverItem(null);
+  };
 
   const handleSave = async () => {
     // Filter out empty certifications
     const validCertifications = certs.filter(cert => cert.name.trim() !== "");
 
     if (validCertifications.length === 0) {
-      onUpdateCertifications([]);
+      updateCertsRealTime([]);
       onClose();
       return;
     }
 
     setIsProcessing(true);
     const toastId = toast.loading("Processing certifications with AI...");
-    
+
     try {
       const formattedData = await callGeminiAPI(validCertifications);
-      onUpdateCertifications(formattedData);
+      updateCertsRealTime(formattedData);
       toast.success("Certifications updated and formatted!", { id: toastId });
       onClose();
     } catch (error) {
       console.error("Error formatting data:", error);
       toast.error("AI formatting failed, using your input as-is", { id: toastId });
-      onUpdateCertifications(validCertifications);
+      updateCertsRealTime(validCertifications);
       onClose();
     } finally {
       setIsProcessing(false);
@@ -136,78 +180,99 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
-        {certs.map((cert) => (
-          <div key={cert.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
-            <div className="flex justify-between items-start">
-              <h3 className="font-medium">Certification {certs.indexOf(cert) + 1}</h3>
-              <button
-                onClick={() => removeCertification(cert.id)}
-                className="p-1 hover:bg-red-100 rounded text-red-600"
-                disabled={isProcessing}
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+        {certs.map((cert, index) => {
+          const isDragOver = dragOverItem === index;
+
+          return (
+            <div
+              key={cert.id}
+              className={`border border-gray-200 rounded-lg p-4 space-y-3 transition-all duration-200 ${isDragOver ? 'bg-blue-50 border-blue-400 shadow-lg' : ''
+                }`}
+              draggable={!isProcessing}
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, index)}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex items-center space-x-2">
+                  <button
+                    className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing"
+                    disabled={isProcessing}
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </button>
+                  <h3 className="font-medium">Certification {index + 1}</h3>
+                </div>
+                <button
+                  onClick={() => removeCertification(cert.id)}
+                  className="p-1 hover:bg-red-100 rounded text-red-600"
+                  disabled={isProcessing}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Certification Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={cert.name}
+                    onChange={(e) => updateCertification(cert.id, "name", e.target.value)}
+                    className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., AWS Certified Solutions Architect - Professional"
+                    disabled={isProcessing}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Issuing Organization <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={cert.issuer}
+                    onChange={(e) => updateCertification(cert.id, "issuer", e.target.value)}
+                    className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., Amazon Web Services"
+                    disabled={isProcessing}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date Obtained <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={cert.date}
+                    onChange={(e) => updateCertification(cert.id, "date", e.target.value)}
+                    className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., 2023"
+                    disabled={isProcessing}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Credential ID (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={cert.credentialId}
+                    onChange={(e) => updateCertification(cert.id, "credentialId", e.target.value)}
+                    className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., AWS-CSA-PRO-123456"
+                    disabled={isProcessing}
+                  />
+                </div>
+              </div>
             </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Certification Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={cert.name}
-                  onChange={(e) => updateCertification(cert.id, "name", e.target.value)}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., AWS Certified Solutions Architect - Professional"
-                  disabled={isProcessing}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Issuing Organization <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={cert.issuer}
-                  onChange={(e) => updateCertification(cert.id, "issuer", e.target.value)}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., Amazon Web Services"
-                  disabled={isProcessing}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date Obtained <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={cert.date}
-                  onChange={(e) => updateCertification(cert.id, "date", e.target.value)}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., 2023"
-                  disabled={isProcessing}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Credential ID (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={cert.credentialId}
-                  onChange={(e) => updateCertification(cert.id, "credentialId", e.target.value)}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., AWS-CSA-PRO-123456"
-                  disabled={isProcessing}
-                />
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         <button
           onClick={addCertification}
@@ -218,7 +283,6 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
           <span className="text-gray-500">Add Certification</span>
         </button>
 
-  
       </div>
 
       <div className="p-4 border-t flex space-x-2">
@@ -233,7 +297,7 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
               <span>Processing with AI...</span>
             </>
           ) : (
-            <span>DONE</span>
+            <span>AI FORMAT</span>
           )}
         </button>
         <button

@@ -101,11 +101,16 @@ export default function CreateResume() {
     const [showTemplateSelector, setShowTemplateSelector] = useState(false);
     const [showColorSelector, setShowColorSelector] = useState(false);
 
+    // Real-time update functions
     const updatePersonalInfo = (newPersonalInfo) => {
         setResumeData((prev) => ({
             ...prev,
             personalInfo: { ...prev.personalInfo, ...newPersonalInfo },
         }));
+    };
+
+    // Function to close panel (separate from update)
+    const closePersonalInfoPanel = () => {
         setActivePanel(null);
     };
 
@@ -114,6 +119,9 @@ export default function CreateResume() {
             ...prev,
             experience: newExperience,
         }));
+    };
+
+    const closeExperiencePanel = () => {
         setActivePanel(null);
     };
 
@@ -122,6 +130,9 @@ export default function CreateResume() {
             ...prev,
             education: newEducation,
         }));
+    };
+
+    const closeEducationPanel = () => {
         setActivePanel(null);
     };
 
@@ -130,6 +141,9 @@ export default function CreateResume() {
             ...prev,
             skills: newSkills,
         }));
+    };
+
+    const closeSkillsPanel = () => {
         setActivePanel(null);
     };
 
@@ -138,6 +152,9 @@ export default function CreateResume() {
             ...prev,
             certifications: newCertifications,
         }));
+    };
+
+    const closeCertificationsPanel = () => {
         setActivePanel(null);
     };
 
@@ -146,6 +163,9 @@ export default function CreateResume() {
             ...prev,
             projects: newProjects,
         }));
+    };
+
+    const closeProjectsPanel = () => {
         setActivePanel(null);
     };
 
@@ -393,24 +413,19 @@ export default function CreateResume() {
         const file = event.target.files[0];
         if (!file) return;
 
-        const toastId = toast.loading("Processing resume data...");
+        const toastId = toast.loading("Using AI to format your resume data...");
         const reader = new FileReader();
-        
+
         reader.onload = async (e) => {
             try {
                 const importedData = JSON.parse(e.target.result);
                 let formattedData;
 
                 try {
-                    // First, try with Gemini API
-                    toast.loading("Using AI to format your resume data...", { id: toastId });
                     formattedData = await formatResumeDataWithGemini(importedData);
                     toast.success("Resume data processed with AI formatting!", { id: toastId });
                 } catch (geminiError) {
                     console.warn("Gemini API failed, using local formatting:", geminiError.message);
-                    
-                    // Fallback to local formatting
-                    toast.loading("AI unavailable, using smart local formatting...", { id: toastId });
                     formattedData = formatResumeDataLocally(importedData);
                     toast.success("Resume data imported with local formatting!", { id: toastId });
                 }
@@ -427,9 +442,9 @@ export default function CreateResume() {
         };
 
         reader.readAsText(file);
-        
+
         // Clear the input value to allow re-importing the same file
-        event.target.value = '';
+        event.target.value = "";
     };
 
     return (
@@ -500,62 +515,63 @@ export default function CreateResume() {
                     />
                 </div>
 
+                {/* Updated panel width from w-80 (320px) to w-[440px] (320px + 120px = 440px, but using 350px for better proportion) */}
                 {activePanel === "personalInfo" && (
-                    <div className="w-80 bg-white border-l border-gray-200">
+                    <div className="w-[420px] bg-white border-l border-gray-200">
                         <PersonalInfoPanel
                             personalInfo={resumeData.personalInfo}
                             onUpdatePersonalInfo={updatePersonalInfo}
-                            onClose={() => setActivePanel(null)}
+                            onClose={closePersonalInfoPanel}
                         />
                     </div>
                 )}
 
                 {activePanel === "experience" && (
-                    <div className="w-80 bg-white border-l border-gray-200">
+                    <div className="w-[420px] bg-white border-l border-gray-200">
                         <ExperiencePanel
                             experience={resumeData.experience}
                             onUpdateExperience={updateExperience}
-                            onClose={() => setActivePanel(null)}
+                            onClose={closeExperiencePanel}
                         />
                     </div>
                 )}
 
                 {activePanel === "education" && (
-                    <div className="w-80 bg-white border-l border-gray-200">
+                    <div className="w-[420px] bg-white border-l border-gray-200">
                         <EducationPanel
                             education={resumeData.education}
                             onUpdateEducation={updateEducation}
-                            onClose={() => setActivePanel(null)}
+                            onClose={closeEducationPanel}
                         />
                     </div>
                 )}
 
                 {activePanel === "skills" && (
-                    <div className="w-80 bg-white border-l border-gray-200">
+                    <div className="w-[420px] bg-white border-l border-gray-200">
                         <SkillsPanel
                             skills={resumeData.skills}
                             onUpdateSkills={updateSkills}
-                            onClose={() => setActivePanel(null)}
+                            onClose={closeSkillsPanel}
                         />
                     </div>
                 )}
 
                 {activePanel === "certifications" && (
-                    <div className="w-80 bg-white border-l border-gray-200">
+                    <div className="w-[420px] bg-white border-l border-gray-200">
                         <CertificationsPanel
                             certifications={resumeData.certifications}
                             onUpdateCertifications={updateCertifications}
-                            onClose={() => setActivePanel(null)}
+                            onClose={closeCertificationsPanel}
                         />
                     </div>
                 )}
 
                 {activePanel === "projects" && (
-                    <div className="w-80 bg-white border-l border-gray-200">
+                    <div className="w-[420px] bg-white border-l border-gray-200">
                         <ProjectsPanel
                             projects={resumeData.projects}
                             onUpdateProjects={updateProjects}
-                            onClose={() => setActivePanel(null)}
+                            onClose={closeProjectsPanel}
                         />
                     </div>
                 )}

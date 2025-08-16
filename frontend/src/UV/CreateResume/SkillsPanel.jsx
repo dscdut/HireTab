@@ -19,6 +19,12 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
     setLocalSkills(skills);
   }, [skills]);
 
+  // Real-time update function để preview ngay lập tức
+  const updateSkillsRealTime = (newSkills) => {
+    setLocalSkills(newSkills);
+    onUpdateSkills(newSkills);
+  };
+
   // Default categories với thông tin mẫu
   const defaultCategoryInfo = {
     TechnicalSkills: {
@@ -51,7 +57,7 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
 
     // Tạo info mặc định cho custom categories
     return {
-      title: categoryKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).replace(/^./, str => str.toUpperCase()).trim(),
+      title: categoryKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim(),
       placeholder: "Enter skills for this category...",
       examples: "Add relevant skills for this category"
     };
@@ -132,13 +138,13 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
 
     try {
       const formattedData = await callGeminiAPI(cleanedSkills);
-      onUpdateSkills(formattedData);
+      updateSkillsRealTime(formattedData);
       toast.success("Skills updated and categorized!", { id: toastId });
       onClose();
     } catch (error) {
       console.error("Error formatting data:", error);
       toast.error("AI formatting failed, using your input as-is", { id: toastId });
-      onUpdateSkills(cleanedSkills);
+      updateSkillsRealTime(cleanedSkills);
       onClose();
     } finally {
       setIsProcessing(false);
@@ -151,24 +157,27 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
   };
 
   const addSkill = (category) => {
-    setLocalSkills(prev => ({
-      ...prev,
-      [category]: [...(prev[category] || []), ""]
-    }));
+    const newSkills = {
+      ...localSkills,
+      [category]: [...(localSkills[category] || []), ""]
+    };
+    updateSkillsRealTime(newSkills);
   };
 
   const updateSkill = (category, index, value) => {
-    setLocalSkills(prev => ({
-      ...prev,
-      [category]: prev[category].map((skill, i) => i === index ? value : skill)
-    }));
+    const newSkills = {
+      ...localSkills,
+      [category]: localSkills[category].map((skill, i) => i === index ? value : skill)
+    };
+    updateSkillsRealTime(newSkills);
   };
 
   const removeSkill = (category, index) => {
-    setLocalSkills(prev => ({
-      ...prev,
-      [category]: prev[category].filter((_, i) => i !== index)
-    }));
+    const newSkills = {
+      ...localSkills,
+      [category]: localSkills[category].filter((_, i) => i !== index)
+    };
+    updateSkillsRealTime(newSkills);
   };
 
   const addCategory = () => {
@@ -192,10 +201,11 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
       return;
     }
 
-    setLocalSkills(prev => ({
-      ...prev,
+    const newSkills = {
+      ...localSkills,
       [categoryKey]: []
-    }));
+    };
+    updateSkillsRealTime(newSkills);
     setNewCategoryName("");
     setShowAddCategory(false);
   };
@@ -206,10 +216,8 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
       return;
     }
 
-    setLocalSkills(prev => {
-      const { [categoryKey]: _, ...rest } = prev;
-      return rest;
-    });
+    const { [categoryKey]: _, ...rest } = localSkills;
+    updateSkillsRealTime(rest);
   };
 
   const updateCategoryName = (oldKey, newName) => {
@@ -229,13 +237,12 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
       return;
     }
 
-    setLocalSkills(prev => {
-      const { [oldKey]: skills, ...rest } = prev;
-      return {
-        ...rest,
-        [newKey]: skills
-      };
-    });
+    const { [oldKey]: skills, ...rest } = localSkills;
+    const newSkills = {
+      ...rest,
+      [newKey]: skills
+    };
+    updateSkillsRealTime(newSkills);
     setEditingCategory(null);
   };
 
@@ -257,24 +264,21 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
     e.preventDefault();
     if (draggedCategory === dropCategoryKey) return;
 
-    setLocalSkills(prev => {
-      const newSkills = {};
-      const categories = Object.keys(prev).filter(key => key !== draggedCategory);
-      const dropIndex = categories.indexOf(dropCategoryKey);
+    const newSkills = {};
+    const categories = Object.keys(localSkills).filter(key => key !== draggedCategory);
+    const dropIndex = categories.indexOf(dropCategoryKey);
 
-      if (dropIndex === -1) {
-        categories.push(draggedCategory);
-      } else {
-        categories.splice(dropIndex, 0, draggedCategory);
-      }
+    if (dropIndex === -1) {
+      categories.push(draggedCategory);
+    } else {
+      categories.splice(dropIndex, 0, draggedCategory);
+    }
 
-      categories.forEach(key => {
-        newSkills[key] = prev[key];
-      });
-
-      return newSkills;
+    categories.forEach(key => {
+      newSkills[key] = localSkills[key];
     });
 
+    updateSkillsRealTime(newSkills);
     setDraggedCategory(null);
     setDragOverCategory(null);
   };
@@ -301,27 +305,24 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
 
     if (dragCategoryKey === dropCategoryKey && dragSkillIndex === dropSkillIndex) return;
 
-    setLocalSkills(prev => {
-      const newSkills = { ...prev };
+    const newSkills = { ...localSkills };
 
-      // Get the dragged skill
-      const dragged = newSkills[dragCategoryKey][dragSkillIndex];
+    // Get the dragged skill
+    const dragged = newSkills[dragCategoryKey][dragSkillIndex];
 
-      // Remove from original position
-      newSkills[dragCategoryKey].splice(dragSkillIndex, 1);
+    // Remove from original position
+    newSkills[dragCategoryKey].splice(dragSkillIndex, 1);
 
-      // Insert into new position
-      if (dragCategoryKey === dropCategoryKey) {
-        // Same category
-        newSkills[dropCategoryKey].splice(dropSkillIndex, 0, dragged);
-      } else {
-        // Different category
-        newSkills[dropCategoryKey].splice(dropSkillIndex, 0, dragged);
-      }
+    // Insert into new position
+    if (dragCategoryKey === dropCategoryKey) {
+      // Same category
+      newSkills[dropCategoryKey].splice(dropSkillIndex, 0, dragged);
+    } else {
+      // Different category
+      newSkills[dropCategoryKey].splice(dropSkillIndex, 0, dragged);
+    }
 
-      return newSkills;
-    });
-
+    updateSkillsRealTime(newSkills);
     setDraggedSkill(null);
     setDragOverSkill(null);
   };
@@ -346,9 +347,8 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
           return (
             <div
               key={categoryKey}
-              className={`border border-gray-200 rounded-lg p-4 space-y-3 transition-all duration-200 ${
-                isCategoryDragOver ? 'bg-blue-50 border-blue-400' : ''
-              }`}
+              className={`border border-gray-200 rounded-lg p-4 space-y-3 transition-all duration-200 ${isCategoryDragOver ? 'bg-blue-50 border-blue-400' : ''
+                }`}
               draggable={!isProcessing}
               onDragStart={(e) => handleCategoryDragStart(e, categoryKey)}
               onDragOver={(e) => handleCategoryDragOver(e, categoryKey)}
@@ -381,7 +381,7 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
                       disabled={isProcessing}
                     />
                   ) : (
-                    <h4 className="font-medium text-gray-800">{categoryInfo.title}</h4>
+                    <h4 className="font-medium text-gray-700">{categoryInfo.title}</h4>
                   )}
                   <button
                     onClick={() => setEditingCategory(categoryKey)}
@@ -508,7 +508,7 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
           ) : (
             <button
               onClick={() => setShowAddCategory(true)}
-              className="w-full border-2 border-dashed border-gray-300 rounded-md py-4 text-gray-500 hover:border-blue-400 hover:text-blue-600 flex items-center justify-center space-x-2"
+              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-gray-500 hover:border-gray-400 hover:text-gray-600 flex items-center justify-center space-x-2 transition-colors"
               disabled={isProcessing}
             >
               <Plus className="w-5 h-5" />
@@ -518,10 +518,10 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
         </div>
       </div>
 
-      <div className="p-4 border-t border-gray-200 flex space-x-3">
+      <div className="p-4 border-t border-gray-200 flex space-x-2">
         <button
           onClick={handleDone}
-          className="flex-1 bg-gray-800 hover:bg-gray-900 text-white py-3 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+          className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
           disabled={isProcessing}
         >
           {isProcessing ? (
@@ -530,12 +530,12 @@ export default function SkillsPanel({ skills, onUpdateSkills, onClose }) {
               <span>Processing with AI...</span>
             </>
           ) : (
-            <span>DONE</span>
+            <span>AI FORMAT</span>
           )}
         </button>
         <button
           onClick={handleCancel}
-          className="flex-1 bg-transparent border border-gray-300 py-3 px-4 rounded-md hover:bg-gray-50 disabled:opacity-50"
+          className="flex-1 border border-gray-300 py-3 px-4 rounded-md hover:bg-gray-50 disabled:opacity-50"
           disabled={isProcessing}
         >
           CANCEL

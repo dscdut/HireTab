@@ -154,7 +154,7 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate, o
   ]
 
   return (
-    <div className="absolute top-16 left-6 bg-white rounded-lg shadow-2xl border border-gray-200 p-6 z-50 w-[600px]">
+    <div className="absolute top-16 right-44 bg-white rounded-lg shadow-2xl border border-gray-200 p-6 z-50 w-[600px]">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Choose ATS Template</h3>
         <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
