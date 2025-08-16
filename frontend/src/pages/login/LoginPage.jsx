@@ -107,9 +107,8 @@ const LoginPage = () => {
   });
 
   // API mutations
-  const mutationLogin = useAppMutation({
+  const mutationLogin = useAppMutation(authApi.login, {
     mutationKey: mutationKeys.login,
-    mutationFn: authApi.login,
   });
 
   // Event handlers
