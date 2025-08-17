@@ -1,11 +1,14 @@
 "use client"
 
-import { Edit, Phone, Mail, MapPin, ExternalLink, Download } from "lucide-react"
 import { useRef } from "react"
+import { Download } from "lucide-react"
+import ModernTemplate from "./templates/ModernTemplate"
+import MinimalistTemplate from "./templates/MinimalistTemplate"
+import ClassicTemplate from "./templates/ClassicTemplate"
 
 export default function ResumePreview({
   resumeData,
-  template = "classic",
+  template = "modern",
   colorScheme = "gray",
   onEditPersonalInfo,
   onEditExperience,
@@ -18,104 +21,91 @@ export default function ResumePreview({
 
   const downloadPDF = async () => {
     try {
-      const html2canvas = (await import('html2canvas')).default;
-      const jsPDF = (await import('jspdf')).jsPDF;
+        const jsPDF = (await import("jspdf")).jsPDF;
+        const html2canvas = (await import("html2canvas")).default;
 
-      const element = resumeRef.current;
-      if (!element) return;
+        const resumeElement = resumeRef.current;
 
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        scrollX: 0,
-        scrollY: 0,
-        width: element.offsetWidth,
-        height: element.offsetHeight,
-      });
+        // Temporarily disable animations and transitions
+        const style = document.createElement("style");
+        style.innerHTML = `
+            *, *::before, *::after {
+                animation-duration: 0s !important;
+                animation-delay: 0s !important;
+                transition-duration: 0s !important;
+                transition-delay: 0s !important;
+            }
+        `;
+        document.head.appendChild(style);
 
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
+        const pdf = new jsPDF({
+            orientation: "portrait",
+            unit: "px",
+            format: "a4",
+        });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 15; // Increased margin for better padding (previously 10)
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 20; // 20px margin
+        const contentWidth = pageWidth - margin * 2;
 
-      const availableWidth = pageWidth - (margin * 2);
-      const availableHeight = pageHeight - (margin * 2);
+        // Render the resume as a canvas
+        const canvas = await html2canvas(resumeElement, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+        });
 
-      const imgAspectRatio = canvas.width / canvas.height;
-      const pageAspectRatio = availableWidth / availableHeight;
+        const imgData = canvas.toDataURL("image/png");
+        const imgWidth = contentWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      let finalWidth, finalHeight;
+        let currentHeight = 0;
 
-      if (imgAspectRatio > pageAspectRatio) {
-        finalWidth = availableWidth;
-        finalHeight = availableWidth / imgAspectRatio;
-      } else {
-        finalHeight = availableHeight;
-        finalWidth = availableHeight * imgAspectRatio;
-      }
+        while (currentHeight < imgHeight) {
+            if (currentHeight > 0) {
+                pdf.addPage();
+            }
 
-      const x = (pageWidth - finalWidth) / 2;
-      const y = margin; // Use margin for top positioning
+            const remainingHeight = imgHeight - currentHeight;
+            const pageContentHeight = Math.min(remainingHeight, pageHeight - margin * 2);
 
-      if (finalHeight <= availableHeight) {
-        pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
-      } else {
-        const imgHeightPerPage = availableHeight;
-        const imgWidthPerPage = imgHeightPerPage * imgAspectRatio;
+            // Crop the canvas for the current page
+            const pageCanvas = document.createElement("canvas");
+            pageCanvas.width = canvas.width;
+            pageCanvas.height = (pageContentHeight * canvas.width) / imgWidth;
 
-        let currentY = 0;
-        let pageCount = 0;
+            const pageCtx = pageCanvas.getContext("2d");
+            pageCtx.drawImage(
+                canvas,
+                0,
+                (currentHeight * canvas.width) / imgWidth,
+                canvas.width,
+                pageCanvas.height,
+                0,
+                0,
+                canvas.width,
+                pageCanvas.height
+            );
 
-        while (currentY < canvas.height) {
-          if (pageCount > 0) {
-            pdf.addPage();
-          }
+            const pageImgData = pageCanvas.toDataURL("image/png");
+            pdf.addImage(pageImgData, "PNG", margin, margin, imgWidth, pageContentHeight);
 
-          const pageCanvas = document.createElement('canvas');
-          pageCanvas.width = canvas.width;
-          pageCanvas.height = Math.min(canvas.height / finalHeight * imgHeightPerPage * 2, canvas.height - currentY);
-
-          const ctx = pageCanvas.getContext('2d');
-          ctx.drawImage(
-            canvas,
-            0, currentY,
-            canvas.width, pageCanvas.height,
-            0, 0,
-            canvas.width, pageCanvas.height
-          );
-
-          const pageImgData = pageCanvas.toDataURL('image/png');
-          const pageImgHeight = pageCanvas.height / canvas.height * finalHeight;
-
-          pdf.addImage(
-            pageImgData,
-            'PNG',
-            margin,
-            margin,
-            imgWidthPerPage,
-            pageImgHeight
-          );
-
-          currentY += pageCanvas.height;
-          pageCount++;
+            currentHeight += pageContentHeight;
         }
-      }
 
-      const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`;
-      pdf.save(fileName);
+        // Cleanup
+        document.head.removeChild(style);
+
+        const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, "_")}_Resume.pdf`;
+        pdf.save(fileName);
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      window.print();
+        console.error("Error generating PDF:", error);
+        toast.error("Failed to generate PDF. Please try again.");
     }
   };
+
+
 
   const getTemplateStyles = () => {
     const colorSchemes = {
@@ -137,49 +127,71 @@ export default function ResumePreview({
       case "modern":
         return {
           ...baseStyles,
-          headerStyle: "text-2xl font-light tracking-wide",
-          sectionStyle: "text-base font-medium border-l-4 pl-3",
-          layoutClass: "space-y-5",
+          fontFamily: "font-sans",
+          headerStyle: "text-2xl font-bold uppercase tracking-wide",
+          sectionStyle: "text-xl font-bold uppercase tracking-wide border-b-2 pb-2",
+          layoutClass: "grid grid-cols-3 gap-0",
+          sidebarClass: "col-span-1 p-6",
+          mainClass: "col-span-2",
         }
-      case "professional":
+      case "minimalist":
         return {
           ...baseStyles,
-          headerStyle: "text-3xl font-bold uppercase",
-          sectionStyle: "text-lg font-bold uppercase border-b-2 pb-2",
-          layoutClass: "space-y-6",
-        }
-      case "technical":
-        return {
-          ...baseStyles,
-          headerStyle: "text-2xl font-mono font-semibold",
-          sectionStyle: "text-base font-mono font-semibold bg-gray-100 px-3 py-1",
-          layoutClass: "space-y-4",
-        }
-      case "academic":
-        return {
-          ...baseStyles,
-          headerStyle: "text-3xl font-serif font-normal",
-          sectionStyle: "text-lg font-serif font-semibold border-b border-gray-400 pb-1",
-          layoutClass: "space-y-7",
-        }
-      case "minimal":
-        return {
-          ...baseStyles,
-          headerStyle: "text-2xl font-light",
+          fontFamily: "font-sans",
+          headerStyle: "text-3xl font-bold",
           sectionStyle: "text-sm font-medium uppercase tracking-wider text-gray-500",
-          layoutClass: "space-y-8",
+          layoutClass: "space-y-0",
+          sidebarClass: "bg-gray-100",
+          mainClass: "bg-white",
         }
-      default: // classic
+      case "classic":
         return {
           ...baseStyles,
-          headerStyle: "text-3xl font-bold uppercase tracking-wide",
-          sectionStyle: "text-lg font-bold uppercase border-b border-gray-300 pb-1",
-          layoutClass: "space-y-6",
+          fontFamily: "font-serif",
+          headerStyle: "text-4xl font-bold text-center",
+          sectionStyle: "text-lg font-bold capitalize border-b border-gray-300 pb-1",
+          layoutClass: "space-y-8",
+          sidebarClass: "",
+          mainClass: "",
+        }
+      default:
+        return {
+          ...baseStyles,
+          fontFamily: "font-sans",
+          headerStyle: "text-2xl font-bold uppercase tracking-wide",
+          sectionStyle: "text-xl font-bold uppercase tracking-wide border-b-2 pb-2",
+          layoutClass: "grid grid-cols-3 gap-0",
+          sidebarClass: "col-span-1 p-6",
+          mainClass: "col-span-2",
         }
     }
   }
 
   const styles = getTemplateStyles()
+
+  const renderTemplate = () => {
+    const templateProps = {
+      resumeData,
+      styles,
+      onEditPersonalInfo,
+      onEditExperience,
+      onEditEducation,
+      onEditSkills,
+      onEditCertifications,
+      onEditProjects,
+    }
+
+    switch (template) {
+      case "modern":
+        return <ModernTemplate {...templateProps} />
+      case "minimalist":
+        return <MinimalistTemplate {...templateProps} />
+      case "classic":
+        return <ClassicTemplate {...templateProps} />
+      default:
+        return <ModernTemplate {...templateProps} />
+    }
+  }
 
   return (
     <div className="bg-white h-full flex flex-col shadow-md">
@@ -192,244 +204,22 @@ export default function ResumePreview({
           <button
             onClick={downloadPDF}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium"
+            disabled={false}
           >
             <Download className="w-4 h-4" />
             Download PDF
           </button>
         </div>
       </div>
-
-
-
       <div className="flex-1 p-8 overflow-y-auto">
-        <div ref={resumeRef} className={`max-w-4xl mx-auto font-serif ${styles.layoutClass}`}>
-          {/* Header Section */}
-          <div className="text-center border-b-2 pb-4 relative group" style={{ borderColor: styles.headerColor }}>
-            <button
-              onClick={onEditPersonalInfo}
-              className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded print:hidden"
-            >
-              <Edit className="w-4 h-4 text-gray-500" />
-            </button>
-
-            <h1 className={styles.headerStyle} style={{ color: styles.headerColor }}>
-              {resumeData.personalInfo.fullName}
-            </h1>
-            <h2 className="text-xl mb-3" style={{ color: styles.textColor }}>
-              {resumeData.personalInfo.title}
-            </h2>
-
-            {/* Contact Information */}
-            <div className="flex justify-center items-center flex-wrap gap-4 text-sm text-gray-700">
-              <div className="flex items-center space-x-1">
-                <Phone className="w-3 h-3" />
-                <span>{resumeData.personalInfo.phone}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Mail className="w-3 h-3" />
-                <span>{resumeData.personalInfo.email}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <MapPin className="w-3 h-3" />
-                <span>{resumeData.personalInfo.location}</span>
-              </div>
-            </div>
-
-            {/* Professional Links */}
-            {(resumeData.personalInfo.linkedinUrl || resumeData.personalInfo.githubUrl) && (
-              <div className="flex justify-center items-center flex-wrap gap-4 mt-2 text-sm text-gray-700">
-                {resumeData.personalInfo.linkedinUrl && (
-                  <div className="flex items-center space-x-1">
-                    <ExternalLink className="w-3 h-3" />
-                    <span>LinkedIn: {resumeData.personalInfo.linkedinUrl}</span>
-                  </div>
-                )}
-                {resumeData.personalInfo.githubUrl && (
-                  <div className="flex items-center space-x-1">
-                    <ExternalLink className="w-3 h-3" />
-                    <span>GitHub: {resumeData.personalInfo.githubUrl}</span>
-                  </div>
-                )}
-              </div>
-            )}
+        <div ref={resumeRef} className="max-w-4xl mx-auto">
+          {/* Add CSS classes for better PDF page breaks */}
+          <div className="resume-content">
+            {renderTemplate()}
           </div>
-
-          {/* Professional Summary */}
-          <div>
-            <h3 className={styles.sectionStyle} style={{ color: styles.headerColor }}>
-              Professional Summary
-            </h3>
-            <p className="text-gray-800 leading-relaxed text-justify mt-3">{resumeData.personalInfo.summary}</p>
-          </div>
-
-          {/* Core Competencies/Skills */}
-          <div className="relative group">
-            <button
-              onClick={onEditSkills}
-              className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded print:hidden"
-            >
-              <Edit className="w-4 h-4 text-gray-500" />
-            </button>
-
-            <h3 className={styles.sectionStyle} style={{ color: styles.headerColor }}>
-              Core Competencies
-            </h3>
-            <div className="space-y-3 mt-3">
-              {Object.entries(resumeData.skills).map(([category, skillList]) => (
-                <div key={category}>
-                  <h4 className="font-semibold text-gray-800 mb-1">{category}:</h4>
-                  <p className="text-gray-700 leading-relaxed">
-                    {Array.isArray(skillList) ? skillList.join(" • ") : skillList}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Professional Experience */}
-          <div className="relative group">
-            <button
-              onClick={onEditExperience}
-              className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded print:hidden"
-            >
-              <Edit className="w-4 h-4 text-gray-500" />
-            </button>
-
-            <h3 className={styles.sectionStyle} style={{ color: styles.headerColor }}>
-              Professional Experience
-            </h3>
-            <div className="space-y-5 mt-3">
-              {resumeData.experience.map((exp, index) => (
-                <div key={exp.id || index}>
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="font-bold text-gray-900">{exp.position}</h4>
-                      <h5 className="font-semibold text-gray-800">{exp.company}</h5>
-                      {exp.location && <p className="text-gray-600 text-sm">{exp.location}</p>}
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-gray-800">
-                        {exp.startDate} - {exp.current ? "Present" : exp.endDate}
-                      </p>
-                    </div>
-                  </div>
-                  <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                    {Array.isArray(exp.description)
-                      ? exp.description.map((item, i) => (
-                        <li key={i} className="leading-relaxed">
-                          {item}
-                        </li>
-                      ))
-                      : exp.description.split("\n").map((item, i) => (
-                        <li key={i} className="leading-relaxed">
-                          {item}
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Education */}
-          {resumeData.education && resumeData.education.length > 0 && (
-            <div className="relative group">
-              <button
-                onClick={onEditEducation}
-                className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded print:hidden"
-              >
-                <Edit className="w-4 h-4 text-gray-500" />
-              </button>
-
-              <h3 className={styles.sectionStyle} style={{ color: styles.headerColor }}>
-                Education
-              </h3>
-              <div className="space-y-3 mt-3">
-                {resumeData.education.map((edu, index) => (
-                  <div key={edu.id || index}>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-bold text-gray-900">{edu.degree}</h4>
-                        <h5 className="font-semibold text-gray-800">{edu.institution}</h5>
-                        {edu.location && <p className="text-gray-600 text-sm">{edu.location}</p>}
-                        {edu.gpa && <p className="text-gray-600 text-sm">GPA: {edu.gpa}</p>}
-                        {edu.relevantCoursework && (
-                          <p className="text-gray-600 text-sm">Relevant Coursework: {edu.relevantCoursework}</p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-800">
-                          {edu.startDate} - {edu.endDate}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Certifications */}
-          {resumeData.certifications && resumeData.certifications.length > 0 && (
-            <div className="relative group">
-              <button
-                onClick={onEditCertifications}
-                className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded print:hidden"
-              >
-                <Edit className="w-4 h-4 text-gray-500" />
-              </button>
-
-              <h3 className={styles.sectionStyle} style={{ color: styles.headerColor }}>
-                Certifications
-              </h3>
-              <div className="space-y-2 mt-3">
-                {resumeData.certifications.map((cert, index) => (
-                  <div key={cert.id || index} className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{cert.name}</h4>
-                      <p className="text-gray-700">{cert.issuer}</p>
-                      {cert.credentialId && <p className="text-gray-600 text-sm">Credential ID: {cert.credentialId}</p>}
-                    </div>
-                    <p className="font-semibold text-gray-800">{cert.date}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Projects */}
-          {resumeData.projects && resumeData.projects.length > 0 && (
-            <div className="relative group">
-              <button
-                onClick={onEditProjects}
-                className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded print:hidden"
-              >
-                <Edit className="w-4 h-4 text-gray-500" />
-              </button>
-
-              <h3 className={styles.sectionStyle} style={{ color: styles.headerColor }}>
-                Key Projects
-              </h3>
-              <div className="space-y-3 mt-3">
-                {resumeData.projects.map((project, index) => (
-                  <div key={project.id || index}>
-                    <h4 className="font-bold text-gray-900">{project.name}</h4>
-                    <p className="text-gray-700 mb-1">{project.description}</p>
-                    <p className="text-gray-600 text-sm">
-                      <strong>Technologies:</strong> {project.technologies.join(", ")}
-                    </p>
-                    {project.url && (
-                      <p className="text-gray-600 text-sm">
-                        <strong>URL:</strong> {project.url}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
+      {/* Remove print-specific styles - handled in downloadPDF function */}
     </div>
   )
 }

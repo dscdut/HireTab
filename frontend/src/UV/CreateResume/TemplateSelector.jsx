@@ -1,14 +1,14 @@
 "use client"
 
-import { X, FileText, Code, Briefcase, GraduationCap, Minimize } from "lucide-react"
+import { X, FileText, Minimize, Briefcase } from "lucide-react"
 
-// Component Preview Button với background patterns
+// Component Preview Button with background patterns
 function PreviewButton({ template, isSelected, onClick }) {
   const getPreviewStyle = (templateId) => {
     const baseStyle = "w-full h-32 rounded mb-2 border flex flex-col justify-between p-3 text-white text-xs"
     
     switch (templateId) {
-      case "classic":
+      case "modern":
         return {
           className: baseStyle,
           style: {
@@ -16,45 +16,20 @@ function PreviewButton({ template, isSelected, onClick }) {
             border: "1px solid #e2e8f0"
           }
         }
-      case "modern":
-        return {
-          className: baseStyle,
-          style: {
-            background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-            border: "1px solid #e2e8f0"
-          }
-        }
-      case "professional":
-        return {
-          className: baseStyle,
-          style: {
-            background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-            border: "1px solid #e2e8f0"
-          }
-        }
-      case "technical":
-        return {
-          className: baseStyle + " font-mono",
-          style: {
-            background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-            border: "1px solid #e2e8f0",
-            color: "#000"
-          }
-        }
-      case "academic":
-        return {
-          className: baseStyle + " font-serif",
-          style: {
-            background: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-            border: "1px solid #e2e8f0",
-            color: "#333"
-          }
-        }
-      case "minimal":
+      case "minimalist":
         return {
           className: baseStyle,
           style: {
             background: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+            border: "1px solid #e2e8f0",
+            color: "#333"
+          }
+        }
+      case "classic":
+        return {
+          className: baseStyle + " font-serif",
+          style: {
+            background: "linear-gradient(135deg, #e2e8f0 0%, #f7fafc 100%)",
             border: "1px solid #e2e8f0",
             color: "#333"
           }
@@ -73,18 +48,12 @@ function PreviewButton({ template, isSelected, onClick }) {
 
   const getIcon = (templateId) => {
     switch (templateId) {
+      case "modern":
+        return <Briefcase className="w-4 h-4" />
+      case "minimalist":
+        return <Minimize className="w-4 h-4" />
       case "classic":
         return <FileText className="w-4 h-4" />
-      case "modern":
-        return <Minimize className="w-4 h-4" />
-      case "professional":
-        return <Briefcase className="w-4 h-4" />
-      case "technical":
-        return <Code className="w-4 h-4" />
-      case "academic":
-        return <GraduationCap className="w-4 h-4" />
-      case "minimal":
-        return <Minimize className="w-4 h-4" />
       default:
         return <FileText className="w-4 h-4" />
     }
@@ -122,34 +91,19 @@ function PreviewButton({ template, isSelected, onClick }) {
 export default function TemplateSelector({ selectedTemplate, onSelectTemplate, onClose }) {
   const templates = [
     {
-      id: "classic",
-      name: "Classic",
-      description: "Traditional ATS-friendly layout with clear sections and professional styling",
-    },
-    {
       id: "modern",
       name: "Modern",
-      description: "Clean and contemporary design with optimized readability for ATS systems",
+      description: "Modern two-column layout with sidebar for contact and skills, ideal for corporate roles",
     },
     {
-      id: "professional",
-      name: "Professional",
-      description: "Bold headers and structured layout perfect for corporate environments",
+      id: "minimalist",
+      name: "Minimalist",
+      description: "Clean two-column design with photo and minimal styling, perfect for analytical roles",
     },
     {
-      id: "technical",
-      name: "Technical",
-      description: "Monospace fonts and technical styling ideal for IT and engineering roles",
-    },
-    {
-      id: "academic",
-      name: "Academic",
-      description: "Elegant serif typography suitable for academic and research positions",
-    },
-    {
-      id: "minimal",
-      name: "Minimal",
-      description: "Ultra-clean design with maximum white space and minimal styling",
+      id: "classic",
+      name: "Classic",
+      description: "Traditional one-column layout with serif fonts, suitable for formal industries",
     },
   ]
 

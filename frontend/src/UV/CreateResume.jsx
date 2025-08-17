@@ -373,10 +373,10 @@ export default function CreateResume() {
             }
           ],
           "skills": {
-            "TechnicalSkills": ["string"],
-            "ProgrammingLanguages": ["string"],
-            "ToolsAndTechnologies": ["string"],
-            "SoftSkills": ["string"]
+            "Technical Skills": ["string"],
+            "Programming Languages": ["string"],
+            "Tools And Technologies": ["string"],
+            "Soft Skills": ["string"]
           },
           "certifications": [
             {
