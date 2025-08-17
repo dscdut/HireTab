@@ -1,10 +1,13 @@
 "use client"
 
-import { useRef } from "react"
-import { Download } from "lucide-react"
+import { useRef, useState, useEffect } from "react"
+import { Download, Eye, FileText, ZoomIn, ZoomOut, Wand2 } from "lucide-react"
 import ModernTemplate from "./templates/ModernTemplate"
 import MinimalistTemplate from "./templates/MinimalistTemplate"
 import ClassicTemplate from "./templates/ClassicTemplate"
+import PDFGenerator from "./downloadPDF/PDFGenerator"
+import PreviewPages from "./downloadPDF/PreviewPages"
+import ResumeOptimizer from "./downloadPDF/ResumeOptimizer"
 
 export default function ResumePreview({
   resumeData,
@@ -18,94 +21,134 @@ export default function ResumePreview({
   onEditProjects,
 }) {
   const resumeRef = useRef(null)
+  const [isPreviewMode, setIsPreviewMode] = useState(false)
+  const [pages, setPages] = useState([])
+  const [zoomLevel, setZoomLevel] = useState(1)
+  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false)
+  const [optimizedResumeData, setOptimizedResumeData] = useState(null)
 
-  const downloadPDF = async () => {
+  // A4 dimensions in pixels (at 96 DPI)
+  const A4_WIDTH = 794
+  const A4_HEIGHT = 1123
+  const MARGIN = 40
+  const CONTENT_WIDTH = A4_WIDTH - (MARGIN * 2)
+  const CONTENT_HEIGHT = A4_HEIGHT - (MARGIN * 2)
+
+  // Get the resume data to display (optimized if available, otherwise original)
+  const currentResumeData = optimizedResumeData || resumeData;
+
+  const generatePreview = async () => {
+    if (!resumeRef.current) return;
+
+    setIsGeneratingPreview(true);
+    
     try {
-        const jsPDF = (await import("jspdf")).jsPDF;
-        const html2canvas = (await import("html2canvas")).default;
+      const html2canvas = (await import("html2canvas")).default;
+      
+      // Create temporary container with exact A4 content dimensions
+      const tempContainer = document.createElement('div');
+      tempContainer.style.cssText = `
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+        width: ${CONTENT_WIDTH}px;
+        background-color: white;
+        font-family: inherit;
+        line-height: inherit;
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      `;
+      
+      // Clone the resume content
+      const resumeContent = resumeRef.current.cloneNode(true);
+      tempContainer.appendChild(resumeContent);
+      document.body.appendChild(tempContainer);
 
-        const resumeElement = resumeRef.current;
+      // Wait for content to render
+      await new Promise(resolve => setTimeout(resolve, 200));
 
-        // Temporarily disable animations and transitions
-        const style = document.createElement("style");
-        style.innerHTML = `
-            *, *::before, *::after {
-                animation-duration: 0s !important;
-                animation-delay: 0s !important;
-                transition-duration: 0s !important;
-                transition-delay: 0s !important;
-            }
+      // Get total height of content
+      const totalHeight = tempContainer.scrollHeight;
+      const pageContentHeight = CONTENT_HEIGHT;
+      
+      // Calculate how many pages we need
+      const numPages = Math.ceil(totalHeight / pageContentHeight);
+      
+      const generatedPages = [];
+      
+      // Generate each page with high quality settings
+      for (let pageIndex = 0; pageIndex < numPages; pageIndex++) {
+        const currentPageTop = pageIndex * pageContentHeight;
+        
+        // Create a page container
+        const pageContainer = document.createElement('div');
+        pageContainer.style.cssText = `
+          position: relative;
+          width: ${CONTENT_WIDTH}px;
+          height: ${pageContentHeight}px;
+          background-color: white;
+          overflow: hidden;
+          padding: 0;
+          margin: 0;
+          box-sizing: border-box;
         `;
-        document.head.appendChild(style);
 
-        const pdf = new jsPDF({
-            orientation: "portrait",
-            unit: "px",
-            format: "a4",
+        // Clone content for this page with offset
+        const pageContent = tempContainer.cloneNode(true);
+        pageContent.style.cssText = `
+          position: absolute;
+          top: -${currentPageTop}px;
+          left: 0;
+          width: ${CONTENT_WIDTH}px;
+          margin: 0;
+          padding: 0;
+        `;
+
+        pageContainer.appendChild(pageContent);
+        document.body.appendChild(pageContainer);
+
+        // Wait for rendering
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Capture the page with optimized settings for quality
+        const pageCanvas = await html2canvas(pageContainer, {
+          scale: 2, // High resolution for quality
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          width: CONTENT_WIDTH,
+          height: pageContentHeight,
+          x: 0,
+          y: 0,
+          logging: false,
+          allowTaint: false,
+          removeContainer: false,
+          foreignObjectRendering: false,
         });
 
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const margin = 20; // 20px margin
-        const contentWidth = pageWidth - margin * 2;
-
-        // Render the resume as a canvas
-        const canvas = await html2canvas(resumeElement, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#ffffff",
-        });
-
-        const imgData = canvas.toDataURL("image/png");
-        const imgWidth = contentWidth;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        let currentHeight = 0;
-
-        while (currentHeight < imgHeight) {
-            if (currentHeight > 0) {
-                pdf.addPage();
-            }
-
-            const remainingHeight = imgHeight - currentHeight;
-            const pageContentHeight = Math.min(remainingHeight, pageHeight - margin * 2);
-
-            // Crop the canvas for the current page
-            const pageCanvas = document.createElement("canvas");
-            pageCanvas.width = canvas.width;
-            pageCanvas.height = (pageContentHeight * canvas.width) / imgWidth;
-
-            const pageCtx = pageCanvas.getContext("2d");
-            pageCtx.drawImage(
-                canvas,
-                0,
-                (currentHeight * canvas.width) / imgWidth,
-                canvas.width,
-                pageCanvas.height,
-                0,
-                0,
-                canvas.width,
-                pageCanvas.height
-            );
-
-            const pageImgData = pageCanvas.toDataURL("image/png");
-            pdf.addImage(pageImgData, "PNG", margin, margin, imgWidth, pageContentHeight);
-
-            currentHeight += pageContentHeight;
-        }
-
-        // Cleanup
-        document.head.removeChild(style);
-
-        const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, "_")}_Resume.pdf`;
-        pdf.save(fileName);
+        // Use PNG for preview (better quality display)
+        const pageDataUrl = pageCanvas.toDataURL('image/png');
+        generatedPages.push(pageDataUrl);
+        
+        // Clean up
+        document.body.removeChild(pageContainer);
+      }
+      
+      setPages(generatedPages);
+      document.body.removeChild(tempContainer);
     } catch (error) {
-        console.error("Error generating PDF:", error);
-        toast.error("Failed to generate PDF. Please try again.");
+      console.error('Error generating preview:', error);
+    } finally {
+      setIsGeneratingPreview(false);
     }
   };
 
-
+  const togglePreview = async () => {
+    if (!isPreviewMode) {
+      await generatePreview();
+    }
+    setIsPreviewMode(!isPreviewMode);
+  };
 
   const getTemplateStyles = () => {
     const colorSchemes = {
@@ -171,7 +214,7 @@ export default function ResumePreview({
 
   const renderTemplate = () => {
     const templateProps = {
-      resumeData,
+      resumeData: currentResumeData,
       styles,
       onEditPersonalInfo,
       onEditExperience,
@@ -195,31 +238,149 @@ export default function ResumePreview({
 
   return (
     <div className="bg-white h-full flex flex-col shadow-md">
-      <div className="flex items-center justify-between py-2 px-4 border-b bg-gray-50">
-        <h1 className="text-xl font-medium text-gray-800">ATS-Optimized Resume</h1>
+      {/* Header */}
+      <div className="flex items-center justify-between py-3 px-6 border-b bg-gray-50">
         <div className="flex items-center gap-4">
-          <div className="text-sm text-gray-600">
-            Template: {template.charAt(0).toUpperCase() + template.slice(1)}
-          </div>
+          <h1 className="text-xl font-semibold text-gray-800">
+            {isPreviewMode ? "PDF Preview" : "ATS-Optimized Resume"}
+          </h1>
+          {optimizedResumeData && (
+            <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full font-medium">
+              AI Optimized
+            </span>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-4">
+          {!isPreviewMode && (
+            <div className="text-sm text-gray-600">
+              Template: {template.charAt(0).toUpperCase() + template.slice(1)}
+            </div>
+          )}
+          
+          {isPreviewMode && (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">Zoom:</span>
+              <button
+                onClick={() => setZoomLevel(Math.max(0.25, zoomLevel - 0.25))}
+                className="p-2 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                disabled={zoomLevel <= 0.25}
+              >
+                <ZoomOut className="w-4 h-4" />
+              </button>
+              <span className="text-sm text-gray-700 min-w-[60px] text-center font-medium">
+                {Math.round(zoomLevel * 100)}%
+              </span>
+              <button
+                onClick={() => setZoomLevel(Math.min(2, zoomLevel + 0.25))}
+                className="p-2 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                disabled={zoomLevel >= 2}
+              >
+                <ZoomIn className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* AI Optimization Component */}
+          <ResumeOptimizer
+            currentResumeData={currentResumeData}
+            optimizedResumeData={optimizedResumeData}
+            setOptimizedResumeData={setOptimizedResumeData}
+            isPreviewMode={isPreviewMode}
+            generatePreview={generatePreview}
+            isGeneratingPreview={isGeneratingPreview}
+          />
+
           <button
-            onClick={downloadPDF}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium"
-            disabled={false}
+            onClick={togglePreview}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
+              isPreviewMode 
+                ? "bg-gray-600 text-white hover:bg-gray-700 shadow-md" 
+                : "bg-green-600 text-white hover:bg-green-700 shadow-md"
+            }`}
+            disabled={isGeneratingPreview}
           >
-            <Download className="w-4 h-4" />
-            Download PDF
+            {isGeneratingPreview ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Generating...
+              </>
+            ) : isPreviewMode ? (
+              <>
+                <FileText className="w-4 h-4" />
+                Edit Resume
+              </>
+            ) : (
+              <>
+                <Eye className="w-4 h-4" />
+                Preview PDF
+              </>
+            )}
           </button>
+          
+          {/* PDF Generator Component */}
+          <PDFGenerator
+            resumeRef={resumeRef}
+            currentResumeData={currentResumeData}
+            pages={pages}
+            isPreviewMode={isPreviewMode}
+            isGeneratingPreview={isGeneratingPreview}
+            A4_WIDTH={A4_WIDTH}
+            A4_HEIGHT={A4_HEIGHT}
+            MARGIN={MARGIN}
+            CONTENT_WIDTH={CONTENT_WIDTH}
+            CONTENT_HEIGHT={CONTENT_HEIGHT}
+          />
         </div>
       </div>
-      <div className="flex-1 p-8 overflow-y-auto">
-        <div ref={resumeRef} className="max-w-4xl mx-auto">
-          {/* Add CSS classes for better PDF page breaks */}
-          <div className="resume-content">
-            {renderTemplate()}
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto">
+        {isPreviewMode ? (
+          pages.length > 0 && (
+            <PreviewPages
+              pages={pages}
+              zoomLevel={zoomLevel}
+              A4_WIDTH={A4_WIDTH}
+              A4_HEIGHT={A4_HEIGHT}
+              MARGIN={MARGIN}
+              CONTENT_WIDTH={CONTENT_WIDTH}
+              CONTENT_HEIGHT={CONTENT_HEIGHT}
+            />
+          )
+        ) : (
+          <div className="p-8 bg-gray-50">
+            <div 
+              ref={resumeRef} 
+              className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden"
+              style={{
+                width: `${CONTENT_WIDTH}px`,
+                minHeight: `${CONTENT_HEIGHT}px`,
+                padding: `${MARGIN}px`,
+              }}
+            >
+              <div className="resume-content">
+                {renderTemplate()}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer info for preview mode */}
+      {isPreviewMode && pages.length > 0 && (
+        <div className="border-t bg-gray-50 py-3 px-6">
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <span className="font-medium">Total: {pages.length} page{pages.length > 1 ? 's' : ''}</span>
+            <div className="flex items-center gap-4">
+              {optimizedResumeData && (
+                <span className="text-green-600 font-medium">✓ AI Optimized for Better Page Layout</span>
+              )}
+              <span>Size: A4 (210 × 297 mm)</span>
+            </div>
           </div>
         </div>
-      </div>
-      {/* Remove print-specific styles - handled in downloadPDF function */}
+      )}
     </div>
   )
 }

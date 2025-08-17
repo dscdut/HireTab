@@ -3,7 +3,7 @@
 import { X, FileText, Minimize, Briefcase } from "lucide-react"
 
 // Component Preview Button with background patterns
-function PreviewButton({ template, isSelected, onClick }) {
+function PreviewButton({ template, isSelected }) {
   const getPreviewStyle = (templateId) => {
     const baseStyle = "w-full h-32 rounded mb-2 border flex flex-col justify-between p-3 text-white text-xs"
     
@@ -65,7 +65,6 @@ function PreviewButton({ template, isSelected, onClick }) {
     <div
       className={previewStyle.className}
       style={previewStyle.style}
-      onClick={onClick}
     >
       <div className="flex items-center justify-between">
         {getIcon(template.id)}
@@ -125,11 +124,11 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate, o
                 ? "border-blue-500 bg-blue-50 shadow-md"
                 : "border-gray-200 hover:border-gray-300 hover:shadow-md"
             }`}
+            onClick={() => onSelectTemplate(template.id)}
           >
             <PreviewButton
               template={template}
               isSelected={selectedTemplate === template.id}
-              onClick={() => onSelectTemplate(template.id)}
             />
             <h4 className="font-medium text-sm text-gray-900">{template.name}</h4>
             <p className="text-xs text-gray-600 mt-1 leading-relaxed">{template.description}</p>

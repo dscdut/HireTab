@@ -42,7 +42,7 @@ export default function ResumeHeader({ onTemplateClick, onColorClick, onExport, 
             className="text-gray-700 hover:bg-gray-100 flex items-center space-x-1 transition-colors font-medium"
             onClick={onTemplateClick}
           >
-            <span>TEMPLATES (6)</span>
+            <span>TEMPLATES (3)</span>
             <ChevronDown className="w-4 h-4" />
           </Button>
         </motion.div>

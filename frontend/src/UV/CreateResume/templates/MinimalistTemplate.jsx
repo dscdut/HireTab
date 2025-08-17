@@ -105,11 +105,9 @@ export default function MinimalistTemplate({
               {Object.entries(resumeData.skills).map(([category, skillList]) => (
                 <div key={category}>
                   <h4 className="font-medium text-sm text-gray-800 mb-2">{category}</h4>
-                  <ul className="space-y-1">
-                    {skillList.map((skill, index) => (
-                      <li key={index} className="text-sm text-gray-700">• {skill}</li>
-                    ))}
-                  </ul>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {skillList.join(" • ")}
+                  </p>
                 </div>
               ))}
             </div>
