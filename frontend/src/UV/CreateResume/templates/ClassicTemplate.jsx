@@ -25,9 +25,26 @@ export default function ClassicTemplate({
         <h1 className="text-2xl font-bold tracking-wider mb-2" style={{ color: styles.headerColor }}>
           {resumeData.personalInfo.fullName}
         </h1>
-        <div className="text-sm text-gray-700">
-          {resumeData.personalInfo.location} | P: {resumeData.personalInfo.phone} | {resumeData.personalInfo.email}
-          {resumeData.personalInfo.linkedinUrl && ` | ${resumeData.personalInfo.linkedinUrl}`}
+        {resumeData.personalInfo.title && (
+          <h2 className="text-lg font-medium text-gray-700 mb-2">
+            {resumeData.personalInfo.title}
+          </h2>
+        )}
+        <div className="text-sm text-gray-700 space-y-1">
+          <div>
+            {resumeData.personalInfo.location} | P: {resumeData.personalInfo.phone} | {resumeData.personalInfo.email}
+          </div>
+          <div className="flex justify-center items-center space-x-4 text-xs">
+            {resumeData.personalInfo.linkedinUrl && (
+              <span>LinkedIn: {resumeData.personalInfo.linkedinUrl}</span>
+            )}
+            {resumeData.personalInfo.githubUrl && (
+              <span>GitHub: {resumeData.personalInfo.githubUrl}</span>
+            )}
+            {resumeData.personalInfo.websiteUrl && (
+              <span>Portfolio: {resumeData.personalInfo.websiteUrl}</span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -62,8 +79,10 @@ export default function ClassicTemplate({
                     <p className="text-sm italic text-gray-800">{edu.degree}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm italic text-gray-800">{edu.location}</p>
-                    <p className="text-sm italic text-gray-800">{edu.endDate}</p>
+                    {edu.location && <p className="text-sm italic text-gray-800">{edu.location}</p>}
+                    <p className="text-sm italic text-gray-800">
+                      {edu.startDate && edu.endDate ? `${edu.startDate} - ${edu.endDate}` : edu.endDate || edu.startDate}
+                    </p>
                   </div>
                 </div>
                 {(edu.gpa || edu.relevantCoursework) && (
@@ -101,7 +120,7 @@ export default function ClassicTemplate({
                     <p className="text-sm italic text-gray-800">{exp.position}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm italic text-gray-800">{exp.location}</p>
+                    {exp.location && <p className="text-sm italic text-gray-800">{exp.location}</p>}
                     <p className="text-sm italic text-gray-800">{exp.startDate} - {exp.current ? "Present" : exp.endDate}</p>
                   </div>
                 </div>
@@ -118,18 +137,7 @@ export default function ClassicTemplate({
         </div>
       </div>
 
-      {/* Activities Section */}
-      <div className="mb-6">
-        <h3 className="text-sm font-bold uppercase tracking-wide border-b border-gray-300 pb-1 mb-3" style={{ color: styles.headerColor }}>
-          Activities
-        </h3>
-        <div className="space-y-4 text-sm text-gray-700">
-          {/* This would be populated from resumeData if activities field exists */}
-          <p className="text-gray-600 text-sm">No activities listed</p>
-        </div>
-      </div>
-
-      {/* University Projects Section */}
+      {/* Key Projects Section */}
       <div className="relative group mb-6">
         <button
           onClick={onEditProjects}
@@ -146,7 +154,6 @@ export default function ClassicTemplate({
               <div key={project.id || index}>
                 <div className="flex justify-between items-start mb-1">
                   <h4 className="font-bold text-sm text-gray-900 uppercase">{project.name}</h4>
-                  <p className="text-sm italic text-gray-800">{project.date || 'Date not specified'}</p>
                 </div>
                 <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 ml-4">
                   <li className="leading-relaxed">{project.description}</li>
@@ -154,7 +161,7 @@ export default function ClassicTemplate({
                     <li className="leading-relaxed">Technologies: {project.technologies.join(", ")}</li>
                   )}
                   {project.url && (
-                    <li className="leading-relaxed">URL: {project.url}</li>
+                    <li className="leading-relaxed break-all">URL: {project.url}</li>
                   )}
                 </ul>
               </div>
@@ -165,7 +172,7 @@ export default function ClassicTemplate({
         </div>
       </div>
 
-      {/* Additional Section */}
+      {/* Skills and Additional Section */}
       <div className="relative group">
         <button
           onClick={onEditSkills}
@@ -177,29 +184,28 @@ export default function ClassicTemplate({
           Additional
         </h3>
         <div className="text-sm text-gray-700 space-y-2">
-          {/* Technical Skills */}
-          {resumeData.skills && resumeData.skills["Technical Skills"] && (
-            <p><strong>Technical Skills:</strong> {resumeData.skills["Technical Skills"].join("; ")}</p>
-          )}
+          {/* All Skills Categories */}
+          {resumeData.skills && Object.entries(resumeData.skills).map(([category, skillList]) => (
+            skillList && skillList.length > 0 && (
+              <p key={category}>
+                <strong>{category}:</strong> {skillList.join("; ")}
+              </p>
+            )
+          ))}
           
-          {/* Programming Skills */}
-          {resumeData.skills && resumeData.skills["Programming Languages"] && (
-            <p><strong>Programming Skills:</strong> {resumeData.skills["Programming Languages"].join("; ")}</p>
-          )}
-          
-          {/* Languages */}
-          {resumeData.skills && resumeData.skills["Languages"] && (
-            <p><strong>Languages:</strong> {resumeData.skills["Languages"].join("; ")}</p>
-          )}
-          
-          {/* Certifications & Training */}
+          {/* Certifications */}
           {resumeData.certifications.length > 0 && (
-            <p><strong>Certifications & Training:</strong> {resumeData.certifications.map(cert => cert.name).join("; ")}</p>
-          )}
-          
-          {/* Awards */}
-          {resumeData.skills && resumeData.skills["Awards"] && (
-            <p><strong>Awards:</strong> {resumeData.skills["Awards"].join("; ")}</p>
+            <div className="mt-3">
+              <p><strong>Certifications & Training:</strong></p>
+              <ul className="list-disc list-inside ml-4 space-y-1">
+                {resumeData.certifications.map((cert, index) => (
+                  <li key={cert.id || index}>
+                    <strong>{cert.name}</strong> - {cert.issuer} ({cert.date})
+                    {cert.credentialId && <span className="text-xs text-gray-600"> | ID: {cert.credentialId}</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
       </div>

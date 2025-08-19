@@ -28,46 +28,54 @@ export default function MinimalistTemplate({
           
           {/* Name and Contact */}
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-1">
+            <h1 className="text-3xl font-bold mb-1" style={{ color: styles.headerColor }}>
               {resumeData.personalInfo.fullName}
             </h1>
-            <h2 className="text-xl font-medium text-gray-700 mb-3">
-              {resumeData.personalInfo.title}
-            </h2>
+            {resumeData.personalInfo.title && (
+              <h2 className="text-xl font-medium text-gray-700 mb-3">
+                {resumeData.personalInfo.title}
+              </h2>
+            )}
             
             {/* Contact Info */}
             <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-              <span className="flex items-center">
-                <Mail className="w-3 h-3 mr-1" />
-                {resumeData.personalInfo.email}
-              </span>
-              <span className="flex items-center">
-                <Phone className="w-3 h-3 mr-1" />
-                {resumeData.personalInfo.phone}
-              </span>
-              <span className="flex items-center">
-                <MapPin className="w-3 h-3 mr-1" />
-                {resumeData.personalInfo.location}
-              </span>
+              {resumeData.personalInfo.email && (
+                <span className="flex items-center">
+                  <Mail className="w-3 h-3 mr-1" style={{ color: styles.headerColor }} />
+                  {resumeData.personalInfo.email}
+                </span>
+              )}
+              {resumeData.personalInfo.phone && (
+                <span className="flex items-center">
+                  <Phone className="w-3 h-3 mr-1" style={{ color: styles.headerColor }} />
+                  {resumeData.personalInfo.phone}
+                </span>
+              )}
+              {resumeData.personalInfo.location && (
+                <span className="flex items-center">
+                  <MapPin className="w-3 h-3 mr-1" style={{ color: styles.headerColor }} />
+                  {resumeData.personalInfo.location}
+                </span>
+              )}
             </div>
             
             {/* Links */}
             <div className="flex flex-wrap gap-3 text-xs text-gray-500 mt-2">
               {resumeData.personalInfo.linkedinUrl && (
-                <span className="flex items-center">
-                  <Linkedin className="w-3 h-3 mr-1" />
+                <span className="flex items-center break-all">
+                  <Linkedin className="w-3 h-3 mr-1 flex-shrink-0" style={{ color: styles.headerColor }} />
                   {resumeData.personalInfo.linkedinUrl}
                 </span>
               )}
               {resumeData.personalInfo.githubUrl && (
-                <span className="flex items-center">
-                  <Github className="w-3 h-3 mr-1" />
+                <span className="flex items-center break-all">
+                  <Github className="w-3 h-3 mr-1 flex-shrink-0" style={{ color: styles.headerColor }} />
                   {resumeData.personalInfo.githubUrl}
                 </span>
               )}
               {resumeData.personalInfo.websiteUrl && (
-                <span className="flex items-center">
-                  <Globe className="w-3 h-3 mr-1" />
+                <span className="flex items-center break-all">
+                  <Globe className="w-3 h-3 mr-1 flex-shrink-0" style={{ color: styles.headerColor }} />
                   {resumeData.personalInfo.websiteUrl}
                 </span>
               )}
@@ -81,14 +89,16 @@ export default function MinimalistTemplate({
         {/* LEFT SIDEBAR - 1/3 */}
         <div className="col-span-1 space-y-8">
           {/* Professional Summary */}
-          <div>
-            <h3 className="text-sm font-medium uppercase tracking-wider text-gray-500 mb-3">
-              PROFESSIONAL SUMMARY
-            </h3>
-            <p className="text-gray-800 leading-relaxed text-sm text-justify">
-              {resumeData.personalInfo.summary}
-            </p>
-          </div>
+          {resumeData.personalInfo.summary && (
+            <div>
+              <h3 className="text-sm font-medium uppercase tracking-wider mb-3" style={{ color: styles.headerColor }}>
+                PROFESSIONAL SUMMARY
+              </h3>
+              <p className="text-gray-800 leading-relaxed text-sm text-justify">
+                {resumeData.personalInfo.summary}
+              </p>
+            </div>
+          )}
 
           {/* Skills */}
           <div className="relative group">
@@ -98,17 +108,21 @@ export default function MinimalistTemplate({
             >
               <Edit className="w-4 h-4 text-gray-500" />
             </button>
-            <h3 className="text-sm font-medium uppercase tracking-wider text-gray-500 mb-3">
+            <h3 className="text-sm font-medium uppercase tracking-wider mb-3" style={{ color: styles.headerColor }}>
               SKILLS
             </h3>
             <div className="space-y-4">
-              {Object.entries(resumeData.skills).map(([category, skillList]) => (
-                <div key={category}>
-                  <h4 className="font-medium text-sm text-gray-800 mb-2">{category}</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    {skillList.join(" • ")}
-                  </p>
-                </div>
+              {resumeData.skills && Object.entries(resumeData.skills).map(([category, skillList]) => (
+                skillList && skillList.length > 0 && (
+                  <div key={category}>
+                    <h4 className="font-medium text-sm mb-2" style={{ color: styles.headerColor }}>
+                      {category.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim()}
+                    </h4>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {skillList.join(" • ")}
+                    </p>
+                  </div>
+                )
               ))}
             </div>
           </div>
@@ -121,14 +135,14 @@ export default function MinimalistTemplate({
             >
               <Edit className="w-4 h-4 text-gray-500" />
             </button>
-            <h3 className="text-sm font-medium uppercase tracking-wider text-gray-500 mb-3">
+            <h3 className="text-sm font-medium uppercase tracking-wider mb-3" style={{ color: styles.headerColor }}>
               CERTIFICATIONS
             </h3>
             <div className="space-y-3">
               {resumeData.certifications.length > 0 ? (
                 resumeData.certifications.map((cert, index) => (
                   <div key={cert.id || index}>
-                    <h4 className="font-medium text-sm text-gray-900">{cert.name}</h4>
+                    <h4 className="font-medium text-sm" style={{ color: styles.headerColor }}>{cert.name}</h4>
                     <p className="text-gray-700 text-xs">{cert.issuer}</p>
                     <p className="text-gray-500 text-xs italic">{cert.date}</p>
                     {cert.credentialId && (
@@ -153,7 +167,7 @@ export default function MinimalistTemplate({
             >
               <Edit className="w-4 h-4 text-gray-500" />
             </button>
-            <h3 className="text-sm font-medium uppercase tracking-wider text-gray-500 mb-6">
+            <h3 className="text-sm font-medium uppercase tracking-wider mb-6" style={{ color: styles.headerColor }}>
               PROFESSIONAL EXPERIENCE
             </h3>
             <div className="space-y-6">
@@ -162,8 +176,10 @@ export default function MinimalistTemplate({
                   <div key={exp.id || index}>
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h4 className="text-lg font-bold text-gray-900">{exp.position}</h4>
-                        <h5 className="font-medium italic text-gray-600">{exp.company}, {exp.location}</h5>
+                        <h4 className="text-lg font-bold" style={{ color: styles.headerColor }}>{exp.position}</h4>
+                        <h5 className="font-medium italic text-gray-600">
+                          {exp.company}{exp.location && `, ${exp.location}`}
+                        </h5>
                       </div>
                       <p className="text-sm italic text-gray-500 text-right">
                         {exp.startDate} - {exp.current ? "Present" : exp.endDate}
@@ -190,7 +206,7 @@ export default function MinimalistTemplate({
             >
               <Edit className="w-4 h-4 text-gray-500" />
             </button>
-            <h3 className="text-sm font-medium uppercase tracking-wider text-gray-500 mb-6">
+            <h3 className="text-sm font-medium uppercase tracking-wider mb-6" style={{ color: styles.headerColor }}>
               EDUCATION
             </h3>
             <div className="space-y-4">
@@ -199,15 +215,17 @@ export default function MinimalistTemplate({
                   <div key={edu.id || index}>
                     <div className="flex justify-between items-start">
                       <div>
-                        <h4 className="font-bold text-gray-900">{edu.degree}</h4>
-                        <h5 className="font-medium italic text-gray-600">{edu.institution}, {edu.location}</h5>
+                        <h4 className="font-bold" style={{ color: styles.headerColor }}>{edu.degree}</h4>
+                        <h5 className="font-medium italic text-gray-600">
+                          {edu.institution}{edu.location && `, ${edu.location}`}
+                        </h5>
                         {edu.gpa && <p className="text-gray-600 text-sm">GPA: {edu.gpa}</p>}
                         {edu.relevantCoursework && (
                           <p className="text-gray-600 text-sm">Relevant Coursework: {edu.relevantCoursework}</p>
                         )}
                       </div>
                       <p className="text-sm italic text-gray-500">
-                        {edu.startDate} - {edu.endDate}
+                        {edu.startDate && edu.endDate ? `${edu.startDate} - ${edu.endDate}` : edu.endDate || edu.startDate}
                       </p>
                     </div>
                   </div>
@@ -226,18 +244,20 @@ export default function MinimalistTemplate({
             >
               <Edit className="w-4 h-4 text-gray-500" />
             </button>
-            <h3 className="text-sm font-medium uppercase tracking-wider text-gray-500 mb-6">
+            <h3 className="text-sm font-medium uppercase tracking-wider mb-6" style={{ color: styles.headerColor }}>
               KEY PROJECTS
             </h3>
             <div className="space-y-4">
               {resumeData.projects.length > 0 ? (
                 resumeData.projects.map((project, index) => (
                   <div key={project.id || index}>
-                    <h4 className="font-bold text-gray-900 mb-1">{project.name}</h4>
+                    <h4 className="font-bold mb-1" style={{ color: styles.headerColor }}>{project.name}</h4>
                     <p className="text-gray-700 text-sm mb-2 leading-relaxed">{project.description}</p>
-                    <p className="text-xs text-gray-600 mb-1">
-                      <strong>Technologies:</strong> {project.technologies.join(", ")}
-                    </p>
+                    {project.technologies && project.technologies.length > 0 && (
+                      <p className="text-xs text-gray-600 mb-1">
+                        <strong>Technologies:</strong> {project.technologies.join(", ")}
+                      </p>
+                    )}
                     {project.url && (
                       <p className="text-xs text-gray-600 break-all">
                         <strong>URL:</strong> {project.url}

@@ -208,7 +208,7 @@ export default function CreateResume() {
     const formatResumeDataLocally = (importedData) => {
         try {
             const defaultStructure = getDefaultResumeStructure();
-            
+
             // Handle different possible input formats
             if (typeof importedData === 'string') {
                 importedData = JSON.parse(importedData);
@@ -220,7 +220,7 @@ export default function CreateResume() {
                     ...defaultStructure,
                     ...importedData,
                     // Ensure arrays have proper structure
-                    experience: Array.isArray(importedData.experience) 
+                    experience: Array.isArray(importedData.experience)
                         ? importedData.experience.map((exp, index) => ({
                             id: exp.id || index + 1,
                             company: exp.company || "Company Name",
@@ -229,12 +229,12 @@ export default function CreateResume() {
                             endDate: exp.endDate || exp.end_date || "End Date",
                             current: exp.current || false,
                             location: exp.location || "City, Country",
-                            description: Array.isArray(exp.description) 
-                                ? exp.description 
+                            description: Array.isArray(exp.description)
+                                ? exp.description
                                 : (exp.description ? exp.description.split('\n') : ["Job description"]),
-                        })) 
+                        }))
                         : [],
-                    education: Array.isArray(importedData.education) 
+                    education: Array.isArray(importedData.education)
                         ? importedData.education.map((edu, index) => ({
                             id: edu.id || index + 1,
                             institution: edu.institution || edu.school || "Institution Name",
@@ -244,7 +244,7 @@ export default function CreateResume() {
                             location: edu.location || "City, Country",
                             gpa: edu.gpa || "",
                             relevantCoursework: edu.relevantCoursework || "",
-                        })) 
+                        }))
                         : [],
                 };
             }
@@ -307,7 +307,7 @@ export default function CreateResume() {
                     if (response.status === 503 && attempt < maxRetries) {
                         // Exponential backoff: 2^attempt seconds
                         const delay = Math.pow(2, attempt) * 1000;
-                        console.log(`Gemini API unavailable, retrying in ${delay/1000}s... (attempt ${attempt}/${maxRetries})`);
+                        console.log(`Gemini API unavailable, retrying in ${delay / 1000}s... (attempt ${attempt}/${maxRetries})`);
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }
@@ -317,7 +317,7 @@ export default function CreateResume() {
                 const result = await response.json();
                 const generatedText = result.candidates[0].content.parts[0].text;
                 const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
-                
+
                 if (!jsonMatch) {
                     throw new Error("Could not parse JSON from Gemini response");
                 }
@@ -413,43 +413,55 @@ export default function CreateResume() {
         const file = event.target.files[0];
         if (!file) return;
 
-        const toastId = toast.loading("Using AI to format your resume data...");
+        const toastId = toast.loading("Using AI to format your resume data...", {
+            duration: 0
+        });
         const reader = new FileReader();
 
         reader.onload = async (e) => {
             try {
                 const importedData = JSON.parse(e.target.result);
                 let formattedData;
+                let isProcessingComplete = false;
 
                 try {
                     formattedData = await formatResumeDataWithGemini(importedData);
-                    toast.success("Resume data processed with AI formatting!", { id: toastId });
+                    if (!isProcessingComplete) {
+                        toast.dismiss(toastId); 
+                        toast.success("Resume data processed with AI formatting!");
+                        isProcessingComplete = true;
+                    }
                 } catch (geminiError) {
                     console.warn("Gemini API failed, using local formatting:", geminiError.message);
                     formattedData = formatResumeDataLocally(importedData);
-                    toast.success("Resume data imported with local formatting!", { id: toastId });
+                    if (!isProcessingComplete) {
+                        toast.dismiss(toastId); 
+                        toast.success("Resume data imported with local formatting!");
+                        isProcessingComplete = true;
+                    }
                 }
 
                 setResumeData(formattedData);
             } catch (error) {
                 console.error("Error processing imported file:", error);
-                toast.error("Failed to import resume data. Please check the file format.", { id: toastId });
+                toast.dismiss(toastId); 
+                toast.error("Failed to import resume data. Please check the file format.");
             }
         };
 
         reader.onerror = () => {
-            toast.error("Failed to read the file.", { id: toastId });
+            toast.dismiss(toastId); 
+            toast.error("Failed to read the file.");
         };
 
         reader.readAsText(file);
 
-        // Clear the input value to allow re-importing the same file
         event.target.value = "";
     };
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Toaster 
+            <Toaster
                 position="top-right"
                 toastOptions={{
                     duration: 4000,

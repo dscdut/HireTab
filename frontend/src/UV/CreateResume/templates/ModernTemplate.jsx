@@ -30,9 +30,11 @@ export default function ModernTemplate({
             <h1 className="text-2xl font-bold uppercase tracking-wide mb-2" style={{ color: styles.headerColor }}>
               {resumeData.personalInfo.fullName}
             </h1>
-            <h2 className="text-lg font-medium" style={{ color: styles.textColor }}>
-              {resumeData.personalInfo.title}
-            </h2>
+            {resumeData.personalInfo.title && (
+              <h2 className="text-lg font-medium" style={{ color: styles.textColor }}>
+                {resumeData.personalInfo.title}
+              </h2>
+            )}
           </div>
 
           {/* Contact Details with Icons */}
@@ -40,18 +42,24 @@ export default function ModernTemplate({
             <h3 className="font-bold uppercase tracking-wide text-xs mb-4" style={{ color: styles.headerColor }}>
               CONTACT DETAILS
             </h3>
-            <div className="flex items-center space-x-3">
-              <Mail className="w-4 h-4 text-gray-600 flex-shrink-0" />
-              <span className="text-gray-800 break-all">{resumeData.personalInfo.email}</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Phone className="w-4 h-4 text-gray-600 flex-shrink-0" />
-              <span className="text-gray-800">{resumeData.personalInfo.phone}</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <MapPin className="w-4 h-4 text-gray-600 flex-shrink-0" />
-              <span className="text-gray-800">{resumeData.personalInfo.location}</span>
-            </div>
+            {resumeData.personalInfo.email && (
+              <div className="flex items-center space-x-3">
+                <Mail className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                <span className="text-gray-800 break-all">{resumeData.personalInfo.email}</span>
+              </div>
+            )}
+            {resumeData.personalInfo.phone && (
+              <div className="flex items-center space-x-3">
+                <Phone className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                <span className="text-gray-800">{resumeData.personalInfo.phone}</span>
+              </div>
+            )}
+            {resumeData.personalInfo.location && (
+              <div className="flex items-center space-x-3">
+                <MapPin className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                <span className="text-gray-800">{resumeData.personalInfo.location}</span>
+              </div>
+            )}
             {resumeData.personalInfo.linkedinUrl && (
               <div className="flex items-center space-x-3">
                 <Linkedin className="w-4 h-4 text-gray-600 flex-shrink-0" />
@@ -85,18 +93,22 @@ export default function ModernTemplate({
             SKILLS
           </h3>
           <div className="space-y-4">
-            {Object.entries(resumeData.skills).map(([category, skillList]) => (
-              <div key={category}>
-                <h4 className="font-semibold text-sm text-gray-800 mb-2">{category}</h4>
-                <ul className="space-y-1">
-                  {skillList.map((skill, index) => (
-                    <li key={index} className="text-sm text-gray-700 flex items-center">
-                      <span className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: styles.headerColor }}></span>
-                      {skill}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {resumeData.skills && Object.entries(resumeData.skills).map(([category, skillList]) => (
+              skillList && skillList.length > 0 && (
+                <div key={category}>
+                  <h4 className="font-semibold text-sm text-gray-800 mb-2">
+                    {category.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim()}
+                  </h4>
+                  <ul className="space-y-1">
+                    {skillList.map((skill, index) => (
+                      <li key={index} className="text-sm text-gray-700 flex items-center">
+                        <span className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: styles.headerColor }}></span>
+                        {skill}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
             ))}
           </div>
         </div>
@@ -119,6 +131,9 @@ export default function ModernTemplate({
                   <h4 className="font-semibold text-gray-900">{cert.name}</h4>
                   <p className="text-gray-700 text-xs">{cert.issuer}</p>
                   <p className="text-gray-600 text-xs">{cert.date}</p>
+                  {cert.credentialId && (
+                    <p className="text-gray-600 text-xs">ID: {cert.credentialId}</p>
+                  )}
                 </div>
               ))
             ) : (
@@ -131,13 +146,15 @@ export default function ModernTemplate({
       {/* RIGHT MAIN CONTENT - 2/3 width */}
       <div className={`${styles.mainClass} bg-white p-8`}>
         {/* Professional Summary */}
-        <div className="mb-8">
-          <h3 className="text-xl font-bold uppercase tracking-wide mb-4 pb-2 border-b-2" 
-              style={{ color: styles.headerColor, borderColor: styles.headerColor }}>
-            PROFESSIONAL SUMMARY
-          </h3>
-          <p className="text-gray-800 leading-relaxed text-justify">{resumeData.personalInfo.summary}</p>
-        </div>
+        {resumeData.personalInfo.summary && (
+          <div className="mb-8">
+            <h3 className="text-xl font-bold uppercase tracking-wide mb-4 pb-2 border-b-2" 
+                style={{ color: styles.headerColor, borderColor: styles.headerColor }}>
+              PROFESSIONAL SUMMARY
+            </h3>
+            <p className="text-gray-800 leading-relaxed text-justify">{resumeData.personalInfo.summary}</p>
+          </div>
+        )}
 
         {/* Professional Experience */}
         <div className="relative group mb-8">
@@ -159,7 +176,7 @@ export default function ModernTemplate({
                     <div>
                       <h4 className="text-lg font-bold text-gray-900">{exp.position}</h4>
                       <h5 className="text-base font-semibold" style={{ color: styles.textColor }}>
-                        {exp.company} • {exp.location}
+                        {exp.company}{exp.location && ` • ${exp.location}`}
                       </h5>
                     </div>
                     <p className="text-sm font-medium italic text-gray-500 text-right">
@@ -199,7 +216,7 @@ export default function ModernTemplate({
                     <div>
                       <h4 className="text-lg font-bold text-gray-900">{edu.degree}</h4>
                       <h5 className="text-base font-semibold" style={{ color: styles.textColor }}>
-                        {edu.institution} • {edu.location}
+                        {edu.institution}{edu.location && ` • ${edu.location}`}
                       </h5>
                       {edu.gpa && <p className="text-gray-600 text-sm">GPA: {edu.gpa}</p>}
                       {edu.relevantCoursework && (
@@ -207,7 +224,7 @@ export default function ModernTemplate({
                       )}
                     </div>
                     <p className="text-sm font-medium italic text-gray-500">
-                      {edu.startDate} - {edu.endDate}
+                      {edu.startDate && edu.endDate ? `${edu.startDate} - ${edu.endDate}` : edu.endDate || edu.startDate}
                     </p>
                   </div>
                 </div>
@@ -236,9 +253,11 @@ export default function ModernTemplate({
                 <div key={project.id || index} className="border-l-4 pl-4" style={{ borderColor: styles.headerColor }}>
                   <h4 className="text-lg font-bold text-gray-900 mb-2">{project.name}</h4>
                   <p className="text-gray-700 mb-2 leading-relaxed">{project.description}</p>
-                  <p className="text-sm text-gray-600 mb-1">
-                    <strong>Technologies:</strong> {project.technologies.join(", ")}
-                  </p>
+                  {project.technologies && project.technologies.length > 0 && (
+                    <p className="text-sm text-gray-600 mb-1">
+                      <strong>Technologies:</strong> {project.technologies.join(", ")}
+                    </p>
+                  )}
                   {project.url && (
                     <p className="text-sm text-gray-600">
                       <strong>URL:</strong> <span className="break-all">{project.url}</span>
