@@ -167,11 +167,8 @@ export default function JobBoard() {
       <div className="sticky top-0 z-20 bg-white border-b border-gray-200">
         <div className="px-6 py-4">
           {/* Title Section */}
-          <div className="mb-4">
-            <h1 className="mb-1 text-2xl font-bold text-gray-900">Job Board</h1>
-            <p className="text-gray-600">
-              Manage and track all your job postings.
-            </p>
+          <div className="mb-2">
+            <h1 className="mb-1 text-2xl font-bold text-gray-900">View all job posting</h1>
           </div>
 
           {/* Search and Filters */}

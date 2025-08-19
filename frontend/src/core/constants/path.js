@@ -4,12 +4,14 @@ export const path = {
   register: '/register',
   forgotPassword: '/forgot-password',
   blog: '/blog',
+  create_resume: '/create-resume',
   admin: {
     dashboard: '/admin/dashboard'
   },
   candidate: {
     job: '/candidate/job',
     jobDetail: '/candidate/job/:id',
+    
   },
   hr: {
     job_posting: '/hr/job-posting',
