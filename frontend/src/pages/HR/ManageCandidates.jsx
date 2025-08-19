@@ -11,7 +11,7 @@ import { applyFilters, getAvailableStatusTransitions, getNextStatus } from "./jo
 
 import DashboardHeader from "./job-dashboard/DashboardHeader"
 import BulkActionsBar from "./job-dashboard/BulkActionsBar"
-import CandidateTableWithJobName from "./job-dashboard/CandidateTableWithJobName"
+import CandidateTable from "./job-dashboard/CandidateTable"
 import FilterModal from "./job-dashboard/FilterModal"
 import EmailModal from "./job-dashboard/EmailModal"
 import ConfirmModal from "./job-dashboard/ConfirmModal"
@@ -158,10 +158,10 @@ export default function ManageCandidates() {
   const handleStatusTransition = (candidateId, currentStatus) => {
     const nextStatus = getNextStatus(currentStatus)
     if (!nextStatus) return
-    
+
     // Find candidate name for confirmation modal
     const candidate = candidates.find(c => c.id === candidateId)
-    
+
     // Show confirmation modal
     setStatusConfirmModal({
       isOpen: true,
@@ -174,13 +174,13 @@ export default function ManageCandidates() {
 
   const handleStatusConfirm = () => {
     const { candidateId, nextStatus } = statusConfirmModal
-    
+
     // Update status after confirmation
     bulkUpdateStatusMutation.mutate({
       candidateIds: [candidateId],
       status: nextStatus,
     })
-    
+
     // Close modal
     setStatusConfirmModal({
       isOpen: false,
@@ -471,7 +471,7 @@ export default function ManageCandidates() {
             isLoading={bulkUpdateStatusMutation.isLoading}
           />
 
-          <CandidateTableWithJobName
+          <CandidateTable
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             candidates={candidates}
@@ -482,6 +482,7 @@ export default function ManageCandidates() {
             sortConfig={sortConfig}
             setSortConfig={setSortConfig}
             onStatusTransition={handleStatusTransition}
+            showJobName={true}
             refetchCandidates={refetch}
           />
         </div>

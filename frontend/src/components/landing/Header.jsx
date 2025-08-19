@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Menu, X, User, LogOut } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import Logo from './Logo'
-
+import { path } from '@/core/constants/path'
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -39,20 +39,19 @@ const Header = () => {
     { label: 'Home', href: '#' },
     { label: 'About', href: '#about' },
     { label: 'Events', href: '#events' },
-    { label: 'Contact', href: '#contact' }
+    { label: 'Resume', href: path.create_resume }
   ]
 
   return (
     <motion.header
-  initial={{ y: -100 }}
-  animate={{ y: 0 }}
-  transition={{ duration: 0.2 }}
-  className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-    isScrolled
-      ? 'bg-white/90 backdrop-blur-md shadow-lg'
-      : 'bg-white/40 backdrop-blur-sm'
-  }`}
->
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.2 }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+          ? 'bg-white/90 backdrop-blur-md shadow-lg'
+          : 'bg-white/40 backdrop-blur-sm'
+        }`}
+    >
       <div className="container px-4 mx-auto">
         <div className={`flex items-center justify-between transition-all duration-300
       ${isScrolled ? 'h-16 py-0' : 'h-24 py-4'}`}>
@@ -63,7 +62,7 @@ const Header = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center transition-all duration-300"
           >
-    <Logo className={`transition-all duration-300 ${isScrolled ? 'w-10 h-10' : 'w-16 h-16'}`} />
+            <Logo className={`transition-all duration-300 ${isScrolled ? 'w-10 h-10' : 'w-16 h-16'}`} />
           </motion.div>
 
           {/* Desktop Menu */}

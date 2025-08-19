@@ -444,6 +444,7 @@ export default function JobPostingDashboard() {
             sortConfig={sortConfig}
             setSortConfig={setSortConfig}
             onStatusTransition={handleStatusTransition}
+            showJobName={false}
           />
         </div>
       </div>

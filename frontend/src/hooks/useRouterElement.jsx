@@ -14,6 +14,7 @@ import JobDetailHR from '@/pages/HR/JobDetail'
 import ProtectedRoute from '@/components/landing/ProtectedRoute'
 import ManageCandidates from '@/pages/HR/ManageCandidates'
 import HRDashboard from '@/pages/HR/Dashboard/Hr_Dashboard'
+import CreateResume from '@/UV/CreateResume'  
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -41,6 +42,10 @@ export default function useRoutesElements() {
     {
       path: path.candidate.jobDetail,
       element: <JobDetail />
+    },
+    {
+      path: path.create_resume,
+      element: <CreateResume />
     },
     {
       path: path.hr.hr_dashboard,

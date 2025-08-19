@@ -1,91 +1,10 @@
 "use client"
 
-import { useState } from "react"
-import { ChevronDown, Users, Calendar, FileText, Mail, ChevronLeft, ChevronRight, X, Check } from "lucide-react"
+import { useState, useMemo } from "react"
+import { ChevronDown, Users, Calendar, FileText, Briefcase, ChevronLeft, ChevronRight } from "lucide-react"
 import { CANDIDATE_STATUSES } from "./constants/candidateConstants"
 import { getStatusConfig, getNextStatus, getStatusButtonClass, formatDate } from "./utils/candidateUtils"
 import StatusBadge from "./StatusBadge"
-import { candidateApi } from "@/core/services/candidate.service"
-
-// Enhanced ConfirmModal with modern design
-function ConfirmModal({ open, onClose, onConfirm, message, isLoading = false }) {
-  if (!open) return null
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4 animate-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-center w-16 h-16 mx-auto mb-6 bg-blue-50 rounded-full">
-          <Check className="w-8 h-8 text-blue-600" />
-        </div>
-        <div className="text-center mb-8">
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Confirm Action</h3>
-          <p className="text-gray-600 leading-relaxed">{message}</p>
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            disabled={isLoading}
-            className="flex-1 px-6 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isLoading}
-            className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium transition-all duration-200 hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Processing...
-              </>
-            ) : (
-              "Confirm"
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Enhanced NotificationModal
-function NotificationModal({ open, onClose, message, type = "success" }) {
-  if (!open) return null
-
-  const isSuccess = type === "success"
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4 animate-in zoom-in-95 duration-200">
-        <div
-          className={`flex items-center justify-center w-16 h-16 mx-auto mb-6 rounded-full ${isSuccess ? "bg-green-50" : "bg-red-50"
-            }`}
-        >
-          {isSuccess ? <Check className="w-8 h-8 text-green-600" /> : <X className="w-8 h-8 text-red-600" />}
-        </div>
-        <div className="text-center mb-8">
-          <h3 className={`text-xl font-semibold mb-2 ${isSuccess ? "text-green-900" : "text-red-900"}`}>
-            {isSuccess ? "Success!" : "Error"}
-          </h3>
-          <p className="text-gray-600 leading-relaxed">{message}</p>
-        </div>
-        <button
-          onClick={() => {
-            onClose()
-            window.location.reload()
-          }}
-          className={`w-full px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-[1.02] ${isSuccess
-            ? "bg-green-600 hover:bg-green-700 text-white hover:shadow-lg"
-            : "bg-red-600 hover:bg-red-700 text-white hover:shadow-lg"
-            }`}
-        >
-          Got it
-        </button>
-      </div>
-    </div>
-  )
-}
 
 export default function CandidateTable({
   activeTab,
@@ -98,13 +17,11 @@ export default function CandidateTable({
   sortConfig,
   setSortConfig,
   onStatusTransition,
-  refetchCandidates
+  showJobName = false, // New prop to control job name column visibility
+  refetchCandidates,
 }) {
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
-  const [confirmModal, setConfirmModal] = useState({ open: false, candidateId: null, nextStatus: null })
-  const [notifyModal, setNotifyModal] = useState({ open: false, message: "", type: "success" })
-  const [isLoading, setIsLoading] = useState(false)
 
   const tabs = [
     CANDIDATE_STATUSES.ALL,
@@ -114,16 +31,16 @@ export default function CandidateTable({
     CANDIDATE_STATUSES.REJECTED,
   ]
 
-  const columns = [
-    { key: "name", label: "Candidate", icon: Users },
-    { key: "createdAt", label: "Applied Date", icon: Calendar },
-    { key: "resumeFile", label: "Resume", icon: FileText },
-    { key: "status", label: "Status", icon: null },
-    { key: "score", label: "Score", icon: null },
-    { key: null, label: "Actions", icon: null },
-    { key: "email", label: "Email", icon: Mail },
-    { key: "phone", label: "Phone", icon: null },
-  ]
+  // Define columns dynamically based on showJobName prop
+  const columns = useMemo(() => [
+    { key: "name", label: "Candidate", icon: Users, width: "w-56" },
+    ...(showJobName ? [{ key: "jobPostingName", label: "Position", icon: Briefcase, width: "w-40" }] : []),
+    { key: "createdAt", label: "Applied", icon: Calendar, width: "w-28" },
+    { key: "resumeFile", label: "Resume", icon: FileText, width: "w-24" },
+    { key: "status", label: "Status", icon: null, width: "w-32" },
+    { key: "score", label: "Score", icon: null, width: "w-28" },
+    { key: null, label: "Actions", icon: null, width: "w-32" },
+  ], [showJobName])
 
   // Pagination logic
   const totalPages = Math.ceil(sortedCandidates.length / rowsPerPage)
@@ -135,15 +52,19 @@ export default function CandidateTable({
   const handleTabChange = (tab) => {
     setActiveTab(tab)
     setCurrentPage(1)
+    if (refetchCandidates) {
+      refetchCandidates()
+    }
   }
-  // Enhanced Pagination component
+
+  // Pagination component
   const PaginationComponent = () => {
     if (sortedCandidates.length <= rowsPerPage) return null
 
     const getPageNumbers = () => {
       const pages = []
       const maxVisiblePages = 5
-
+      
       if (totalPages <= maxVisiblePages) {
         for (let i = 1; i <= totalPages; i++) {
           pages.push(i)
@@ -152,80 +73,83 @@ export default function CandidateTable({
         pages.push(1)
         let startPage = Math.max(2, currentPage - 1)
         let endPage = Math.min(totalPages - 1, currentPage + 1)
-
+        
         if (currentPage <= 3) {
           endPage = Math.min(4, totalPages - 1)
         }
         if (currentPage >= totalPages - 2) {
           startPage = Math.max(2, totalPages - 3)
         }
-
+        
         if (startPage > 2) {
           pages.push("...")
         }
-
+        
         for (let i = startPage; i <= endPage; i++) {
           pages.push(i)
         }
-
+        
         if (endPage < totalPages - 1) {
           pages.push("...")
         }
-
+        
         if (totalPages > 1) {
           pages.push(totalPages)
         }
       }
+      
       return pages
     }
 
     return (
-
-      <div className="flex items-center justify-between px-8 py-6 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-        <div className="flex items-center text-sm font-medium text-gray-600">
+      <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div className="flex items-center text-sm text-gray-600">
           <span>
-            Showing <span className="font-semibold text-gray-900">{startIndex + 1}</span> to{" "}
-            <span className="font-semibold text-gray-900">{Math.min(endIndex, sortedCandidates.length)}</span> of{" "}
-            <span className="font-semibold text-gray-900">{sortedCandidates.length}</span> candidates
+            Showing {startIndex + 1} to {Math.min(endIndex, sortedCandidates.length)} of {sortedCandidates.length} candidates
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        
+        <div className="flex items-center space-x-2">
           <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 ${currentPage === 1
-              ? "text-gray-400 cursor-not-allowed"
-              : "text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-md border border-gray-200"
-              }`}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${
+              currentPage === 1
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Previous</span>
           </button>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center space-x-1">
             {getPageNumbers().map((page, index) => (
               <button
                 key={index}
-                onClick={() => typeof page === "number" && setCurrentPage(page)}
+                onClick={() => typeof page === 'number' && setCurrentPage(page)}
                 disabled={page === "..."}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${page === currentPage
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
-                  : page === "..."
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  page === currentPage
+                    ? "bg-blue-600 text-white"
+                    : page === "..."
                     ? "text-gray-400 cursor-default"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-md border border-gray-200"
-                  }`}
+                    : "text-gray- gốc tác giả:600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
               >
                 {page}
               </button>
             ))}
           </div>
+
           <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 ${currentPage === totalPages
-              ? "text-gray-400 cursor-not-allowed"
-              : "text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-md border border-gray-200"
-              }`}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${
+              currentPage === totalPages
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
           >
             <span>Next</span>
             <ChevronRight className="w-4 h-4" />
@@ -236,11 +160,10 @@ export default function CandidateTable({
   }
 
   return (
-
-    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-      {/* Enhanced Tabs */}
-      <div className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-        <div className="flex overflow-x-auto scrollbar-hide">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      {/* Tabs */}
+      <div className="border-b border-gray-200 bg-gray-50">
+        <div className="flex overflow-x-auto">
           {tabs.map((tab) => {
             const count =
               tab === CANDIDATE_STATUSES.ALL ? candidates.length : candidates.filter((c) => c.status === tab).length
@@ -250,17 +173,19 @@ export default function CandidateTable({
             return (
               <button
                 key={tab}
-                className={`px-8 py-6 text-sm font-semibold whitespace-nowrap border-b-3 transition-all duration-300 flex items-center gap-3 hover:bg-white/80 ${activeTab === tab
-                  ? "text-blue-700 border-blue-600 bg-white shadow-sm"
-                  : "text-gray-600 border-transparent hover:text-gray-900"
-                  }`}
+                className={`px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-all duration-200 flex items-center space-x-2 ${
+                  activeTab === tab
+                    ? "text-blue-600 border-blue-600 bg-white"
+                    : "text-gray-600 border-transparent hover:text-gray-900 hover:bg-gray-100"
+                }`}
                 onClick={() => handleTabChange(tab)}
               >
-                {tab !== CANDIDATE_STATUSES.ALL && <StatusIcon className="w-5 h-5" />}
-                <span className="text-base">{tab}</span>
+                {tab !== CANDIDATE_STATUSES.ALL && <StatusIcon className="w-4 h-4" />}
+                <span>{tab}</span>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 ${activeTab === tab ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-600"
-                    }`}
+                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    activeTab === tab ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-600"
+                  }`}
                 >
                   {count}
                 </span>
@@ -270,138 +195,148 @@ export default function CandidateTable({
         </div>
       </div>
 
-      {/* Enhanced Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+      {/* Table */}
+      <div className="overflow-hidden">
+        <table className="w-full table-fixed">
+          <thead className="bg-blue-50 border-b border-blue-100">
             <tr>
-              <th className="px-8 py-5 text-left">
+              <th className="px-4 py-4 text-left w-12">
                 <input
                   type="checkbox"
                   checked={selectedCandidates.size === currentCandidates.length && currentCandidates.length > 0}
                   onChange={toggleSelectAll}
-
-                  className="w-5 h-5 text-blue-600 border-2 border-gray-300 rounded-lg focus:ring-blue-500 focus:ring-2 transition-all duration-200"
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
               </th>
               {columns.map((column) => (
                 <th
                   key={column.key || column.label}
-                  className={`px-8 py-5 text-left text-sm font-bold text-gray-800 ${column.key === "createdAt" ? "whitespace-nowrap" : ""
-                    }`}
+                  className={`px-4 py-4 text-left text-sm font-semibold text-gray-900 ${column.width}`}
                 >
                   {column.key ? (
                     <button
-                      className="flex items-center gap-3 hover:text-blue-700 transition-all duration-200 group"
+                      className="flex items-center space-x-2 hover:text-blue-600 transition-colors w-full"
                       onClick={() => {
                         const direction =
                           sortConfig.key === column.key && sortConfig.direction === "asc" ? "desc" : "asc"
                         setSortConfig({ key: column.key, direction })
                       }}
                     >
-                      {column.icon && (
-                        <column.icon className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
-                      )}
-                      <span className="text-base">{column.label}</span>
+                      {column.icon && <column.icon className="w-4 h-4 flex-shrink-0" />}
+                      <span className="truncate">{column.label}</span>
                       <ChevronDown
-                        className={`w-4 h-4 transition-all duration-200 ${sortConfig.key === column.key && sortConfig.direction === "asc" ? "rotate-180" : ""
-                          } group-hover:scale-110`}
+                        className={`w-4 h-4 transition-transform flex-shrink-0 ${
+                          sortConfig.key === column.key && sortConfig.direction === "asc" ? "rotate-180" : ""
+                        }`}
                       />
                     </button>
                   ) : (
-                    <div className="flex items-center gap-3">
-                      {column.icon && <column.icon className="w-5 h-5" />}
-                      <span className="text-base">{column.label}</span>
+                    <div className="flex items-center space-x-2">
+                      {column.icon && <column.icon className="w-4 h-4 flex-shrink-0" />}
+                      <span className="truncate">{column.label}</span>
                     </div>
                   )}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-200">
             {currentCandidates.length > 0 ? (
-              currentCandidates.map((candidate, index) => (
+              currentCandidates.map((candidate) => (
                 <tr
                   key={candidate.id}
-                  className={`hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 group ${selectedCandidates.has(candidate.id) ? "bg-blue-50 shadow-sm" : ""
-                    }`}
-                  style={{ animationDelay: `${index * 50}ms` }}
+                  className={`hover:bg-gray-50 transition-colors ${selectedCandidates.has(candidate.id) ? "bg-blue-50" : ""}`}
                 >
-                  <td className="px-8 py-6">
+                  <td className="px-4 py-4 w-12">
                     <input
                       type="checkbox"
                       checked={selectedCandidates.has(candidate.id)}
                       onChange={() => toggleCandidateSelection(candidate.id)}
-                      className="w-5 h-5 text-blue-600 border-2 border-gray-300 rounded-lg focus:ring-blue-500 focus:ring-2 transition-all duration-200"
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                   </td>
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200">
-                        <span className="text-lg font-bold text-white">{candidate.name.charAt(0).toUpperCase()}</span>
+                  
+                  {/* Candidate Column */}
+                  <td className="px-4 py-4 w-56">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-medium text-blue-600">
+                          {candidate.name.charAt(0).toUpperCase()}
+                        </span>
                       </div>
-                      <div>
-                        <div
-                          className="text-base font-semibold text-gray-900 truncate max-w-[200px] cursor-pointer hover:text-blue-700 transition-colors duration-200"
-                          title={candidate.name}
-                        >
-                          {candidate.name}
-                        </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-gray-900 truncate">{candidate.name}</div>
+                        <div className="text-xs text-gray-500 truncate">{candidate.email}</div>
+                        <div className="text-xs text-gray-400">{candidate.phone || "—"}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-6 text-sm font-medium text-gray-600">{formatDate(candidate.createdAt)}</td>
-                  <td className="px-8 py-6">
+                  
+                  {/* Position Column (Conditional) */}
+                  {showJobName && (
+                    <td className="px-4 py-4 w-40">
+                      <div className="flex items-center space-x-2">
+                        <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-900 truncate">
+                          {candidate.jobPostingName}
+                        </span>
+                      </div>
+                    </td>
+                  )}
+                  
+                  {/* Applied Date Column */}
+                  <td className="px-4 py-4 w-28">
+                    <div className="text-sm text-gray-600">{formatDate(candidate.createdAt)}</div>
+                  </td>
+                  
+                  {/* Resume Column */}
+                  <td className="px-4 py-4 w-24">
                     {candidate.resumeFile ? (
                       <a
                         href={candidate.resumeFile}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-semibold hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-200"
+                        className="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
                       >
                         <FileText className="w-4 h-4" />
-                        <span>View Resume</span>
+                        <span>View</span>
                       </a>
                     ) : (
-                      <span className="text-gray-400 text-sm font-medium">No file</span>
+                      <span className="text-gray-400 text-sm">—</span>
                     )}
                   </td>
-                  <td className="px-8 py-6 whitespace-nowrap">
+                  
+                  {/* Status Column */}
+                  <td className="px-4 py-4 w-32">
                     <StatusBadge status={candidate.status} />
                   </td>
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-3">
-                      <div className="text-base font-bold text-gray-900">{candidate.score}%</div>
-                      <div className="w-20 bg-gray-200 rounded-full h-3 overflow-hidden">
+                  
+                  {/* Score Column */}
+                  <td className="px-4 py-4 w-28">
+                    <div className="flex items-center space-x-2">
+                      <div className="text-sm font-medium text-gray-900">{candidate.score}%</div>
+                      <div className="w-12 bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-out"
+                          className="bg-blue-500 h-2 rounded-full transition-all"
                           style={{ width: `${candidate.score}%` }}
                         ></div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-6">
+                  
+                  {/* Actions Column */}
+                  <td className="px-4 py-4 w-32">
                     {getNextStatus(candidate.status) ? (
                       <button
-                        onClick={() =>
-                          setConfirmModal({
-                            open: true,
-                            candidateId: candidate.id,
-                            nextStatus: getNextStatus(candidate.status),
-                          })
-                        }
-                        className={`px-4 py-2 text-white text-sm font-semibold rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-lg ${getStatusButtonClass(getNextStatus(candidate.status))}`}
+                        onClick={() => onStatusTransition(candidate.id, candidate.status)}
+                        className={`px-3 py-1.5 text-white text-xs font-medium rounded-lg transition-all duration-200 ${getStatusButtonClass(getNextStatus(candidate.status))}`}
                       >
                         → {getNextStatus(candidate.status)}
                       </button>
                     ) : (
-                      <span className="text-gray-400 text-sm font-medium bg-gray-100 px-4 py-2 rounded-xl">
-                        Final Status
-                      </span>
+                      <span className="text-gray-400 text-xs font-medium">Final</span>
                     )}
                   </td>
-                  <td className="px-8 py-6 text-sm font-medium text-gray-600">{candidate.email}</td>
-                  <td className="px-8 py-6 text-sm font-medium text-gray-600">{candidate.phone || "—"}</td>
                 </tr>
               ))
             ) : (
@@ -412,7 +347,7 @@ export default function CandidateTable({
                       <Users className="w-10 h-10 text-gray-400" />
                     </div>
                     <div>
-                      <p className="text-lg font-semibold text-gray-900 mb-2">No candidates found</p>
+                      <p className="text-sm font-medium text-gray-900">No candidates found</p>
                       <p className="text-sm text-gray-500">Try adjusting your search or filter criteria</p>
                     </div>
                   </div>
@@ -425,37 +360,6 @@ export default function CandidateTable({
 
       {/* Pagination */}
       <PaginationComponent />
-
-      {/* Enhanced Confirm Modal */}
-      <ConfirmModal
-        open={confirmModal.open}
-        message={`Are you sure you want to change the status to '${confirmModal.nextStatus}'?`}
-        isLoading={isLoading}
-        onClose={() => setConfirmModal({ open: false, candidateId: null, nextStatus: null })}
-        onConfirm={async () => {
-          setIsLoading(true)
-          try {
-            await candidateApi.updateStatus(confirmModal.candidateId, confirmModal.nextStatus)
-            setConfirmModal({ open: false, candidateId: null, nextStatus: null })
-            onStatusTransition(confirmModal.candidateId, confirmModal.nextStatus)
-            setNotifyModal({ open: true, message: "Status updated successfully!", type: "success" })
-            if (refetchCandidates) refetchCandidates()
-          } catch (e) {
-            setConfirmModal({ open: false, candidateId: null, nextStatus: null })
-            setNotifyModal({ open: true, message: "Failed to update status. Please try again.", type: "error" })
-          } finally {
-            setIsLoading(false)
-          }
-        }}
-      />
-
-      {/* Enhanced Notification Modal */}
-      <NotificationModal
-        open={notifyModal.open}
-        message={notifyModal.message}
-        type={notifyModal.type}
-        onClose={() => setNotifyModal({ open: false, message: "", type: "success" })}
-      />
     </div>
   )
 }
