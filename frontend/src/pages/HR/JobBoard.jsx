@@ -170,7 +170,7 @@ export default function JobBoard() {
           <div className="mb-4">
             <h1 className="mb-1 text-2xl font-bold text-gray-900">Job Board</h1>
             <p className="text-gray-600">
-              Manage and track all your job postings.
+              Effortlessly manage, filter, and review all your job postings in one place.
             </p>
           </div>
 
@@ -321,66 +321,66 @@ export default function JobBoard() {
                     </p>
                   </div>
 
-                    {/* Status */}
-                    <div className="col-span-1">
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(job.status)}`}
-                      >
-                        {job.status}
+                  {/* Status */}
+                  <div className="col-span-1">
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(job.status)}`}
+                    >
+                      {job.status}
+                    </span>
+                  </div>
+
+                  {/* Start Date */}
+                  <div className="col-span-2">
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <span>
+                        {job.start_time
+                          ? new Date(job.start_time).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                          : "Not set"}
                       </span>
                     </div>
+                  </div>
 
-                    {/* Start Date */}
-                    <div className="col-span-2">
-                      <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <span>
-                          {job.start_time
-                            ? new Date(job.start_time).toLocaleDateString("en-GB", {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                            })
-                            : "Not set"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* End Date */}
-                    <div className="col-span-2">
-                      <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <span>
-                          {job.end_time
-                            ? new Date(job.end_time).toLocaleDateString("en-GB", {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                            })
-                            : "Not set"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Job Type */}
-                    <div className="col-span-2">
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getJobTypeColor(job.type || "Fulltime")}`}
-                      >
-                        {job.type || "Fulltime"}
+                  {/* End Date */}
+                  <div className="col-span-2">
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <span>
+                        {job.end_time
+                          ? new Date(job.end_time).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                          : "Not set"}
                       </span>
                     </div>
+                  </div>
 
-                    {/* Applications */}
-                    <div className="col-span-1">
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-gray-400" />
-                        <div className="flex items-center gap-1">
-                          <span className="text-sm font-semibold text-gray-900">{job.applicationsCount || 0}</span>
-                          <span className="text-xs text-gray-400">/ {job.totalApplications || 0}</span>
-                        </div>
+                  {/* Job Type */}
+                  <div className="col-span-2">
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getJobTypeColor(job.type || "Fulltime")}`}
+                    >
+                      {job.type || "Fulltime"}
+                    </span>
+                  </div>
+
+                  {/* Applications */}
+                  <div className="col-span-1">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-gray-400" />
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-semibold text-gray-900">{job.applicationsCount || 0}</span>
+                        <span className="text-xs text-gray-400">/ {job.totalApplications || 0}</span>
                       </div>
                     </div>
+                  </div>
 
                   {/* Actions Menu */}
                   <div className="flex justify-end col-span-1">

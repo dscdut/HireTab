@@ -406,7 +406,6 @@ export default function CandidateTable({
               ))
             ) : (
               <tr>
-             <p className="text-sm font-medium text-gray-900">No candidates found</p>
                 <td colSpan={9} className="px-8 py-16 text-center">
                   <div className="flex flex-col items-center gap-4">
                     <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
