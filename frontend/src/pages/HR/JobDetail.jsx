@@ -189,13 +189,12 @@ export default function JobDetail() {
             <div className="flex-1">
               <h2 className="text-2xl font-bold mb-3 text-gray-900">About the Company</h2>
               <p className="text-gray-700 mb-4 leading-relaxed">
-                Google Developer Student Clubs (GDSC) is a global program by Google Developers for students passionate
-                about technology at universities, colleges, and other educational institutions.
+                At HireTab, we are your digital outsourcing and technology partner, dedicated to helping clients transform their ideas and strategies into high-end digital products. Our international team is made up of passionate individuals who believe that excellence stems from within.
+                When you become a part of our family, we care not just about what you do, but who you are. Our vision is to empower our employees to reach their fullest potential by nurturing both their skills and character.
               </p>
               <p className="text-gray-700 leading-relaxed">
-                Proud to be one of the GDSC chapters, the Google Developer Student Club - Danang University of Science
-                and Technology (GDSC - DUT) is a community of young technology enthusiasts who learn together and build
-                solutions to solve local problems through events and activities supported by Google resources.
+                We take immense pride in fostering a remarkable company culture that uplifts our team, believing that together, there's no limit to what we can achieve.
+                Beyond our work, we are committed to giving back to our community through various community service programs.
               </p>
             </div>
           </div>
@@ -216,7 +215,10 @@ export default function JobDetail() {
               </h2>
               <div className="prose prose-gray max-w-none">
                 <p className="text-gray-700 leading-relaxed">
-                  {getJobProperty("description", "No description available")}
+                  {getJobProperty(
+                    "description",
+                    "As a Software Engineer at GDSC - DUT, you will design, develop, and maintain innovative web applications that empower our student community. You will work closely with other engineers and designers to deliver high-quality solutions that address real-world problems in education and technology."
+                  )}
                 </p>
               </div>
             </div>
@@ -236,23 +238,27 @@ export default function JobDetail() {
                   <>
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">Bachelor's degree in Computer Science or related field</span>
+                      <span className="leading-relaxed">Bachelor’s degree in Computer Science, Software Engineering, or related field.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">3+ years of experience with modern JavaScript frameworks</span>
+                      <span className="leading-relaxed">Independent and Collaborative Work: Ability to work both independently and as part of a team, with a passion for continuous learning and excellence in software development.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">Strong understanding of web technologies and RESTful APIs</span>
+                      <span className="leading-relaxed">Experience with RESTful APIs and state management libraries (Redux, Zustand, etc.).</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">Experience with database design and optimization</span>
+                      <span className="leading-relaxed">Problem-Solving: Strong analytical and problem-solving skills with the ability to manage technical complexities.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">Excellent problem-solving and communication skills</span>
+                      <span className="leading-relaxed">Solid understanding of Git and collaborative development workflows.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="leading-relaxed">Strong problem-solving skills and attention to detail.</span>
                     </li>
                   </>
                 )}
@@ -261,7 +267,7 @@ export default function JobDetail() {
 
             {/* Responsibilities */}
             <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">Responsibilities</h2>
+              <h2 className="text-2xl font-bold mb-6 text-gray-900">Job highlights</h2>
               <ul className="space-y-3 text-gray-700">
                 {job?.responsibilities && Array.isArray(job.responsibilities) && job.responsibilities.length > 0 ? (
                   job.responsibilities.map((responsibility, index) => (
@@ -274,35 +280,29 @@ export default function JobDetail() {
                   <>
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">Develop and maintain web applications</span>
+                      <span className="leading-relaxed">Work Environment: Fun, open, and family-like atmosphere.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">Collaborate with cross-functional teams</span>
+                      <span className="leading-relaxed">Compensation: Excellent salary with 13th month bonus and quarterly bonuses available based on personal and corporate goals met..</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">
-                        Implement responsive design and ensure cross-browser compatibility
-                      </span>
+                      <span className="leading-relaxed">Health Benefits: Yearly renewed health allowance or a comprehensive health insurance package, depending on your preference..</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">Optimize applications for maximum speed and scalability</span>
+                      <span className="leading-relaxed">Extra Paid Time Off: 1 Christmas day, and up to 10 days of Sick leave. .</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">
-                        Participate in code reviews and contribute to team knowledge sharing
-                      </span>
+                      <span className="leading-relaxed">Work Schedule: 5-day work week (Mon-Fri) with no regular overtime expected..</span>
                     </li>
                   </>
                 )}
               </ul>
             </div>
           </div>
-
-          {/* Right: Job Info Card */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 sticky top-8">
               <h3 className="text-xl font-bold mb-6 text-gray-900 flex items-center gap-3">
@@ -383,6 +383,14 @@ export default function JobDetail() {
               </div>
             </div>
           </div>
+          {showEditModal && (
+            <EditJobModal
+              job={job}
+              open={showEditModal}
+              onClose={() => setShowEditModal(false)}
+              onSuccess={refetch}
+            />
+          )}
         </div>
 
         <style>
