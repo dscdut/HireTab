@@ -1,33 +1,6 @@
 import { motion } from 'framer-motion'
 import localismImg from '@/assets/images/localism.png'
 
-const testimonials = [
-  {
-    name: 'Nguyen Van A',
-    position: 'HR Manager',
-    company: 'Tech Solutions',
-    content:
-      'HireTab has helped us reduce resume screening time by 70% and find high-quality candidates.',
-    rating: 5
-  },
-  {
-    name: 'Tran Thi B',
-    position: 'Talent Acquisition',
-    company: 'Digital Corp',
-    content:
-      'HireTab’s AI tool is highly intelligent, helping us find the most suitable candidates for the position.',
-    rating: 5
-  },
-  {
-    name: 'Le Van C',
-    position: 'Recruitment Lead',
-    company: 'Innovation Hub',
-    content:
-      'I’m very impressed with HireTab’s resume analysis and evaluation capabilities. It’s an excellent solution for businesses.',
-    rating: 5
-  }
-]
-
 const products = [
   {
     name: 'Unigo',
@@ -116,14 +89,14 @@ const ProductShowcase = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: index * 0.1 }}
               viewport={{ once: false }}
-              className="group p-7 rounded-2xl bg-gray-50 hover:bg-white shadow-md hover:shadow-2xl border border-gray-200 hover:border-blue-500 transition-all duration-300 flex flex-col items-center text-center cursor-pointer"
+              className="flex flex-col items-center text-center transition-all duration-300 border border-gray-200 shadow-md cursor-pointer group p-7 rounded-2xl bg-gray-50 hover:bg-white hover:shadow-2xl hover:border-blue-500"
               whileHover={{ y: -10, scale: 1.04 }}
             >
-              <div className="w-28 h-28 mb-5 rounded-xl bg-gray-200 flex items-center justify-center overflow-hidden">
+              <div className="flex items-center justify-center mb-5 overflow-hidden bg-gray-200 w-28 h-28 rounded-xl">
                 <img src={product.image} alt={product.name} className="object-cover w-full h-full" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">{product.name}</h3>
-              <p className="text-gray-700 text-base font-medium">{product.description}</p>
+              <h3 className="mb-2 text-xl font-bold text-gray-900 transition-colors duration-200 group-hover:text-blue-600">{product.name}</h3>
+              <p className="text-base font-medium text-gray-700">{product.description}</p>
             </motion.div>
           ))}
         </div>
