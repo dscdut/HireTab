@@ -3,22 +3,20 @@
 import { useState, useMemo } from "react"
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query"
 import { XCircle } from "lucide-react"
-import { useParams } from "react-router-dom"
-import { candidateApi } from "@/core/services/candidate.service"
+import { candidateApi } from "@/core/services/candidate.service";
 import { toast } from "react-toastify"
 
-import { CANDIDATE_STATUSES } from "./job-dashboard/constants/candidateConstants"
-// import { applyFilters, getAvailableStatusTransitions, getNextStatus } from "./job-dashboard/utils/candidateUtils"
+import { CANDIDATE_STATUSES } from "../job-dashboard/constants/candidateConstants"
+import ManageCandidateHeader from "./components/Header"
+import BulkActionsBar from "../../../components/ui/BulkActionsBar"
+import CandidateTable from "../../../components/ui/CandidateTable"
+import FilterModal from "../../../components/ui/FilterModal"
+import EmailModal from "../EmailModal/EmailModal"
+import ConfirmModal from "../../../components/ui/confirmModal"
+import { applyFilters } from "@/core/shared/utils/filterUtils";
+import { getAvailableStatusTransitions, getNextStatus } from "@/core/shared/utils/statusUtils";
 
-import DashboardHeader from "./CandidateManage/components/Header"
-import BulkActionsBar from "../../components/ui/BulkActionsBar"
-import CandidateTable from "../../components/ui/CandidateTable"
-import FilterModal from "../../components/ui/FilterModal"
-import EmailModal from "./EmailModal/EmailModal"
-import { getAvailableStatusTransitions, getNextStatus } from "@/core/shared/utils/statusUtils"
-import { applyFilters } from "@/core/shared/utils/filterUtils"
-
-export default function JobPostingDashboard() {
+export default function ManageCandidates() {
   const [activeTab, setActiveTab] = useState(CANDIDATE_STATUSES.ALL)
   const [searchQuery, setSearchQuery] = useState("")
   const [sortConfig, setSortConfig] = useState({ key: "createdAt", direction: "desc" })
@@ -26,6 +24,15 @@ export default function JobPostingDashboard() {
   const [showFilterPanel, setShowFilterPanel] = useState(false)
   const [filters, setFilters] = useState([])
   const [filterLogic, setFilterLogic] = useState("all")
+
+  // Status Confirmation Modal
+  const [statusConfirmModal, setStatusConfirmModal] = useState({
+    isOpen: false,
+    candidateId: null,
+    candidateName: "",
+    currentStatus: "",
+    nextStatus: "",
+  })
 
   // Email Modal States
   const [emailModalState, setEmailModalState] = useState("closed")
@@ -57,38 +64,33 @@ export default function JobPostingDashboard() {
   const [isGeneratingContent, setIsGeneratingContent] = useState(false)
 
   const queryClient = useQueryClient()
-  const { jobId } = useParams()
 
   const {
     data: candidates = [],
     isLoading,
     isError,
+    refetch,
   } = useQuery({
-    queryKey: ["candidates", jobId],
+    queryKey: ["allCandidates"],
     queryFn: async () => {
-      if (!jobId) {
-        console.error("Job ID is undefined")
-        return []
-      }
       try {
-        const response = await candidateApi.listCandidate(jobId)
-        if (!Array.isArray(response)) {
-          return [response]
-        }
-        return response || []
+        const response = await candidateApi.getPaginationCandidate(1, 100) // Adjust page/size as needed
+        return response.data || [] // Adjust based on response structure
       } catch (error) {
-        console.error("Failed to fetch candidates:", error)
+        console.error("Failed to fetch all candidates:", error)
         throw error
       }
     },
-    enabled: !!jobId,
+    refetchOnWindowFocus: false,
   })
 
   const bulkUpdateStatusMutation = useMutation({
-    mutationFn: ({ candidateIds, status, currentStatuses }) =>
-      candidateApi.bulkUpdateStatus(candidateIds, { status, currentStatuses }),
+    mutationFn: ({ candidateIds, status }) =>
+      Promise.all(
+        candidateIds.map((id) => candidateApi.updateStatus(id, status))
+      ),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries(["candidates", jobId])
+      queryClient.invalidateQueries(["allCandidates"])
       toast.success(`Updated ${variables.candidateIds.length} candidates to ${variables.status}`)
       setSelectedCandidates(new Set())
     },
@@ -97,8 +99,6 @@ export default function JobPostingDashboard() {
       toast.error("Failed to update candidates")
     },
   })
-
-  const jobName = candidates.length > 0 ? candidates[0].jobPostingName : "Job Position"
 
   const toggleCandidateSelection = (candidateId) => {
     const newSelected = new Set(selectedCandidates)
@@ -129,7 +129,8 @@ export default function JobPostingDashboard() {
         (candidate) =>
           candidate.name.toLowerCase().includes(query) ||
           candidate.email.toLowerCase().includes(query) ||
-          candidate.phone?.toLowerCase().includes(query),
+          candidate.phone?.toLowerCase().includes(query) ||
+          candidate.jobPostingName.toLowerCase().includes(query),
       )
     }
     result = applyFilters(result, filters, filterLogic)
@@ -157,7 +158,47 @@ export default function JobPostingDashboard() {
   const handleStatusTransition = (candidateId, currentStatus) => {
     const nextStatus = getNextStatus(currentStatus)
     if (!nextStatus) return
-    console.log(`Transitioning candidate ${candidateId} from ${currentStatus} to ${nextStatus}`)
+
+    // Find candidate name for confirmation modal
+    const candidate = candidates.find(c => c.id === candidateId)
+
+    // Show confirmation modal
+    setStatusConfirmModal({
+      isOpen: true,
+      candidateId,
+      candidateName: candidate?.name || "Unknown",
+      currentStatus,
+      nextStatus,
+    })
+  }
+
+  const handleStatusConfirm = () => {
+    const { candidateId, nextStatus } = statusConfirmModal
+
+    // Update status after confirmation
+    bulkUpdateStatusMutation.mutate({
+      candidateIds: [candidateId],
+      status: nextStatus,
+    })
+
+    // Close modal
+    setStatusConfirmModal({
+      isOpen: false,
+      candidateId: null,
+      candidateName: "",
+      currentStatus: "",
+      nextStatus: "",
+    })
+  }
+
+  const handleStatusCancel = () => {
+    setStatusConfirmModal({
+      isOpen: false,
+      candidateId: null,
+      candidateName: "",
+      currentStatus: "",
+      nextStatus: "",
+    })
   }
 
   const handleBulkStatusUpdate = (newStatus) => {
@@ -182,15 +223,10 @@ export default function JobPostingDashboard() {
       return
     }
 
-    const confirmed = window.confirm(
-      `Update status to "${newStatus}" for ${validCandidates.length} selected candidates?`,
-    )
-    if (!confirmed) return
-
+    // Directly update without confirmation popup
     bulkUpdateStatusMutation.mutate({
       candidateIds: validCandidates.map((c) => c.id),
       status: newStatus,
-      currentStatuses: validCandidates.map((c) => c.status),
     })
   }
 
@@ -208,7 +244,7 @@ export default function JobPostingDashboard() {
       to: emailAddresses,
       cc: "",
       bcc: "",
-      subject: `Regarding your application for ${jobName}`,
+      subject: `Regarding your job applications`,
       body: "",
     })
     setEmailModalState("normal")
@@ -304,7 +340,7 @@ export default function JobPostingDashboard() {
               {
                 parts: [
                   {
-                    text: `Write a professional email based on this prompt: "${quickReplyPrompt}". The email should be polite, professional, and suitable for business communication. Context: This is regarding a job application for ${jobName}.`,
+                    text: `Write a professional email based on this prompt: "${quickReplyPrompt}". The email should be polite, professional, and suitable for business communication. Context: This is regarding job applications for multiple positions.`,
                   },
                 ],
               },
@@ -321,11 +357,11 @@ export default function JobPostingDashboard() {
         setQuickReplyPrompt("")
       } else {
         console.error("Unexpected API response:", data)
-        alert("Failed to generate content. Please try again.")
+        toast.error("Failed to generate content. Please try again.")
       }
     } catch (error) {
       console.error("Error generating content:", error)
-      alert("Failed to generate content. Please check your connection and try again.")
+      toast.error("Failed to generate content. Please check your connection and try again.")
     } finally {
       setIsGeneratingContent(false)
     }
@@ -339,7 +375,7 @@ export default function JobPostingDashboard() {
     input.onchange = (e) => {
       const files = Array.from(e.target.files)
       console.log("Selected files:", files)
-      alert(`Selected ${files.length} file(s) for attachment`)
+      toast.success(`Selected ${files.length} file(s) for attachment`)
     }
     input.click()
   }
@@ -373,7 +409,7 @@ export default function JobPostingDashboard() {
       const file = e.target.files[0]
       if (file) {
         console.log("Selected image:", file)
-        alert(`Selected image: ${file.name}`)
+        toast.success(`Selected image: ${file.name}`)
       }
     }
     input.click()
@@ -389,10 +425,10 @@ export default function JobPostingDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="text-center">
-          <div className="w-8 h-8 mx-auto mb-4 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
-          <p className="font-medium text-gray-600">Loading candidates...</p>
+          <div className="w-6 h-6 mx-auto mb-2 border-2 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
+          <p className="text-sm text-gray-600">Loading all candidates...</p>
         </div>
       </div>
     )
@@ -400,20 +436,20 @@ export default function JobPostingDashboard() {
 
   if (isError) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="text-center">
-          <XCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
-          <p className="font-medium text-red-600">Error loading candidates!</p>
+          <XCircle className="w-8 h-8 mx-auto mb-2 text-red-500" />
+          <p className="text-sm text-red-600">Error loading candidates!</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 font-['Inter',system-ui,sans-serif]">
-      <div className="min-h-screen bg-gray-50">
-        <DashboardHeader
-          jobName={jobName}
+    <div className="h-screen bg-gray-50 font-['Inter',system-ui,sans-serif]">
+      <div className="h-full bg-gray-50">
+        <ManageCandidateHeader
+          jobName="All Candidates Management"
           candidatesCount={candidates.length}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -426,7 +462,7 @@ export default function JobPostingDashboard() {
           onSendEmail={handleSendEmail}
         />
 
-        <div className="px-6 py-6">
+        <div className="px-3 py-2">
           <BulkActionsBar
             selectedCount={selectedCandidates.size}
             availableTransitions={availableTransitions}
@@ -446,7 +482,8 @@ export default function JobPostingDashboard() {
             sortConfig={sortConfig}
             setSortConfig={setSortConfig}
             onStatusTransition={handleStatusTransition}
-            showJobName={false}
+            showJobName={true}
+            refetchCandidates={refetch}
           />
         </div>
       </div>
@@ -496,6 +533,15 @@ export default function JobPostingDashboard() {
         onInsertLink={handleInsertLink}
         onInsertEmoji={handleInsertEmoji}
         onInsertImage={handleInsertImage}
+      />
+
+      {/* Status Confirmation Modal */}
+      <ConfirmModal
+        open={statusConfirmModal.isOpen}
+        message={`Are you sure you want to change ${statusConfirmModal.candidateName}'s status from "${statusConfirmModal.currentStatus}" to "${statusConfirmModal.nextStatus}"?`}
+        isLoading={bulkUpdateStatusMutation.isPending}
+        onClose={handleStatusCancel}
+        onConfirm={handleStatusConfirm}
       />
     </div>
   )

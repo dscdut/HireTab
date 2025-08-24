@@ -27,7 +27,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { motion } from 'framer-motion'
-import Logo from '@/components/landing/Logo'
+import Logo from '@/components/common/Logo'
 
 export default function Register() {
   const navigate = useNavigate()

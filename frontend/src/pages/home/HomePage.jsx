@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
-import Header from '@/components/landing/Header'
-import Hero from '@/components/landing/Hero'
-import Features from '@/components/landing/Features'
-import HowItWorks from '@/components/landing/HowItWorks'
-import CTA from '@/components/landing/CTA'
-import Footer from '@/components/landing/Footer'
-import TypewriterLoading from '@/components/landing/TypewriterLoading'
-import LoadingTerminal from '@/components/landing/LoadingTerminal'
-import LogoScrambleSlogan from '@/components/landing/LogoScrambleSlogan'
+import Openning from '@/pages/home/components/Openning'
+import Benefit from '@/pages/home/components/Benefit'
+import InspirationalSection from '@/pages/home/components/InspirationalSection'
+import Contact from '@/pages/home/components/Contact'
+import LogoScrambleSlogan from './components/LogoScrambleSlogan'
+import TypewriterLoading from '@/pages/home/components/TypewriterLoading'
+import LoadingTerminal from './components/LoadingTerminal'
+import Footer from '@/components/layout/Footer'
+import Header from '@/components/layout/Header'
 
 const randomLogs = [
   'Installing dependencies...',
@@ -103,10 +103,10 @@ const HomePage = () => {
     <div className="min-h-screen">
       <Header />
       <main>
-        <Hero />
-        <Features />
-        <HowItWorks />
-        <CTA />
+        <Openning />
+        <Benefit />
+        <InspirationalSection />
+        <Contact />
       </main>
       <Footer />
     </div>

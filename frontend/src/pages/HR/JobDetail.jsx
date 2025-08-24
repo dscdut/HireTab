@@ -7,7 +7,7 @@ import { jobApi } from "@/core/services/job.service"
 import { toast } from "react-toastify"
 import { ArrowLeft, Calendar, MapPin, DollarSign, Users, Briefcase } from "lucide-react"
 import { useState } from "react"
-import EditJobModal from "./Modal/EditJobModal"
+import EditJobModal from "./JobPosting/components/EditJobModal"
 
 export default function JobDetail() {
   const { id } = useParams()
