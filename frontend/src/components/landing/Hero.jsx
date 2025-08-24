@@ -1,61 +1,69 @@
 import { motion } from 'framer-motion'
-import BannerImg from '@/assets/images/banner.jpg'
 
 const Hero = () => {
   return (
-    <section className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-b from-white to-gray-50">
-      {/* Background Elements */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-0 left-0 bg-blue-100 rounded-full w-96 h-96 mix-blend-multiply filter blur-xl opacity-70 animate-blob" />
-        <div className="absolute top-0 right-0 bg-purple-100 rounded-full w-96 h-96 mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000" />
-        <div className="absolute bg-pink-100 rounded-full -bottom-8 left-20 w-96 h-96 mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000" />
+    <section className="relative flex items-center justify-center min-h-screen overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: 'url(https://cdn.pixabay.com/photo/2017/07/25/22/54/lego-2539844_1280.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/85 via-blue-900/80 to-slate-800/85"></div>
+      </div>
+
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 z-10">
+        <div className="absolute top-0 left-0 rounded-full bg-white/10 w-96 h-96 mix-blend-multiply filter blur-xl opacity-30 animate-blob" />
+        <div className="absolute top-0 right-0 rounded-full bg-blue-200/20 w-96 h-96 mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000" />
+        <div className="absolute rounded-full bg-purple-200/20 -bottom-8 left-20 w-96 h-96 mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000" />
       </div>
 
       {/* Content */}
-      <div className="z-10 w-full">
-        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-8 md:gap-16 w-full max-w-none mx-auto sm:px-6 lg:px-8">
-          {/* Left: Description */}
+      <div className="z-20 w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center justify-center w-full gap-6 mx-auto text-center max-w-7xl sm:gap-8 lg:gap-12">
+          {/* Main Content */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="flex-1 flex flex-col justify-center text-center md:text-left md:pl-16 max-w-2xl md:max-w-3xl"
+            className="flex flex-col items-center space-y-6 text-center sm:space-y-8"
           >
-            {/* <h1 className="mb-4 lg:text-6xl md:text-xl font-extrabold text-gray-900 leading-tight">
-              
-            </h1> */}
-            <div className="mb-6 flex flex-wrap justify-center md:justify-start items-center gap-2 text-6xl md:text-6xl font-extrabold tracking-wide drop-shadow-md">
-              <span className="text-[#4285F4]">G</span>
-              <span className="text-[#EA4335]">D</span>
-              <span className="text-[#FBBC05]">G</span>
-              <span className="text-[#34A853]">o</span>
-              <span className="text-[#4285F4]">C</span>
-              <span className="text-[#EA4335]">-</span>
-              <span className="text-[#FBBC05]">D</span>
-              <span className="text-[#34A853]">U</span>
-              <span className="text-[#4285F4]">T</span>
-            </div>
-            <p className="mb-8 text-xl md:text-xl lg:text-xl text-gray-800 leading-relaxed drop-shadow-sm">
-              As a member of the global Google Developer Groups on Campus (GDGoC) network,
-              GDGoC-DUT is committed to building a healthy tech community, connecting students
-              at the University of Danang who share a passion and orientation for development in
-              the field of information technology.
+            {/* <div className="mb-2 sm:mb-4">
+              <span className="inline-block px-4 py-2 text-sm font-semibold text-blue-100 border rounded-full shadow-lg sm:px-6 sm:py-3 sm:text-base lg:text-lg bg-white/25 backdrop-blur-md border-white/40">
+                Hiretab LLC Company
+              </span>
+            </div> */}
+            
+            <h1 className="max-w-5xl text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl drop-shadow-2xl">
+              <span className="text-blue-300">Connecting</span>{' '}
+              <span className="text-white">talent</span>
+              <br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>
+              <span className="text-white">with career</span>{' '}
+              <span className="text-blue-300">opportunities</span>
+            </h1>
+            
+            <p className="max-w-4xl text-lg font-light leading-relaxed text-gray-100 sm:text-xl md:text-xl lg:text-2xl drop-shadow-lg">
+              HIretab - Leading recruitment platform, providing intelligent 
+              hiring solutions for businesses and quality job opportunities 
+              for candidates.
             </p>
-          </motion.div>
-
-          {/* Right: Image */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex-[1.5] flex items-center justify-center mb-8 md:mb-0"
-          >
-            <img
-              src={BannerImg}
-              alt="GDGoC-DUT Banner"
-              className="h-auto object-cover rounded-3xl shadow-2xl border-4 border-white transition-transform duration-500 hover:scale-105"
-              style={{background:'#f8fafc', width: '80%',}}
-            />
+            
+            <div className="flex flex-col w-full gap-3 pt-4 sm:flex-row sm:gap-4 sm:justify-center sm:w-auto">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full px-6 py-3 text-base font-semibold text-white transition-all duration-300 bg-blue-600 border border-blue-500 rounded-lg shadow-xl sm:w-auto sm:px-8 sm:py-4 sm:text-lg hover:bg-blue-700 hover:shadow-2xl backdrop-blur-sm"
+              >
+                Searching for Jobs
+              </motion.button>
+            </div>
           </motion.div>
         </div>
       </div>

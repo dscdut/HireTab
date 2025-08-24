@@ -45,10 +45,7 @@ const Logo = ({ className = '' }) => {
     //   </motion.div>
 
     <Link to={path.home} className={`flex items-center space-x-3 ${className}`}>
-      <img src={HireTabLogo} alt="GDGOC Logo" className="w-12 h-12" />
-      <span className="text-2xl font-bold text-gray-900 whitespace-nowrap">
-        Google Developer Groups <span className="block text-base font-medium leading-tight text-gray-500">on Campus</span>
-      </span>
+      <img src={HireTabLogo} alt="Hiretab Logo" className="w-16 h-16" />
     </Link>
   )
 }
