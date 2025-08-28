@@ -13,15 +13,16 @@ import {
   MapPin,
   Calendar,
   Users,
-  DollarSign,
   Briefcase,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { jobApi } from "@/core/services/job.service"
+import { candidateApi } from "@/core/services/candidate.service"
 import AddJobModal from "./Modal/AddJobModal"
 import EditJobModal from "./Modal/EditJobModal"
 import { toast } from "react-toastify"
 import { path } from "@/core/constants/path"
+
 export default function JobBoard() {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState("")
@@ -36,16 +37,43 @@ export default function JobBoard() {
 
   const statuses = ["All Statuses", "To Do", "In Progress", "Done", "Closed"]
 
+  // Fetch job listings
   const {
     data: jobListings = [],
-    isLoading,
-    isError,
+    isLoading: isJobsLoading,
+    isError: isJobsError,
     refetch,
   } = useQuery({
     queryKey: ["jobs"],
     queryFn: async () => {
       try {
-        return await jobApi.listJobs()
+        const jobs = await jobApi.listJobs()
+        // Fetch candidates for each job
+        const jobsWithCounts = await Promise.all(
+          jobs.map(async (job) => {
+            try {
+              const candidates = await candidateApi.listCandidate(job.id)
+              const candidateArray = Array.isArray(candidates) ? candidates : [candidates]
+              const totalApplications = candidateArray.length
+              const applicationsCount = candidateArray.filter(
+                (candidate) => candidate.status !== "In-Review"
+              ).length
+              return {
+                ...job,
+                totalApplications,
+                applicationsCount,
+              }
+            } catch (error) {
+              console.error(`Failed to fetch candidates for job ${job.id}:`, error)
+              return {
+                ...job,
+                totalApplications: 0,
+                applicationsCount: 0,
+              }
+            }
+          })
+        )
+        return jobsWithCounts
       } catch (error) {
         toast.error("Failed to load jobs!")
         throw error
@@ -66,7 +94,7 @@ export default function JobBoard() {
           job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           job.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (location === "All Locations" || job.location === location) &&
-        (status === "All Statuses" || job.status === status),
+        (status === "All Statuses" || job.status === status)
     )
   }, [jobListings, searchTerm, location, status])
 
@@ -136,7 +164,7 @@ export default function JobBoard() {
     handleViewDetails(job)
   }
 
-  if (isLoading) {
+  if (isJobsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center">
@@ -147,7 +175,7 @@ export default function JobBoard() {
     )
   }
 
-  if (isError) {
+  if (isJobsError) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="p-8 text-center bg-white border shadow-sm rounded-2xl border-slate-200">
@@ -337,10 +365,10 @@ export default function JobBoard() {
                       <span>
                         {job.start_time
                           ? new Date(job.start_time).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })
                           : "Not set"}
                       </span>
                     </div>
@@ -353,10 +381,10 @@ export default function JobBoard() {
                       <span>
                         {job.end_time
                           ? new Date(job.end_time).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })
                           : "Not set"}
                       </span>
                     </div>
