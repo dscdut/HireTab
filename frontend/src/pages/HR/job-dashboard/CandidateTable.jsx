@@ -341,9 +341,11 @@ export default function CandidateTable({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length + 1} className="px-4 py-12 text-center">
-                  <div className="flex flex-col items-center space-y-3">
-                    <Users className="w-12 h-12 text-gray-300" />
+                <td colSpan={9} className="px-8 py-16 text-center">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
+                      <Users className="w-10 h-10 text-gray-400" />
+                    </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900">No candidates found</p>
                       <p className="text-sm text-gray-500">Try adjusting your search or filter criteria</p>

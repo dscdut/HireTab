@@ -8,7 +8,6 @@ import Footer from '@/components/landing/Footer'
 import TypewriterLoading from '@/components/landing/TypewriterLoading'
 import LoadingTerminal from '@/components/landing/LoadingTerminal'
 import LogoScrambleSlogan from '@/components/landing/LogoScrambleSlogan'
-import ProductShowcase from '@/components/landing/ProductShowcase'
 
 const randomLogs = [
   'Installing dependencies...',
@@ -107,7 +106,6 @@ const HomePage = () => {
         <Hero />
         <Features />
         <HowItWorks />
-        <ProductShowcase />
         <CTA />
       </main>
       <Footer />

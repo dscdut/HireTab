@@ -17,7 +17,7 @@ import {
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { jobApi } from "@/core/services/job.service"
-import { candidateApi } from "@/core/services/candidate.service" // Import candidateApi
+import { candidateApi } from "@/core/services/candidate.service"
 import AddJobModal from "./Modal/AddJobModal"
 import EditJobModal from "./Modal/EditJobModal"
 import { toast } from "react-toastify"
@@ -94,7 +94,7 @@ export default function JobBoard() {
           job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           job.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (location === "All Locations" || job.location === location) &&
-        (status === "All Statuses" || job.status === status),
+        (status === "All Statuses" || job.status === status)
     )
   }, [jobListings, searchTerm, location, status])
 
@@ -195,8 +195,11 @@ export default function JobBoard() {
       <div className="sticky top-0 z-20 bg-white border-b border-gray-200">
         <div className="px-6 py-4">
           {/* Title Section */}
-          <div className="mb-2">
-            <h1 className="mb-1 text-2xl font-bold text-gray-900">View all job posting</h1>
+          <div className="mb-4">
+            <h1 className="mb-1 text-2xl font-bold text-gray-900">Job Board</h1>
+            <p className="text-gray-600">
+              Effortlessly manage, filter, and review all your job postings in one place.
+            </p>
           </div>
 
           {/* Search and Filters */}
