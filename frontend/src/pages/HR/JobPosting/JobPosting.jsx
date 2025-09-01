@@ -26,16 +26,43 @@ const JobPosting = () => {
 
   const statuses = ["All Statuses", "To Do", "In Progress", "Done", "Closed"]
 
+  // Fetch job listings
   const {
     data: jobListings = [],
-    isLoading,
-    isError,
+    isLoading: isJobsLoading,
+    isError: isJobsError,
     refetch,
   } = useQuery({
     queryKey: ["jobs"],
     queryFn: async () => {
       try {
-        return await jobApi.listJobs()
+        const jobs = await jobApi.listJobs()
+        // Fetch candidates for each job
+        const jobsWithCounts = await Promise.all(
+          jobs.map(async (job) => {
+            try {
+              const candidates = await candidateApi.listCandidate(job.id)
+              const candidateArray = Array.isArray(candidates) ? candidates : [candidates]
+              const totalApplications = candidateArray.length
+              const applicationsCount = candidateArray.filter(
+                (candidate) => candidate.status !== "In-Review"
+              ).length
+              return {
+                ...job,
+                totalApplications,
+                applicationsCount,
+              }
+            } catch (error) {
+              console.error(`Failed to fetch candidates for job ${job.id}:`, error)
+              return {
+                ...job,
+                totalApplications: 0,
+                applicationsCount: 0,
+              }
+            }
+          })
+        )
+        return jobsWithCounts
       } catch (error) {
         toast.error("Failed to load jobs!")
         throw error
@@ -56,7 +83,7 @@ const JobPosting = () => {
           job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           job.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (location === "All Locations" || job.location === location) &&
-        (status === "All Statuses" || job.status === status),
+        (status === "All Statuses" || job.status === status)
     )
   }, [jobListings, searchTerm, location, status])
 
@@ -130,7 +157,7 @@ const JobPosting = () => {
     return <LoadingSpinner />
   }
 
-  if (isError) {
+  if (isJobsError) {
     return (
       <ErrorState
         title="Error loading jobs"
