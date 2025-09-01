@@ -38,6 +38,8 @@ export default function AddJobModal({ isOpen, onClose }) {
     // State for validation errors
     const [salaryError, setSalaryError] = useState({ min: false, max: false })
     const [dateError, setDateError] = useState(false)
+    const [imageBase64, setImageBase64] = useState("")
+    const [hasPhoto, setHasPhoto] = useState(false)
     const [weightErrors, setWeightErrors] = useState([])
     const [weightExceeded, setWeightExceeded] = useState(false)
 
@@ -64,8 +66,17 @@ export default function AddJobModal({ isOpen, onClose }) {
     // Mutation to create a new job
     const createJobMutation = useMutation({
         mutationFn: async (newJob) => {
-            const response = await jobApi.createJob(newJob)
-            return response
+            const response = await fetch("https://n8n-hirenova.gdsc.dev/webhook/create-job", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newJob),
+            });
+            if (!response.ok) {
+                throw new Error("Failed to create job");
+            }
+            return response.json();
         },
         onSuccess: () => {
             toast.success("Job created successfully!")
@@ -80,7 +91,20 @@ export default function AddJobModal({ isOpen, onClose }) {
     const handleJobDataChange = (field, value) => {
         setJobData({ ...jobData, [field]: value })
     }
-
+    const handleImageChange = (e) => {
+        const file = e.target.files[0]
+        if (file) {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setImageBase64(reader.result)
+                setHasPhoto(true)
+            }
+            reader.readAsDataURL(file)
+        } else {
+            setImageBase64("")
+            setHasPhoto(false)
+        }
+    }
     // Handle criteria changes
     const updateCriterion = (index, field, value) => {
         const updatedCriteria = [...criteria]
@@ -176,81 +200,104 @@ Do not include any HTML or CSS, only pure Markdown.`
     }
 
     const handleSubmit = () => {
-        const accessToken = localStorage.getItem("access_token")
-        if (!accessToken) {
-            toast.error("Access token is missing!")
-            return
-        }
+        const accessToken = localStorage.getItem("access_token");
+        if (!accessToken) return toast.error("Access token is missing!");
 
-        let userId = ""
+        let userId = "";
         try {
-            const decodedToken = jwtDecode(accessToken)
-            userId = decodedToken.id
-        } catch (error) {
-            toast.error("Failed to decode access token!")
-            return
+            userId = jwtDecode(accessToken).id;
+        } catch {
+            return toast.error("Failed to decode access token!");
         }
 
-        if (!jobData.industryId || !jobData.title || !jobData.description || !jobData.location) {
-            toast.error("Please fill out all required fields!")
-            return
+        const requiredFields = [
+            { field: "industryId", msg: "Industry is required!" },
+            { field: "title", msg: "Job title is required!" },
+            { field: "description", msg: "Job description is required!" },
+            { field: "location", msg: "Location is required!" },
+            { field: "salaryMin", msg: "Minimum salary is required and must be a number!" },
+            { field: "salaryMax", msg: "Maximum salary is required and must be a number!" },
+            { field: "level", msg: "Job level is required!" },
+            { field: "startTime", msg: "Start date is required!" },
+            { field: "endTime", msg: "End date is required!" },
+        ];
+
+        for (const { field, msg } of requiredFields) {
+            if (!jobData[field] || (typeof jobData[field] === "string" && jobData[field].trim() === "")) {
+                return toast.error(msg);
+            }
         }
 
-        if (isNaN(jobData.salaryMin) || isNaN(jobData.salaryMax)) {
-            setSalaryError({ min: isNaN(jobData.salaryMin), max: isNaN(jobData.salaryMax) })
-            toast.error("Salary must contain numbers only!")
-            return
+        const salaryMin = parseFloat(jobData.salaryMin);
+        const salaryMax = parseFloat(jobData.salaryMax);
+
+        if (isNaN(salaryMin) || isNaN(salaryMax)) {
+            setSalaryError({ min: isNaN(salaryMin), max: isNaN(salaryMax) });
+            return toast.error("Salary must contain numbers only!");
+        }
+
+        if (salaryMin > salaryMax) {
+            setSalaryError({ min: true, max: true });
+            return toast.error("Minimum salary cannot be greater than maximum salary!");
+        } else {
+            setSalaryError({ min: false, max: false });
         }
 
         if (new Date(jobData.startTime) >= new Date(jobData.endTime)) {
-            setDateError(true)
-            toast.error("End date must be after start date!")
-            return
+            setDateError(true);
+            return toast.error("End date must be after start date!");
+        } else {
+            setDateError(false);
+        }
+
+        if (totalWeight() > 100) {
+            setWeightExceeded(true);
+            return toast.error("Total weight cannot exceed 100!");
+        } else {
+            setWeightExceeded(false);
         }
 
         const descRateValue = criteria
             .map((c) => `${c.name} (${c.weight}%): ${c.detail}`)
-            .join("; ")
-
-        if (totalWeight() > 100) {
-            setWeightExceeded(true)
-            toast.error("Total weight cannot exceed 100!")
-            return
-        }
+            .join("; ");
 
         const payload = {
             ...jobData,
+            salaryMin,
+            salaryMax,
             descRate: descRateValue,
-            userId: userId
-        }
-        createJobMutation.mutate(payload)
+            userId,
+            data: imageBase64,
+            isPhoto: !!imageBase64,
+        };
+        createJobMutation.mutate(payload);
     }
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
-                <DialogHeader className="pb-6 border-b border-gray-100">
+                <DialogHeader className="border-b border-gray-100 pb-6">
                     <DialogTitle className="text-2xl font-bold text-gray-800">
                         Create New Job Posting
                     </DialogTitle>
-                    <DialogDescription className="mt-2 text-gray-600">
+                    <DialogDescription className="text-gray-600 mt-2">
                         Fill out the information below to create a professional job posting. All required fields must be completed.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="py-6 space-y-8">
+                <div className="space-y-8 py-6">
                     {/* Basic Information Section */}
-                    <div className="p-6 rounded-lg bg-gray-50">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-800">
-                            <div className="w-2 h-6 mr-3 bg-blue-500 rounded"></div>
+                    <div className="bg-gray-50 p-6 rounded-lg">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <div className="w-2 h-6 bg-blue-500 rounded mr-3"></div>
                             Basic Information
                         </h3>
 
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Industry Selection */}
                             <div>
                                 <select
-                                    className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                     value={jobData.industryId}
                                     onChange={(e) => handleJobDataChange("industryId", e.target.value)}
                                 >
@@ -268,7 +315,7 @@ Do not include any HTML or CSS, only pure Markdown.`
                                 <input
                                     type="text"
                                     placeholder="e.g. Senior Software Engineer, Marketing Manager"
-                                    className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                     value={jobData.title}
                                     onChange={(e) => handleJobDataChange("title", e.target.value)}
                                 />
@@ -277,7 +324,7 @@ Do not include any HTML or CSS, only pure Markdown.`
                             {/* Location */}
                             <div>
                                 <select
-                                    className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                     value={jobData.location}
                                     onChange={(e) => handleJobDataChange("location", e.target.value)}
                                 >
@@ -291,31 +338,33 @@ Do not include any HTML or CSS, only pure Markdown.`
                             {/* Experience Level */}
                             <div>
                                 <select
-                                    className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                     value={jobData.level}
                                     onChange={(e) => handleJobDataChange("level", e.target.value)}
                                 >
                                     <option value="">Select experience level</option>
                                     <option value="Intern">Intern</option>
-                                    <option value="Junior">Junior (0-2 years)</option>
+                                    <option value="Junior">Junior</option>
                                     <option value="Middle">Middle</option>
-                                    <option value="Senior">Senior (3+ years)</option>
+                                    <option value="Senior">Senior</option>
+                                    <option value="Leader">Leader</option>
+                                    <option value="Manager">Manager</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
                     {/* Salary & Timeline Section */}
-                    <div className="p-6 rounded-lg bg-gray-50">
-                        <h3 className="flex items-center mb-6 text-lg font-semibold text-gray-800">
-                            <div className="w-2 h-6 mr-3 bg-green-500 rounded"></div>
+                    <div className="bg-gray-50 p-6 rounded-lg">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                            <div className="w-2 h-6 bg-green-500 rounded mr-3"></div>
                             Salary & Timeline
                         </h3>
 
                         <div className="space-y-8">
                             {/* Salary Range */}
                             <div>
-                                <div className="flex items-center gap-4">
+                                <div className="flex gap-4 items-center">
                                     <input
                                         type="text"
                                         placeholder="1000"
@@ -323,7 +372,7 @@ Do not include any HTML or CSS, only pure Markdown.`
                                         value={jobData.salaryMin}
                                         onChange={(e) => handleJobDataChange("salaryMin", e.target.value)}
                                     />
-                                    <span className="px-2 font-medium text-gray-500">to</span>
+                                    <span className="text-gray-500 font-medium px-2">to</span>
                                     <input
                                         type="text"
                                         placeholder="2000"
@@ -359,8 +408,8 @@ Do not include any HTML or CSS, only pure Markdown.`
                     </div>
 
                     {/* Job Description */}
-                    <div className="p-6 rounded-lg bg-gray-50">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-800">
+                    <div className="bg-gray-50 p-6 rounded-lg">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <div className="w-ần h-6 bg-purple-500 rounded mr-3"></div>
                             Job Description
                             <button
@@ -374,7 +423,7 @@ Do not include any HTML or CSS, only pure Markdown.`
                         {/* Quick Reply Prompt for Job Description */}
                         {showQuickReplyPrompt === "job" && (
                             <div className="p-4 mb-4 border-b border-gray-200 bg-blue-50">
-                                <div className="flex items-center mb-3 space-x-2">
+                                <div className="flex items-center space-x-2 mb-3">
                                     <span className="text-sm font-medium text-blue-800">✨ AI Job Description</span>
                                     <button
                                         onClick={() => {
@@ -392,17 +441,17 @@ Do not include any HTML or CSS, only pure Markdown.`
                                         value={quickReplyPrompt}
                                         onChange={(e) => setQuickReplyPrompt(e.target.value)}
                                         placeholder="Describe the job description you want to generate..."
-                                        className="flex-1 px-4 py-2 bg-white border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="flex-1 px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                                         onKeyPress={(e) => e.key === "Enter" && onGenerateContent("job")}
                                     />
                                     <button
                                         onClick={() => onGenerateContent("job")}
                                         disabled={isGeneratingContent || !quickReplyPrompt.trim()}
-                                        className="flex items-center px-4 py-2 space-x-2 font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 font-medium"
                                     >
                                         {isGeneratingContent ? (
                                             <>
-                                                <div className="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                                 <span>Generating...</span>
                                             </>
                                         ) : (
@@ -410,7 +459,7 @@ Do not include any HTML or CSS, only pure Markdown.`
                                         )}
                                     </button>
                                 </div>
-                                <p className="mt-2 text-xs text-blue-600">
+                                <p className="text-xs text-blue-600 mt-2">
                                     AI will generate a professional job description based on your input
                                 </p>
                             </div>
@@ -418,7 +467,7 @@ Do not include any HTML or CSS, only pure Markdown.`
 
                         <div>
                             <textarea
-                                className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                 placeholder="Provide a detailed job description including:&#10;• Key responsibilities and duties&#10;• Required qualifications and skills&#10;• Company culture and benefits&#10;• Working conditions and environment&#10;&#10;Example: We are seeking a Senior Software Engineer to join our dynamic team. You will be responsible for designing and developing scalable web applications, collaborating with cross-functional teams, and mentoring junior developers..."
                                 rows={8}
                                 value={jobData.description}
@@ -428,13 +477,13 @@ Do not include any HTML or CSS, only pure Markdown.`
                     </div>
 
                     {/* Scoring Criteria */}
-                    <div className="p-6 rounded-lg bg-gray-50">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-800">
-                            <div className="w-2 h-6 mr-3 bg-orange-500 rounded"></div>
+                    <div className="bg-gray-50 p-6 rounded-lg">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <div className="w-2 h-6 bg-orange-500 rounded mr-3"></div>
                             Evaluation Criteria & Weights
                         </h3>
 
-                        <div className="p-4 mb-4 border border-blue-200 rounded-lg bg-blue-50">
+                        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium text-blue-800">
                                     Total Weight Distribution:
@@ -447,8 +496,8 @@ Do not include any HTML or CSS, only pure Markdown.`
 
                         <div className="space-y-4">
                             {criteria.map((criterion, index) => (
-                                <div key={index} className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-                                    <div className="flex items-center justify-between mb-3">
+                                <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                                    <div className="flex justify-between items-center mb-3">
                                         <div className="flex items-center space-x-2">
                                             <span className="text-sm font-medium text-gray-600">
                                                 Criterion #{index + 1}
@@ -464,7 +513,7 @@ Do not include any HTML or CSS, only pure Markdown.`
                                             <button
                                                 type="button"
                                                 onClick={() => removeCriterion(index)}
-                                                className="p-1 text-red-500 transition-colors rounded hover:text-red-700"
+                                                className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
                                                 title="Remove criterion"
                                             >
                                                 <Trash2 className="w-4 h-4" />
@@ -475,7 +524,7 @@ Do not include any HTML or CSS, only pure Markdown.`
                                     {/* Quick Reply Prompt for Criterion */}
                                     {showQuickReplyPrompt === index && (
                                         <div className="p-4 mb-4 border-b border-gray-200 bg-blue-50">
-                                            <div className="flex items-center mb-3 space-x-2">
+                                            <div className="flex items-center space-x-2 mb-3">
                                                 <span className="text-sm font-medium text-blue-800">✨ AI Quick Description</span>
                                                 <button
                                                     onClick={() => {
@@ -493,17 +542,17 @@ Do not include any HTML or CSS, only pure Markdown.`
                                                     value={quickReplyPrompt}
                                                     onChange={(e) => setQuickReplyPrompt(e.target.value)}
                                                     placeholder="Describe the criterion detail you want to generate..."
-                                                    className="flex-1 px-4 py-2 bg-white border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    className="flex-1 px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                                                     onKeyPress={(e) => e.key === "Enter" && onGenerateContent(index)}
                                                 />
                                                 <button
                                                     onClick={() => onGenerateContent(index)}
                                                     disabled={isGeneratingContent || !quickReplyPrompt.trim()}
-                                                    className="flex items-center px-4 py-2 space-x-2 font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 font-medium"
                                                 >
                                                     {isGeneratingContent ? (
                                                         <>
-                                                            <div className="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
+                                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                                             <span>Generating...</span>
                                                         </>
                                                     ) : (
@@ -511,18 +560,18 @@ Do not include any HTML or CSS, only pure Markdown.`
                                                     )}
                                                 </button>
                                             </div>
-                                            <p className="mt-2 text-xs text-blue-600">
+                                            <p className="text-xs text-blue-600 mt-2">
                                                 AI will generate a professional criterion detail based on your input
                                             </p>
                                         </div>
                                     )}
 
-                                    <div className="grid grid-cols-1 gap-4 mb-3 md:grid-cols-3">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                                         <div className="md:col-span-2">
                                             <input
                                                 type="text"
                                                 placeholder="e.g. Technical Skills, Communication"
-                                                className="w-full px-3 py-2 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                                 value={criterion.name}
                                                 onChange={(e) => updateCriterion(index, "name", e.target.value)}
                                             />
@@ -552,23 +601,65 @@ Do not include any HTML or CSS, only pure Markdown.`
                             ))}
                         </div>
 
-                        <div className="flex items-center justify-between mt-6">
+                        <div className="flex justify-between items-center mt-6">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={addCriterion}
                                 disabled={totalWeight() >= 100}
-                                className="flex items-center gap-2 text-blue-600 border-blue-300 hover:bg-blue-50"
+                                className="flex items-center gap-2 border-blue-300 text-blue-600 hover:bg-blue-50"
                             >
                                 <Plus className="w-4 h-4" />
                                 Add New Criterion
                             </Button>
                         </div>
                     </div>
+
+                    <div className="bg-gray-50 p-6 rounded-lg mt-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <div className="w-2 h-6 bg-pink-500 rounded mr-3"></div>
+                            Upload Job Image
+                        </h3>
+                        {/* Ẩn label Choose file khi đã chọn ảnh */}
+                        {!imageBase64 && (
+                            <label
+                                htmlFor="job-image-upload"
+                                className="inline-block px-4 py-2 bg-blue-50 text-blue-700 font-semibold rounded-lg cursor-pointer hover:bg-blue-100 transition"
+                            >
+                                Choose file
+                            </label>
+                        )}
+                        <input
+                            id="job-image-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                        />
+                        {!imageBase64 && (
+                            <span className="ml-3 text-gray-500">No file chosen</span>
+                        )}
+                        {imageBase64 && (
+                            <div className="mt-4 relative inline-block">
+                                <img src={imageBase64} alt="Preview" className="max-h-40 rounded-lg border" />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setImageBase64("")
+                                        setHasPhoto(false)
+                                    }}
+                                    className="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-red-100 text-red-600 rounded-full p-1 shadow transition"
+                                    title="Remove image"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Submit Button */}
-                <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
+                <div className="border-t border-gray-100 pt-6 flex justify-end gap-3">
                     <Button
                         type="button"
                         variant="outline"
@@ -586,12 +677,11 @@ Do not include any HTML or CSS, only pure Markdown.`
                             salaryError.max ||
                             weightExceeded ||
                             totalWeight() !== 100 ||
-                            createJobMutation.isLoading ||
                             isGeneratingContent
                         }
-                        className="px-8 py-2 font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                        className="px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium disabled:opacity-50"
                     >
-                        {createJobMutation.isLoading ? "Creating..." : "Create Job Posting"}
+                        Create New Job
                     </Button>
                 </div>
             </DialogContent>

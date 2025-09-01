@@ -395,12 +395,12 @@ export default function JobDetail() {
 
         <style>
           {`.prose ul {
-      list-style-type: disc;
-      padding-left: 1.5rem;
-    }
-    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
-      font-weight: bold;
-    }`}
+        list-style-type: disc;
+        padding-left: 1.5rem;
+      }
+      .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+        font-weight: bold;
+      }`}
         </style>
       </div>
     </div>

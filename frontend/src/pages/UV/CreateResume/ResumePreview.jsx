@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react"
-import { Download, Eye, FileText, ZoomIn, ZoomOut, Wand2 } from "lucide-react"
+import { Eye, FileText, ZoomIn, ZoomOut } from "lucide-react"
 import ModernTemplate from "./templates/ModernTemplate"
 import MinimalistTemplate from "./templates/MinimalistTemplate"
 import ClassicTemplate from "./templates/ClassicTemplate"
@@ -41,10 +41,10 @@ export default function ResumePreview({
     if (!resumeRef.current) return;
 
     setIsGeneratingPreview(true);
-    
+
     try {
       const html2canvas = (await import("html2canvas")).default;
-      
+
       // Create temporary container with exact A4 content dimensions
       const tempContainer = document.createElement('div');
       tempContainer.style.cssText = `
@@ -59,7 +59,7 @@ export default function ResumePreview({
         margin: 0;
         box-sizing: border-box;
       `;
-      
+
       // Clone the resume content
       const resumeContent = resumeRef.current.cloneNode(true);
       tempContainer.appendChild(resumeContent);
@@ -71,16 +71,16 @@ export default function ResumePreview({
       // Get total height of content
       const totalHeight = tempContainer.scrollHeight;
       const pageContentHeight = CONTENT_HEIGHT;
-      
+
       // Calculate how many pages we need
       const numPages = Math.ceil(totalHeight / pageContentHeight);
-      
+
       const generatedPages = [];
-      
+
       // Generate each page with high quality settings
       for (let pageIndex = 0; pageIndex < numPages; pageIndex++) {
         const currentPageTop = pageIndex * pageContentHeight;
-        
+
         // Create a page container
         const pageContainer = document.createElement('div');
         pageContainer.style.cssText = `
@@ -129,11 +129,11 @@ export default function ResumePreview({
         // Use PNG for preview (better quality display)
         const pageDataUrl = pageCanvas.toDataURL('image/png');
         generatedPages.push(pageDataUrl);
-        
+
         // Clean up
         document.body.removeChild(pageContainer);
       }
-      
+
       setPages(generatedPages);
       document.body.removeChild(tempContainer);
     } catch (error) {
@@ -250,14 +250,14 @@ export default function ResumePreview({
             </span>
           )}
         </div>
-        
+
         <div className="flex items-center gap-4">
           {!isPreviewMode && (
             <div className="text-sm text-gray-600">
               Template: {template.charAt(0).toUpperCase() + template.slice(1)}
             </div>
           )}
-          
+
           {isPreviewMode && (
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-600">Zoom:</span>
@@ -293,11 +293,10 @@ export default function ResumePreview({
 
           <button
             onClick={togglePreview}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
-              isPreviewMode 
-                ? "bg-gray-600 text-white hover:bg-gray-700 shadow-md" 
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${isPreviewMode
+                ? "bg-gray-600 text-white hover:bg-gray-700 shadow-md"
                 : "bg-green-600 text-white hover:bg-green-700 shadow-md"
-            }`}
+              }`}
             disabled={isGeneratingPreview}
           >
             {isGeneratingPreview ? (
@@ -317,7 +316,7 @@ export default function ResumePreview({
               </>
             )}
           </button>
-          
+
           {/* PDF Generator Component */}
           <PDFGenerator
             resumeRef={resumeRef}
@@ -350,8 +349,8 @@ export default function ResumePreview({
           )
         ) : (
           <div className="p-8 bg-gray-50">
-            <div 
-              ref={resumeRef} 
+            <div
+              ref={resumeRef}
               className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden"
               style={{
                 width: `${CONTENT_WIDTH}px`,

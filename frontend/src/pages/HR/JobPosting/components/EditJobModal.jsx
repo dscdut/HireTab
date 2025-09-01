@@ -357,8 +357,11 @@ Do not include any HTML or CSS, only pure Markdown.`
                                 >
                                     <option value="">Select experience level</option>
                                     <option value="Intern">Intern</option>
-                                    <option value="Junior">Junior (0-2 years)</option>
-                                    <option value="Senior">Senior (3+ years)</option>
+                                    <option value="Junior">Junior</option>
+                                    <option value="Middle">Middle</option>
+                                    <option value="Senior">Senior</option>
+                                    <option value="Leader">Leader</option>
+                                    <option value="Manager">Manager</option>
                                 </select>
                             </div>
                         </div>

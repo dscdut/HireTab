@@ -25,7 +25,7 @@ export default function ResumeHeader({ onTemplateClick, onColorClick, onExport, 
         transition={{ duration: 0.5 }}
         className="flex items-center space-x-2"
       >
-        <Logo className="w-10 h-10" />
+        <Logo className="w-15 h-10" />
       </motion.div>
 
       {/* Right side navigation */}
