@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import Logo from '@/components/landing/Logo';
+import Logo from '@/components/common/Logo';
 import { IconEye, IconNonEye } from '@/assets/icons';
 import { PASSWORD_TYPE, ROLE_ADMIN, ROLE_EMPLOYEE, TEXT_TYPE } from '@/core/configs/consts';
 import { path } from '@/core/constants/path';
@@ -25,7 +25,7 @@ import {
   setUserToLS,
   getAccessTokenFromLS,
   getUserFromLocalStorage,
-} from '@/core/shared/storage';
+} from '@/core/shared/storage/storage';
 import { LoginSchema } from '@/core/zod/login.zod';
 import { useAppMutation } from '@/hooks/useAppMutation';
 import HireTabLogo from '@/assets/images/hiretab-logo.png'

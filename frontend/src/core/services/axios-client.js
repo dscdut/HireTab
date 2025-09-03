@@ -8,7 +8,7 @@ import {
   removeRefreshTokenFromLS,
   setAccessTokenToLS,
   setRefreshTokenToLS
-} from '@/core/shared/storage'
+} from '@/core/shared/storage/storage'
 
 let isRefreshing = false
 let refreshSubscribers = []

@@ -8,15 +8,13 @@ import { candidateApi } from "@/core/services/candidate.service"
 import { toast } from "react-toastify"
 
 import { CANDIDATE_STATUSES } from "./job-dashboard/constants/candidateConstants"
-// import { applyFilters, getAvailableStatusTransitions, getNextStatus } from "./job-dashboard/utils/candidateUtils"
+import { applyFilters, getAvailableStatusTransitions, getNextStatus } from "./job-dashboard/utils/candidateUtils"
 
-import DashboardHeader from "./CandidateManage/components/Header"
-import BulkActionsBar from "../../components/ui/BulkActionsBar"
-import CandidateTable from "../../components/ui/CandidateTable"
-import FilterModal from "../../components/ui/FilterModal"
-import EmailModal from "./EmailModal/EmailModal"
-import { getAvailableStatusTransitions, getNextStatus } from "@/core/shared/utils/statusUtils"
-import { applyFilters } from "@/core/shared/utils/filterUtils"
+import DashboardHeader from "./job-dashboard/DashboardHeader"
+import BulkActionsBar from "./job-dashboard/BulkActionsBar"
+import CandidateTable from "./job-dashboard/CandidateTable"
+import FilterModal from "./job-dashboard/FilterModal"
+import EmailModal from "./job-dashboard/EmailModal"
 
 export default function JobPostingDashboard() {
   const [activeTab, setActiveTab] = useState(CANDIDATE_STATUSES.ALL)

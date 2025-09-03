@@ -7,7 +7,7 @@ import { jobApi } from "@/core/services/job.service"
 import { toast } from "react-toastify"
 import { ArrowLeft, Calendar, MapPin, DollarSign, Users, Briefcase } from "lucide-react"
 import { useState } from "react"
-import EditJobModal from "./Modal/EditJobModal"
+import EditJobModal from "./JobPosting/components/EditJobModal"
 
 export default function JobDetail() {
   const { id } = useParams()
@@ -395,12 +395,12 @@ export default function JobDetail() {
 
         <style>
           {`.prose ul {
-      list-style-type: disc;
-      padding-left: 1.5rem;
-    }
-    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
-      font-weight: bold;
-    }`}
+        list-style-type: disc;
+        padding-left: 1.5rem;
+      }
+      .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+        font-weight: bold;
+      }`}
         </style>
       </div>
     </div>

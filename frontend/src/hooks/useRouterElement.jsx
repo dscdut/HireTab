@@ -6,15 +6,15 @@ import LoginPage from '@/pages/login/LoginPage'
 import Register from '@/pages/register/RegisterPage'
 import LayoutMain from '@/app/layout/LayoutMain'
 import PageNotFound from '@/pages/404/PageNotFound'
-import JobBoard from '@/UV/JobBoard'
-import JobDetail from '@/UV/JobDetail'
+import JobBoard from '@/pages/UV/JobBoard'
+import JobDetail from '@/pages/UV/JobDetail'
 import JobPostingDashboard from '@/pages/HR/JobPostingDashboard'
-import JobBoardHR from '@/pages/HR/JobBoard'
+import JobPosting from '@/pages/HR/JobPosting/JobPosting'
 import JobDetailHR from '@/pages/HR/JobDetail'
-import ProtectedRoute from '@/components/landing/ProtectedRoute'
-import ManageCandidates from '@/pages/HR/ManageCandidates'
+import ProtectedRoute from '@/guard/ProtectedRoute'
+import ManageCandidates from '@/pages/HR/CandidateManage/ManageCandidates'
 import HRDashboard from '@/pages/HR/Dashboard/Hr_Dashboard'
-import CreateResume from '@/UV/CreateResume'  
+import CreateResume from '@/pages/UV/CreateResume'  
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -22,21 +22,10 @@ export default function useRoutesElements() {
     { path: path.home, element: <HomePage /> },
     { path: path.login, element: <LoginPage /> },
     { path: path.register, element: <Register /> },
-    // {
-    //   path: path.admin.dashboard,
-    //   element: (
-    //     <LayoutMain>
-    //       <Dashboard />
-    //     </LayoutMain>
-    //   )
-    // },
     {
       path: path.candidate.job,
       element: (
-
         <JobBoard />
-
-
       )
     },
     {
@@ -72,7 +61,7 @@ export default function useRoutesElements() {
       element: (
         <LayoutMain hasHeader={true}>
           <ProtectedRoute allowedRoles={['HR']}>
-            <JobBoardHR />
+            <JobPosting />
           </ProtectedRoute>
         </LayoutMain>
       )
@@ -129,3 +118,4 @@ export default function useRoutesElements() {
     </AnimatePresence>
   )
 }
+  
