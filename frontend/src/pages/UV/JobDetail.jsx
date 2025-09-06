@@ -159,25 +159,24 @@ export default function JobDetail() {
         </div>
 
         {/* Company Information */}
-        <div className="py-12 bg-gray-50">
-          <div className="container max-w-4xl px-6 mx-auto">
-            <h2 className="mb-6 text-2xl font-bold">About GDGoC - DUT</h2>
-            <p className="mb-4 text-gray-700">
-              GDGoC - DUT (Google Developer Group of Danang University of Science and Technology) is a vibrant tech
-              community of students passionate about programming, design, and software development. With a strong spirit
-              of learning and sharing, GDGoC connects young talents within and beyond the university to explore new
-              technologies and build meaningful projects together.
-            </p>
-            <p className="mb-4 text-gray-700">
-              We believe that every student has the potential to become a great engineer. GDGoC offers hands-on
-              workshops, inspiring talk shows, hackathons, and mentorship programs to help members sharpen their skills,
-              grow their networks, and gain a clearer career direction.
-            </p>
-            <p className="text-gray-700">
-              Led by dedicated and experienced members, GDGoC continuously strives to innovate and grow. Whether you're
-              a first-year student or already experienced, we welcome you to join GDGoC — to learn, grow, and contribute
-              to a stronger tech community at DUT.
-            </p>
+        <div className="bg-white py-12 border-b border-gray-200">
+          <div className="container mx-auto px-6 max-w-6xl">
+            <div className="flex items-start gap-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-400 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                H
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold mb-3 text-gray-900">About the Company</h2>
+                <p className="text-gray-700 mb-4 leading-relaxed">
+                  At HireTab, we are your digital outsourcing and technology partner, dedicated to helping clients transform their ideas and strategies into high-end digital products. Our international team is made up of passionate individuals who believe that excellence stems from within.
+                  When you become a part of our family, we care not just about what you do, but who you are. Our vision is to empower our employees to reach their fullest potential by nurturing both their skills and character.
+                </p>
+                <p className="text-gray-700 leading-relaxed">
+                  We take immense pride in fostering a remarkable company culture that uplifts our team, believing that together, there's no limit to what we can achieve.
+                  Beyond our work, we are committed to giving back to our community through various community service programs.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

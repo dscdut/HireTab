@@ -58,7 +58,7 @@ export default function CandidateTableWithJobName({
     const getPageNumbers = () => {
       const pages = []
       const maxVisiblePages = 5
-      
+
       if (totalPages <= maxVisiblePages) {
         // Show all pages if total pages is less than or equal to max visible
         for (let i = 1; i <= totalPages; i++) {
@@ -67,11 +67,11 @@ export default function CandidateTableWithJobName({
       } else {
         // Show first page
         pages.push(1)
-        
+
         // Calculate start and end of middle pages
         let startPage = Math.max(2, currentPage - 1)
         let endPage = Math.min(totalPages - 1, currentPage + 1)
-        
+
         // Adjust if we're near the beginning or end
         if (currentPage <= 3) {
           endPage = Math.min(4, totalPages - 1)
@@ -79,28 +79,28 @@ export default function CandidateTableWithJobName({
         if (currentPage >= totalPages - 2) {
           startPage = Math.max(2, totalPages - 3)
         }
-        
+
         // Add ellipsis if needed
         if (startPage > 2) {
           pages.push("...")
         }
-        
+
         // Add middle pages
         for (let i = startPage; i <= endPage; i++) {
           pages.push(i)
         }
-        
+
         // Add ellipsis if needed
         if (endPage < totalPages - 1) {
           pages.push("...")
         }
-        
+
         // Show last page
         if (totalPages > 1) {
           pages.push(totalPages)
         }
       }
-      
+
       return pages
     }
 
@@ -111,17 +111,16 @@ export default function CandidateTableWithJobName({
             Showing {startIndex + 1} to {Math.min(endIndex, sortedCandidates.length)} of {sortedCandidates.length} candidates
           </span>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           {/* Previous button */}
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${
-              currentPage === 1
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            }`}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${currentPage === 1
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              }`}
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Previous</span>
@@ -134,13 +133,12 @@ export default function CandidateTableWithJobName({
                 key={index}
                 onClick={() => typeof page === 'number' && setCurrentPage(page)}
                 disabled={page === "..."}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  page === currentPage
-                    ? "bg-blue-600 text-white"
-                    : page === "..."
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${page === currentPage
+                  ? "bg-blue-600 text-white"
+                  : page === "..."
                     ? "text-gray-400 cursor-default"
                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 {page}
               </button>
@@ -151,11 +149,10 @@ export default function CandidateTableWithJobName({
           <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${
-              currentPage === totalPages
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            }`}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${currentPage === totalPages
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              }`}
           >
             <span>Next</span>
             <ChevronRight className="w-4 h-4" />
@@ -200,8 +197,8 @@ export default function CandidateTableWithJobName({
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden">
-        <table className="w-full table-fixed">
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-fixed">
           <thead className="bg-blue-50 border-b border-blue-100">
             <tr>
               <th className="px-4 py-4 text-left w-12">
@@ -259,7 +256,7 @@ export default function CandidateTableWithJobName({
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                   </td>
-                  
+
                   {/* Candidate Column */}
                   <td className="px-4 py-4 w-56">
                     <div className="flex items-center space-x-3">
@@ -275,7 +272,7 @@ export default function CandidateTableWithJobName({
                       </div>
                     </div>
                   </td>
-                  
+
                   {/* Position Column */}
                   <td className="px-4 py-4 w-40">
                     <div className="flex items-center space-x-2">
@@ -285,12 +282,12 @@ export default function CandidateTableWithJobName({
                       </span>
                     </div>
                   </td>
-                  
+
                   {/* Applied Date Column */}
                   <td className="px-4 py-4 w-28">
                     <div className="text-sm text-gray-600">{formatDate(candidate.createdAt)}</div>
                   </td>
-                  
+
                   {/* Resume Column */}
                   <td className="px-4 py-4 w-24">
                     {candidate.resumeFile ? (
@@ -307,12 +304,12 @@ export default function CandidateTableWithJobName({
                       <span className="text-gray-400 text-sm">—</span>
                     )}
                   </td>
-                  
+
                   {/* Status Column */}
                   <td className="px-4 py-4 w-32">
                     <StatusBadge status={candidate.status} />
                   </td>
-                  
+
                   {/* Score Column */}
                   <td className="px-4 py-4 w-28">
                     <div className="flex items-center space-x-2">
@@ -325,7 +322,7 @@ export default function CandidateTableWithJobName({
                       </div>
                     </div>
                   </td>
-                  
+
                   {/* Actions Column */}
                   <td className="px-4 py-4 w-32">
                     {getNextStatus(candidate.status) ? (

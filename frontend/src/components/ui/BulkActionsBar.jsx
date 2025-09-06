@@ -4,12 +4,14 @@ import { useState } from "react"
 import { Check } from "lucide-react"
 import ConfirmModal from "./confirmModal"
 import { getStatusButtonClass } from "@/core/shared/utils/statusUtils"
+import { shouldSendEmailForStatus } from "@/core/shared/utils/emailTemplates"
 
 export default function BulkActionsBar({
   selectedCount,
   availableTransitions,
   onBulkStatusUpdate,
   onClearSelection,
+  onSendStatusEmail,
   isLoading,
 }) {
   // Thêm state cho modal
@@ -29,30 +31,47 @@ export default function BulkActionsBar({
   if (selectedCount === 0) return null
 
   return (
-    <div className="mb-6">
-      <div className="px-4 py-3 bg-white border border-blue-200 rounded-lg shadow-sm">
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-lg px-6 py-4">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <span className="text-sm font-medium text-gray-900">
-              {selectedCount} candidate{selectedCount !== 1 ? "s" : ""} selected
-            </span>
+            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+              <span className="text-sm font-medium text-blue-600">{selectedCount}</span>
+            </div>
+            <span className="text-sm font-medium text-gray-700">selected</span>
           </div>
+
+          <div className="h-6 w-px bg-gray-300"></div>
+
+          {/* Status Update Actions */}
           <div className="flex items-center space-x-2">
             {availableTransitions.map((status) => (
-              <button
-                key={status}
-
-                onClick={() => handleMoveClick(status)}
-                disabled={isLoading}
-                className={`px-4 py-2 text-white text-sm font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 ${getStatusButtonClass(status)}`}
-              >
-                {isLoading && (
-                  <div className="w-3 h-3 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
+              <div key={status} className="flex items-center space-x-1">
+                <button
+                  onClick={() => onBulkStatusUpdate(status)}
+                  disabled={isLoading}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Move to {status}
+                  {shouldSendEmailForStatus(status) && <span className="ml-1">📧</span>}
+                </button>
+                {/* Only show manual email button for statuses that support emails */}
+                {shouldSendEmailForStatus(status) && (
+                  <button
+                    onClick={() => onSendStatusEmail(status)}
+                    className="px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                    title={`Preview ${status} email template`}
+                  >
+                    👁️
+                  </button>
                 )}
-                <span>Move to {status}</span>
-              </button>
+              </div>
             ))}
+          </div>
+
+          <div className="h-6 w-px bg-gray-300"></div>
+
+          <div className="flex items-center space-x-2">
             <button
               onClick={onClearSelection}
               className="px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200"
