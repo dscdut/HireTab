@@ -9,7 +9,7 @@ import { toast } from "react-toastify"
 
 import { CANDIDATE_STATUSES } from "./job-dashboard/constants/candidateConstants"
 // import { applyFilters, getAvailableStatusTransitions, getNextStatus } from "./job-dashboard/utils/candidateUtils"
-
+import { getEmailTemplate, getEmailTemplateForTransition, getEmailTemplateByCurrentStatus } from '@/core/shared/utils/emailTemplates';
 import DashboardHeader from "./CandidateManage/components/Header"
 import BulkActionsBar from "../../components/ui/BulkActionsBar"
 import CandidateTable from "../../components/ui/CandidateTable"
@@ -154,24 +154,76 @@ export default function JobPostingDashboard() {
 
   const availableTransitions = getAvailableStatusTransitions(selectedCandidates, candidates, activeTab)
 
-  const handleStatusTransition = (candidateId, currentStatus) => {
+  const handleStatusTransition = async (candidateId, currentStatus) => {
     const nextStatus = getNextStatus(currentStatus)
     if (!nextStatus) return
-    console.log(`Transitioning candidate ${candidateId} from ${currentStatus} to ${nextStatus}`)
+
+    // Find candidate data
+    const candidate = candidates.find(c => c.id === candidateId)
+    if (!candidate) return
+
+    try {
+      // Update status first
+      await candidateApi.updateCandidateStatus(candidateId, nextStatus)
+
+      // Check if we need to send an email for this transition
+      const emailTemplate = getEmailTemplateForTransition(
+        currentStatus,
+        nextStatus,
+        candidate,
+        { companyName: 'HireTab', jobPostingName: jobName }
+      );
+
+      if (emailTemplate) {
+        // Send email automatically
+        try {
+          const response = await fetch(import.meta.env.VITE_EMAIL_WEBHOOK_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              to: candidate.email,
+              subject: emailTemplate.subject,
+              body: emailTemplate.body,
+              cc: "",
+              bcc: "",
+            }),
+          })
+
+          if (response.ok) {
+            toast.success(`Status updated to ${nextStatus} and notification email sent to ${candidate.name}`)
+          } else {
+            toast.warning(`Status updated to ${nextStatus} but failed to send email to ${candidate.name}`)
+          }
+        } catch (emailError) {
+          console.error("Error sending email:", emailError)
+          toast.warning(`Status updated to ${nextStatus} but failed to send email to ${candidate.name}`)
+        }
+      } else {
+        toast.success(`Status updated to ${nextStatus} for ${candidate.name}`)
+      }
+
+      // Refetch candidates to update the UI
+      refetch()
+    } catch (error) {
+      console.error("Error updating status:", error)
+      toast.error("Failed to update candidate status")
+    }
   }
 
-  const handleBulkStatusUpdate = (newStatus) => {
+  const handleBulkStatusUpdate = async (newStatus) => {
     if (selectedCandidates.size === 0) return
 
     const selectedCandidatesList = candidates.filter((c) => selectedCandidates.has(c.id))
     const validCandidates = selectedCandidatesList.filter((candidate) => {
       switch (newStatus) {
         case CANDIDATE_STATUSES.INTERVIEW:
-          return candidate.status === CANDIDATE_STATUSES.IN_REVIEW || candidate.status === CANDIDATE_STATUSES.HIRED
+          return candidate.status === CANDIDATE_STATUSES.IN_REVIEW
         case CANDIDATE_STATUSES.HIRED:
           return candidate.status === CANDIDATE_STATUSES.INTERVIEW
         case CANDIDATE_STATUSES.REJECTED:
-          return candidate.status === CANDIDATE_STATUSES.INTERVIEW
+          return candidate.status === CANDIDATE_STATUSES.INTERVIEW || candidate.status === CANDIDATE_STATUSES.IN_REVIEW
         default:
           return false
       }
@@ -183,18 +235,68 @@ export default function JobPostingDashboard() {
     }
 
     const confirmed = window.confirm(
-      `Update status to "${newStatus}" for ${validCandidates.length} selected candidates?`,
+      `Update status to "${newStatus}" for ${validCandidates.length} selected candidates? ${shouldSendEmailForStatus(newStatus) ? 'Email notifications will be sent automatically.' : ''}`,
     )
     if (!confirmed) return
 
-    bulkUpdateStatusMutation.mutate({
-      candidateIds: validCandidates.map((c) => c.id),
-      status: newStatus,
-      currentStatuses: validCandidates.map((c) => c.status),
-    })
+    try {
+      // Update all statuses
+      await bulkUpdateStatusMutation.mutateAsync({
+        candidateIds: validCandidates.map((c) => c.id),
+        status: newStatus,
+        currentStatuses: validCandidates.map((c) => c.status),
+      })
+
+      // Send emails for each candidate if needed
+      let emailsSent = 0
+      if (shouldSendEmailForStatus(newStatus)) {
+        for (const candidate of validCandidates) {
+          const emailTemplate = getEmailTemplate(
+            newStatus,
+            candidate,
+            { companyName: 'HireTab', jobPostingName: jobName }
+          );
+
+          if (emailTemplate) {
+            try {
+              const response = await fetch(import.meta.env.VITE_EMAIL_WEBHOOK_URL, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  to: candidate.email,
+                  subject: emailTemplate.subject,
+                  body: emailTemplate.body,
+                  cc: "",
+                  bcc: "",
+                }),
+              })
+
+              if (response.ok) {
+                emailsSent++
+              }
+            } catch (emailError) {
+              console.error(`Error sending email to ${candidate.name}:`, emailError)
+            }
+          }
+        }
+      }
+
+      if (emailsSent > 0) {
+        toast.success(`${validCandidates.length} candidates updated to ${newStatus}. ${emailsSent} notification emails sent.`)
+      } else {
+        toast.success(`${validCandidates.length} candidates updated to ${newStatus} successfully.`)
+      }
+
+      setSelectedCandidates(new Set())
+    } catch (error) {
+      console.error("Error in bulk update:", error)
+      toast.error("Failed to update candidate statuses")
+    }
   }
 
-  const handleSendEmail = () => {
+  const handleSendEmail = (customStatus = null) => {
     if (selectedCandidates.size === 0) return
     if (emailModalState === "minimized") {
       setEmailModalState("normal")
@@ -204,16 +306,47 @@ export default function JobPostingDashboard() {
     const selectedCandidatesList = candidates.filter((c) => selectedCandidates.has(c.id))
     const emailAddresses = selectedCandidatesList.map((c) => c.email).join(", ")
 
+    let emailTemplate = { subject: "", body: "" };
+
+    if (customStatus) {
+      // For manual email with specific status template
+      const sampleCandidate = selectedCandidatesList[0];
+      const template = getEmailTemplate(customStatus, sampleCandidate, { companyName: 'HireTab', jobPostingName: jobName });
+      if (template) {
+        emailTemplate = template;
+      }
+    } else {
+      // For general "Send Email" button - use template based on current status
+      const sampleCandidate = selectedCandidatesList[0];
+      if (sampleCandidate) {
+        const template = getEmailTemplateByCurrentStatus(
+          sampleCandidate.status,
+          sampleCandidate,
+          { companyName: 'HireTab', jobPostingName: jobName }
+        );
+        if (template) {
+          emailTemplate = template;
+        }
+      }
+    }
+
+    if (!emailTemplate.subject) {
+      emailTemplate.subject = `Regarding your application for ${jobName}`;
+    }
+
     setEmailData({
       to: emailAddresses,
       cc: "",
       bcc: "",
-      subject: `Regarding your application for ${jobName}`,
-      body: "",
+      subject: emailTemplate.subject,
+      body: emailTemplate.body,
     })
     setEmailModalState("normal")
   }
 
+  const handleSendStatusEmail = (status) => {
+    handleSendEmail(status);
+  }
   const closeEmailModal = () => {
     setEmailModalState("closed")
     setShowCcBcc(false)
@@ -427,13 +560,16 @@ export default function JobPostingDashboard() {
         />
 
         <div className="px-6 py-6">
-          <BulkActionsBar
-            selectedCount={selectedCandidates.size}
-            availableTransitions={availableTransitions}
-            onBulkStatusUpdate={handleBulkStatusUpdate}
-            onClearSelection={() => setSelectedCandidates(new Set())}
-            isLoading={bulkUpdateStatusMutation.isLoading}
-          />
+          {selectedCandidates.size > 0 && (
+            <BulkActionsBar
+              selectedCount={selectedCandidates.size}
+              availableTransitions={availableTransitions}
+              onBulkStatusUpdate={handleBulkStatusUpdate}
+              onSendStatusEmail={handleSendStatusEmail} // Pass the new function
+              onClearSelection={() => setSelectedCandidates(new Set())}
+              isLoading={bulkUpdateStatusMutation.isLoading}
+            />
+          )}
 
           <CandidateTable
             activeTab={activeTab}

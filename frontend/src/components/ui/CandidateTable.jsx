@@ -65,7 +65,7 @@ export default function CandidateTable({
     const getPageNumbers = () => {
       const pages = []
       const maxVisiblePages = 5
-      
+
       if (totalPages <= maxVisiblePages) {
         for (let i = 1; i <= totalPages; i++) {
           pages.push(i)
@@ -74,31 +74,31 @@ export default function CandidateTable({
         pages.push(1)
         let startPage = Math.max(2, currentPage - 1)
         let endPage = Math.min(totalPages - 1, currentPage + 1)
-        
+
         if (currentPage <= 3) {
           endPage = Math.min(4, totalPages - 1)
         }
         if (currentPage >= totalPages - 2) {
           startPage = Math.max(2, totalPages - 3)
         }
-        
+
         if (startPage > 2) {
           pages.push("...")
         }
-        
+
         for (let i = startPage; i <= endPage; i++) {
           pages.push(i)
         }
-        
+
         if (endPage < totalPages - 1) {
           pages.push("...")
         }
-        
+
         if (totalPages > 1) {
           pages.push(totalPages)
         }
       }
-      
+
       return pages
     }
 
@@ -109,16 +109,15 @@ export default function CandidateTable({
             Showing {startIndex + 1} to {Math.min(endIndex, sortedCandidates.length)} of {sortedCandidates.length} candidates
           </span>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${
-              currentPage === 1
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            }`}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${currentPage === 1
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              }`}
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Previous</span>
@@ -130,13 +129,12 @@ export default function CandidateTable({
                 key={index}
                 onClick={() => typeof page === 'number' && setCurrentPage(page)}
                 disabled={page === "..."}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  page === currentPage
-                    ? "bg-blue-600 text-white"
-                    : page === "..."
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${page === currentPage
+                  ? "bg-blue-600 text-white"
+                  : page === "..."
                     ? "text-gray-400 cursor-default"
                     : "text-gray- gốc tác giả:600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 {page}
               </button>
@@ -146,11 +144,10 @@ export default function CandidateTable({
           <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${
-              currentPage === totalPages
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            }`}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${currentPage === totalPages
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              }`}
           >
             <span>Next</span>
             <ChevronRight className="w-4 h-4" />
@@ -174,19 +171,17 @@ export default function CandidateTable({
             return (
               <button
                 key={tab}
-                className={`px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-all duration-200 flex items-center space-x-2 ${
-                  activeTab === tab
-                    ? "text-blue-600 border-blue-600 bg-white"
-                    : "text-gray-600 border-transparent hover:text-gray-900 hover:bg-gray-100"
-                }`}
+                className={`px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-all duration-200 flex items-center space-x-2 ${activeTab === tab
+                  ? "text-blue-600 border-blue-600 bg-white"
+                  : "text-gray-600 border-transparent hover:text-gray-900 hover:bg-gray-100"
+                  }`}
                 onClick={() => handleTabChange(tab)}
               >
                 {tab !== CANDIDATE_STATUSES.ALL && <StatusIcon className="w-4 h-4" />}
                 <span>{tab}</span>
                 <span
-                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                    activeTab === tab ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-600"
-                  }`}
+                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${activeTab === tab ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-600"
+                    }`}
                 >
                   {count}
                 </span>
@@ -197,16 +192,17 @@ export default function CandidateTable({
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden">
-        <table className="w-full table-fixed">
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-fixed">
           <thead className="border-b border-blue-100 bg-blue-50">
             <tr>
               <th className="w-12 px-4 py-4 text-left">
                 <input
                   type="checkbox"
                   checked={selectedCandidates.size === currentCandidates.length && currentCandidates.length > 0}
-                  onChange={toggleSelectAll}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  onChange={activeTab !== CANDIDATE_STATUSES.ALL ? toggleSelectAll : undefined}
+                  disabled={activeTab === CANDIDATE_STATUSES.ALL}
+                  className={`w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 ${activeTab === CANDIDATE_STATUSES.ALL ? 'cursor-not-allowed opacity-60' : ''}`}
                 />
               </th>
               {columns.map((column) => (
@@ -226,9 +222,8 @@ export default function CandidateTable({
                       {column.icon && <column.icon className="flex-shrink-0 w-4 h-4" />}
                       <span className="truncate">{column.label}</span>
                       <ChevronDown
-                        className={`w-4 h-4 transition-transform flex-shrink-0 ${
-                          sortConfig.key === column.key && sortConfig.direction === "asc" ? "rotate-180" : ""
-                        }`}
+                        className={`w-4 h-4 transition-transform flex-shrink-0 ${sortConfig.key === column.key && sortConfig.direction === "asc" ? "rotate-180" : ""
+                          }`}
                       />
                     </button>
                   ) : (
@@ -252,11 +247,12 @@ export default function CandidateTable({
                     <input
                       type="checkbox"
                       checked={selectedCandidates.has(candidate.id)}
-                      onChange={() => toggleCandidateSelection(candidate.id)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      onChange={activeTab !== CANDIDATE_STATUSES.ALL ? () => toggleCandidateSelection(candidate.id) : undefined}
+                      disabled={activeTab === CANDIDATE_STATUSES.ALL}
+                      className={`w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 ${activeTab === CANDIDATE_STATUSES.ALL ? 'cursor-not-allowed opacity-60' : ''}`}
                     />
                   </td>
-                  
+
                   {/* Candidate Column */}
                   <td className="w-56 px-4 py-4">
                     <div className="flex items-center space-x-3">
@@ -272,7 +268,7 @@ export default function CandidateTable({
                       </div>
                     </div>
                   </td>
-                  
+
                   {/* Position Column (Conditional) */}
                   {showJobName && (
                     <td className="w-40 px-4 py-4">
@@ -284,12 +280,12 @@ export default function CandidateTable({
                       </div>
                     </td>
                   )}
-                  
+
                   {/* Applied Date Column */}
                   <td className="px-4 py-4 w-28">
                     <div className="text-sm text-gray-600">{formatDate(candidate.createdAt)}</div>
                   </td>
-                  
+
                   {/* Resume Column */}
                   <td className="w-24 px-4 py-4">
                     {candidate.resumeFile ? (
@@ -306,12 +302,12 @@ export default function CandidateTable({
                       <span className="text-sm text-gray-400">—</span>
                     )}
                   </td>
-                  
+
                   {/* Status Column */}
                   <td className="w-32 px-4 py-4">
                     <StatusBadge status={candidate.status} />
                   </td>
-                  
+
                   {/* Score Column */}
                   <td className="px-4 py-4 w-28">
                     <div className="flex items-center space-x-2">
@@ -324,7 +320,7 @@ export default function CandidateTable({
                       </div>
                     </div>
                   </td>
-                  
+
                   {/* Actions Column */}
                   <td className="w-32 px-4 py-4">
                     {getNextStatus(candidate.status) ? (

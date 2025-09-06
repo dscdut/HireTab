@@ -11,6 +11,7 @@ import ManageCandidateHeader from "./components/Header"
 import BulkActionsBar from "../../../components/ui/BulkActionsBar"
 import CandidateTable from "../../../components/ui/CandidateTable"
 import FilterModal from "../../../components/ui/FilterModal"
+import { getEmailTemplate, getEmailTemplateForTransition, shouldSendEmailForStatus, getEmailTemplateByCurrentStatus } from '@/core/shared/utils/emailTemplates';
 import EmailModal from "../EmailModal/EmailModal"
 import ConfirmModal from "../../../components/ui/confirmModal"
 import { applyFilters } from "@/core/shared/utils/filterUtils";
@@ -155,23 +156,135 @@ export default function ManageCandidates() {
 
   const availableTransitions = getAvailableStatusTransitions(selectedCandidates, candidates, activeTab)
 
-  const handleStatusTransition = (candidateId, currentStatus) => {
+  const handleStatusTransition = async (candidateId, currentStatus) => {
     const nextStatus = getNextStatus(currentStatus)
     if (!nextStatus) return
 
-    // Find candidate name for confirmation modal
+    // Find candidate data
     const candidate = candidates.find(c => c.id === candidateId)
+    if (!candidate) return
 
-    // Show confirmation modal
-    setStatusConfirmModal({
-      isOpen: true,
-      candidateId,
-      candidateName: candidate?.name || "Unknown",
-      currentStatus,
-      nextStatus,
-    })
+    try {
+      // Update status first
+      await candidateApi.updateCandidateStatus(candidateId, nextStatus)
+
+      // Check if we need to send an email for this transition
+      const emailTemplate = getEmailTemplateForTransition(
+        currentStatus,
+        nextStatus,
+        candidate,
+        { companyName: 'HireTab' }
+      );
+
+      if (emailTemplate) {
+        // Send email automatically
+        try {
+          const response = await fetch(import.meta.env.VITE_EMAIL_WEBHOOK_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              to: candidate.email,
+              subject: emailTemplate.subject,
+              body: emailTemplate.body,
+              cc: "",
+              bcc: "",
+            }),
+          })
+
+          if (response.ok) {
+            toast.success(`Status updated to ${nextStatus} and notification email sent to ${candidate.name}`)
+          } else {
+            toast.warning(`Status updated to ${nextStatus} but failed to send email to ${candidate.name}`)
+          }
+        } catch (emailError) {
+          console.error("Error sending email:", emailError)
+          toast.warning(`Status updated to ${nextStatus} but failed to send email to ${candidate.name}`)
+        }
+      } else {
+        toast.success(`Status updated to ${nextStatus} for ${candidate.name}`)
+      }
+
+      // Refetch candidates to update the UI
+      refetch()
+    } catch (error) {
+      console.error("Error updating status:", error)
+      toast.error("Failed to update candidate status")
+    }
   }
+  const handleSendEmail = (customStatus = null) => {
+    if (selectedCandidates.size === 0) return
+    if (emailModalState === "minimized") {
+      setEmailModalState("normal")
+      return
+    }
 
+    const selectedCandidatesList = candidates.filter((c) => selectedCandidates.has(c.id))
+    const emailAddresses = selectedCandidatesList.map((c) => c.email).join(", ")
+
+    let emailTemplate = { subject: "", body: "" }
+
+    if (customStatus) {
+      // For manual email with specific status template
+      const sampleCandidate = selectedCandidatesList[0]
+      const template = getEmailTemplate(customStatus, sampleCandidate, { companyName: 'HireTab' });
+      if (template) {
+        emailTemplate = template;
+      }
+    } else {
+      // For general "Send Email" button - use template based on current status
+      const sampleCandidate = selectedCandidatesList[0];
+      if (sampleCandidate) {
+        const template = getEmailTemplateByCurrentStatus(
+          sampleCandidate.status,
+          sampleCandidate,
+          { companyName: 'HireTab' }
+        );
+        if (template) {
+          emailTemplate = template;
+        }
+      }
+    }
+
+    setEmailData({
+      to: emailAddresses,
+      cc: "",
+      bcc: "",
+      subject: emailTemplate.subject,
+      body: emailTemplate.body,
+    })
+    setEmailModalState("normal")
+  }
+  const handleSendStatusEmail = (status) => {
+    if (selectedCandidates.size === 0) return
+    if (emailModalState === "minimized") {
+      setEmailModalState("normal")
+      return
+    }
+
+    const selectedCandidatesList = candidates.filter((c) => selectedCandidates.has(c.id))
+    const emailAddresses = selectedCandidatesList.map((c) => c.email).join(", ")
+
+    // Get template for the specific status (only for preview/manual sending)
+    let emailTemplate = { subject: "", body: "" };
+    if (shouldSendEmailForStatus(status)) {
+      const sampleCandidate = selectedCandidatesList[0];
+      const template = getEmailTemplate(status, sampleCandidate, { companyName: 'HireTab' });
+      if (template) {
+        emailTemplate = template;
+      }
+    }
+
+    setEmailData({
+      to: emailAddresses,
+      cc: "",
+      bcc: "",
+      subject: emailTemplate.subject,
+      body: emailTemplate.body,
+    })
+    setEmailModalState("normal")
+  }
   const handleStatusConfirm = () => {
     const { candidateId, nextStatus } = statusConfirmModal
 
@@ -228,26 +341,6 @@ export default function ManageCandidates() {
       candidateIds: validCandidates.map((c) => c.id),
       status: newStatus,
     })
-  }
-
-  const handleSendEmail = () => {
-    if (selectedCandidates.size === 0) return
-    if (emailModalState === "minimized") {
-      setEmailModalState("normal")
-      return
-    }
-
-    const selectedCandidatesList = candidates.filter((c) => selectedCandidates.has(c.id))
-    const emailAddresses = selectedCandidatesList.map((c) => c.email).join(", ")
-
-    setEmailData({
-      to: emailAddresses,
-      cc: "",
-      bcc: "",
-      subject: `Regarding your job applications`,
-      body: "",
-    })
-    setEmailModalState("normal")
   }
 
   const closeEmailModal = () => {
@@ -463,13 +556,16 @@ export default function ManageCandidates() {
         />
 
         <div className="px-3 py-2">
-          <BulkActionsBar
-            selectedCount={selectedCandidates.size}
-            availableTransitions={availableTransitions}
-            onBulkStatusUpdate={handleBulkStatusUpdate}
-            onClearSelection={() => setSelectedCandidates(new Set())}
-            isLoading={bulkUpdateStatusMutation.isLoading}
-          />
+          {selectedCandidates.size > 0 && (
+            <BulkActionsBar
+              selectedCount={selectedCandidates.size}
+              availableTransitions={availableTransitions}
+              onBulkStatusUpdate={handleBulkStatusUpdate}
+              onSendStatusEmail={handleSendStatusEmail} // Pass the new function
+              onClearSelection={() => setSelectedCandidates(new Set())}
+              isLoading={bulkUpdateStatusMutation.isLoading}
+            />
+          )}
 
           <CandidateTable
             activeTab={activeTab}

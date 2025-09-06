@@ -34,7 +34,7 @@ export default function AddJobModal({ isOpen, onClose }) {
 
     // State for criteria
     const [criteria, setCriteria] = useState([{ name: "", weight: "", detail: "" }])
-
+    const [autoPost, setAutoPost] = useState(true)
     // State for validation errors
     const [salaryError, setSalaryError] = useState({ min: false, max: false })
     const [dateError, setDateError] = useState(false)
@@ -66,7 +66,7 @@ export default function AddJobModal({ isOpen, onClose }) {
     // Mutation to create a new job
     const createJobMutation = useMutation({
         mutationFn: async (newJob) => {
-            const response = await fetch("https://n8n-hirenova.gdsc.dev/webhook/create-job", {
+            const response = await fetch(import.meta.env.VITE_API_CREATE_JOB_URL, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -270,7 +270,36 @@ Do not include any HTML or CSS, only pure Markdown.`
             data: imageBase64,
             isPhoto: !!imageBase64,
         };
-        createJobMutation.mutate(payload);
+
+        // Lưu vào database trước
+        jobApi.createJob(payload).then(async (response) => {
+            toast.success("Job saved to database successfully!");
+
+            // Nếu chọn tự động đăng bài thì gọi thêm API n8n
+            if (autoPost) {
+                try {
+                    const n8nResponse = await fetch(import.meta.env.VITE_API_CREATE_JOB_URL, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(payload),
+                    });
+
+                    if (n8nResponse.ok) {
+                        toast.success("Job posted automatically!");
+                    } else {
+                        toast.warning("Job saved but auto-posting failed!");
+                    }
+                } catch (error) {
+                    toast.warning("Job saved but auto-posting failed!");
+                }
+            }
+
+            onClose();
+        }).catch((error) => {
+            toast.error("Failed to create job!");
+        });
     }
 
     return (
@@ -655,6 +684,24 @@ Do not include any HTML or CSS, only pure Markdown.`
                                 </button>
                             </div>
                         )}
+                    </div>
+                    <div className="mt-6 flex gap-8">
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                checked={autoPost}
+                                onChange={() => setAutoPost(true)}
+                            />
+                            <span className="text-gray-700">Tự động đăng bài</span>
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                checked={!autoPost}
+                                onChange={() => setAutoPost(false)}
+                            />
+                            <span className="text-gray-700">Không tự động đăng bài</span>
+                        </label>
                     </div>
                 </div>
 
