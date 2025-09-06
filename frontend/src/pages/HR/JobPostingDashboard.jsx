@@ -8,13 +8,15 @@ import { candidateApi } from "@/core/services/candidate.service"
 import { toast } from "react-toastify"
 
 import { CANDIDATE_STATUSES } from "./job-dashboard/constants/candidateConstants"
-import { applyFilters, getAvailableStatusTransitions, getNextStatus } from "../HR/job-dashboard/utils/candidateUtils"
+// import { applyFilters, getAvailableStatusTransitions, getNextStatus } from "./job-dashboard/utils/candidateUtils"
 
-import DashboardHeader from "./job-dashboard/DashboardHeader"
-import BulkActionsBar from "./job-dashboard/BulkActionsBar"
-import CandidateTable from "./job-dashboard/CandidateTable"
-import FilterModal from "./job-dashboard/FilterModal"
-import EmailModal from "./job-dashboard/EmailModal"
+import DashboardHeader from "./CandidateManage/components/Header"
+import BulkActionsBar from "../../components/ui/BulkActionsBar"
+import CandidateTable from "../../components/ui/CandidateTable"
+import FilterModal from "../../components/ui/FilterModal"
+import EmailModal from "./EmailModal/EmailModal"
+import { getAvailableStatusTransitions, getNextStatus } from "@/core/shared/utils/statusUtils"
+import { applyFilters } from "@/core/shared/utils/filterUtils"
 
 export default function JobPostingDashboard() {
   const [activeTab, setActiveTab] = useState(CANDIDATE_STATUSES.ALL)
@@ -387,10 +389,10 @@ export default function JobPostingDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading candidates...</p>
+          <div className="w-8 h-8 mx-auto mb-4 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
+          <p className="font-medium text-gray-600">Loading candidates...</p>
         </div>
       </div>
     )
@@ -398,10 +400,10 @@ export default function JobPostingDashboard() {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
-          <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 font-medium">Error loading candidates!</p>
+          <XCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
+          <p className="font-medium text-red-600">Error loading candidates!</p>
         </div>
       </div>
     )
@@ -409,7 +411,7 @@ export default function JobPostingDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-['Inter',system-ui,sans-serif]">
-      <div className="bg-gray-50 min-h-screen">
+      <div className="min-h-screen bg-gray-50">
         <DashboardHeader
           jobName={jobName}
           candidatesCount={candidates.length}
@@ -444,6 +446,7 @@ export default function JobPostingDashboard() {
             sortConfig={sortConfig}
             setSortConfig={setSortConfig}
             onStatusTransition={handleStatusTransition}
+            showJobName={false}
           />
         </div>
       </div>

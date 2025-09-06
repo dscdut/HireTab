@@ -1,0 +1,399 @@
+"use client"
+
+import { useParams, useNavigate } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
+import { jobApi } from "@/core/services/job.service"
+import { toast } from "react-toastify"
+import { ArrowLeft, Calendar, DollarSign, Users, Briefcase, MapPin } from "lucide-react"
+import { useState } from "react"
+import ModalFormCandidate from "./Modal/ModalFormCandidate"
+import ChatWootWidget from "@/components/ui/chatwoot-widget"
+import Header from "@/components/layout/Header"
+
+export default function JobDetail() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  console.log("Job ID:", id)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
+
+  const handleSubmit = (formData) => {
+    console.log("Form submitted:", formData)
+    setIsModalOpen(false)
+  }
+
+  const {
+    data: job,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["job", id],
+    queryFn: async () => {
+      try {
+        console.log("Calling API for Job ID:", id)
+        const response = await jobApi.getJobById(id)
+        console.log("API Response:", response)
+        return response
+      } catch (error) {
+        console.error("API Error:", error)
+        toast.error("Failed to load job details!")
+        throw error
+      }
+    },
+    retry: false,
+  })
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
+  if (isError) {
+    return <div>Error loading job details!</div>
+  }
+
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case "active":
+      case "open":
+        return "bg-green-900/60"
+      case "closed":
+        return "bg-red-900/60"
+      case "to do":
+        return "bg-orange-900/60"
+      default:
+        return "bg-gray-900/60"
+    }
+  }
+
+  const calculateDaysLeft = (endTime) => {
+    if (!endTime) return "No deadline"
+    const end = new Date(endTime)
+    const now = new Date()
+    const diffTime = end - now
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    if (diffDays < 0) return "Expired"
+    if (diffDays === 0) return "Today"
+    if (diffDays === 1) return "1 day left"
+    return `${diffDays} days left`
+  }
+
+  const formatSalary = (min, max) => {
+    if (typeof min !== "number" || typeof max !== "number" || isNaN(min) || isNaN(max)) {
+      return "Negotiable"
+    }
+    const formatNumber = (num) =>
+      num.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+    return `${formatNumber(min)} - ${formatNumber(max)}`
+  }
+
+  return (
+    <>
+      <Header />
+      <div className="flex flex-col min-h-screen mt-24">
+        {/* Hero section with blue overlay */}
+        <div className="relative">
+          <div className="absolute inset-0 z-10 bg-blue-600/80" />
+          <div
+            className="relative bg-cover bg-center h-[400px]"
+            style={{
+              backgroundImage:
+                "url('https://github.com/meishenry/HireNova/blob/main/%E1%BB%A8ng%20Vi%C3%AAn/M%C3%B4%20t%E1%BA%A3%20c%C3%B4ng%20vi%E1%BB%87c%20khi%20ch%C6%B0a%20apply%20(%E1%BB%A9ng%20vi%C3%AAn)/images/main-image.jpg?raw=true')",
+            }}
+          >
+            <div className="relative z-20 p-6">
+              <button
+                className="flex items-center text-white transition hover:text-blue-100"
+                onClick={() => navigate(-1)}
+              >
+                <ArrowLeft className="w-5 h-5 mr-2" />
+                <span>Open Positions</span>
+              </button>
+            </div>
+            <div className="relative z-20 flex flex-col justify-center h-full px-6 pb-10 md:pb-16 max-w-6xl mx-auto">
+              <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg">{job.title}</h1>
+              <div className="flex flex-wrap items-center gap-3 text-white text-lg font-medium mb-4">
+                <span className="bg-blue-900/60 px-4 py-2 rounded-full text-base backdrop-blur-sm flex items-center gap-2">
+                  <MapPin size={16} />
+                  {job.location}
+                </span>
+                <span className="bg-blue-900/60 px-4 py-2 rounded-full text-base backdrop-blur-sm flex items-center gap-2">
+                  <Briefcase size={16} />
+                  Full-Time
+                </span>
+                <span className="bg-blue-900/60 px-4 py-2 rounded-full text-base backdrop-blur-sm">
+                  {job.level || "Mid-Senior Level"}
+                </span>
+                <span className="bg-blue-900/60 px-4 py-2 rounded-full text-base backdrop-blur-sm">
+                  {job.industryName}
+                </span>
+                <span className={`${getStatusColor(job.status)} px-4 py-2 rounded-full text-base backdrop-blur-sm`}>
+                  {job.status}
+                </span>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="flex flex-wrap items-center gap-6 text-white/90 text-sm">
+                <div className="flex items-center gap-2">
+                  <DollarSign size={16} />
+                  <span>{formatSalary(job.salary_min, job.salary_max)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users size={16} />
+                  <span>{job.applicationsCount || 0} Applications</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar size={16} />
+                  <span>{job.end_time ? calculateDaysLeft(job.end_time) : "No deadline"}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Company Information */}
+        <div className="py-12 bg-gray-50">
+          <div className="container max-w-4xl px-6 mx-auto">
+            <h2 className="mb-6 text-2xl font-bold">About GDGoC - DUT</h2>
+            <p className="mb-4 text-gray-700">
+              GDGoC - DUT (Google Developer Group of Danang University of Science and Technology) is a vibrant tech
+              community of students passionate about programming, design, and software development. With a strong spirit
+              of learning and sharing, GDGoC connects young talents within and beyond the university to explore new
+              technologies and build meaningful projects together.
+            </p>
+            <p className="mb-4 text-gray-700">
+              We believe that every student has the potential to become a great engineer. GDGoC offers hands-on
+              workshops, inspiring talk shows, hackathons, and mentorship programs to help members sharpen their skills,
+              grow their networks, and gain a clearer career direction.
+            </p>
+            <p className="text-gray-700">
+              Led by dedicated and experienced members, GDGoC continuously strives to innovate and grow. Whether you're
+              a first-year student or already experienced, we welcome you to join GDGoC — to learn, grow, and contribute
+              to a stronger tech community at DUT.
+            </p>
+          </div>
+        </div>
+
+        {/* Job Details */}
+        <div className="container mx-auto px-6 py-12 max-w-6xl">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+              {/* Job Description */}
+              <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
+                <h2 className="text-2xl font-bold mb-6 text-gray-900 flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Briefcase className="w-4 h-4 text-blue-600" />
+                  </div>
+                  Job Description
+                </h2>
+                <div className="prose prose-gray max-w-none">
+                  <p className="text-gray-700 leading-relaxed">
+                    {job.description ||
+                      "As a Software Engineer at GDSC - DUT, you will design, develop, and maintain innovative web applications that empower our student community. You will work closely with other engineers and designers to deliver high-quality solutions that address real-world problems in education and technology."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Requirements */}
+              <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
+                <h2 className="text-2xl font-bold mb-6 text-gray-900">Requirements</h2>
+                <ul className="space-y-3 text-gray-700">
+                  {job?.requirements && Array.isArray(job.requirements) && job.requirements.length > 0 ? (
+                    job.requirements.map((requirement, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">{requirement}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">
+                          Bachelor's degree in Computer Science, Software Engineering, or related field.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">
+                          Independent and Collaborative Work: Ability to work both independently and as part of a team,
+                          with a passion for continuous learning and excellence in software development.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">
+                          Experience with RESTful APIs and state management libraries (Redux, Zustand, etc.).
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">
+                          Problem-Solving: Strong analytical and problem-solving skills with the ability to manage
+                          technical complexities.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">
+                          Solid understanding of Git and collaborative development workflows.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">Strong problem-solving skills and attention to detail.</span>
+                      </li>
+                    </>
+                  )}
+                </ul>
+              </div>
+
+              {/* Responsibilities */}
+              <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
+                <h2 className="text-2xl font-bold mb-6 text-gray-900">Job highlights</h2>
+                <ul className="space-y-3 text-gray-700">
+                  {job?.responsibilities && Array.isArray(job.responsibilities) && job.responsibilities.length > 0 ? (
+                    job.responsibilities.map((responsibility, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">{responsibility}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">
+                          Work Environment: Fun, open, and family-like atmosphere.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">
+                          Compensation: Excellent salary with 13th month bonus and quarterly bonuses available based on
+                          personal and corporate goals met.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">
+                          Health Benefits: Yearly renewed health allowance or a comprehensive health insurance package,
+                          depending on your preference.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">
+                          Extra Paid Time Off: 1 Christmas day, and up to 10 days of Sick leave.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="leading-relaxed">
+                          Work Schedule: 5-day work week (Mon-Fri) with no regular overtime expected.
+                        </span>
+                      </li>
+                    </>
+                  )}
+                </ul>
+              </div>
+            </div>
+
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 sticky top-8">
+                <h3 className="text-xl font-bold mb-6 text-gray-900 flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Briefcase className="w-4 h-4 text-blue-600" />
+                  </div>
+                  Job Information
+                </h3>
+
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Briefcase className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-sm font-medium">Industry</p>
+                      <p className="font-semibold text-gray-900">{job.industryName || "Software Development"}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Users className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-sm font-medium">Job Level</p>
+                      <p className="font-semibold text-gray-900">{job.level || "Senior"}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Calendar className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-sm font-medium">Employment Type</p>
+                      <p className="font-semibold text-gray-900">Full-Time</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <DollarSign className="w-5 h-5 text-yellow-600" />
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-sm font-medium">Salary Range</p>
+                      <p className="font-semibold text-gray-900">{formatSalary(job.salary_min, job.salary_max)}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-sm font-medium">Status</p>
+                      <p className="font-semibold text-gray-900">{job.status || "To Do"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  <button
+                    onClick={handleOpenModal}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold text-lg shadow-lg transition-all duration-200"
+                  >
+                    Apply for this position
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ModalFormCandidate
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            onSubmit={handleSubmit}
+            jobId={job.id}
+            jobTitle={job.title}
+            jobLocation={job.location}
+            jobLevel={job.level}
+            jobDesRate={job.descRate}
+            jobDescription={job.description}
+          />
+        </div>
+
+        <ChatWootWidget />
+      </div>
+    </>
+  )
+}
