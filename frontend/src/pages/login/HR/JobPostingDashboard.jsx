@@ -192,7 +192,7 @@ export default function JobPostingDashboard() {
     })
   }
 
-  const handleSendEmail = () => {
+  const handleSendEmail = (customStatus = null) => {
     if (selectedCandidates.size === 0) return
     if (emailModalState === "minimized") {
       setEmailModalState("normal")
@@ -202,14 +202,33 @@ export default function JobPostingDashboard() {
     const selectedCandidatesList = candidates.filter((c) => selectedCandidates.has(c.id))
     const emailAddresses = selectedCandidatesList.map((c) => c.email).join(", ")
 
+    // Determine the email template based on status
+    let emailTemplate;
+    if (customStatus) {
+      // Use the status for template generation
+      const sampleCandidate = selectedCandidatesList[0];
+      emailTemplate = getEmailTemplate(customStatus, sampleCandidate, { companyName: 'HireTab', jobPostingName: jobName });
+    } else {
+      // Default template
+      emailTemplate = {
+        subject: `Regarding your application for ${jobName}`,
+        body: ""
+      };
+    }
+
     setEmailData({
       to: emailAddresses,
       cc: "",
       bcc: "",
-      subject: `Regarding your application for ${jobName}`,
-      body: "",
+      subject: emailTemplate.subject,
+      body: emailTemplate.body,
     })
     setEmailModalState("normal")
+  }
+
+  // Add a new function to handle status-specific emails
+  const handleSendStatusEmail = (status) => {
+    handleSendEmail(status);
   }
 
   const closeEmailModal = () => {

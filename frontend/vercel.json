@@ -1,38 +1,22 @@
 {
-    "rewrites": [
-      {
-        "source": "/login",
-        "destination": "/404",
-        "has": [
-          {
-            "type": "host",
-            "value": "hiretab.gdsc.dev"
-          }
-        ]
-      },
-      {
-        "source": "/register", 
-        "destination": "/404",
-        "has": [
-          {
-            "type": "host",
-            "value": "hiretab.gdsc.dev"
-          }
-        ]
-      },
-      {
-        "source": "/",
-        "destination": "/login",
-        "has": [
-          {
-            "type": "host",
-            "value": "hiretab-admin.gdsc.dev"
-          }
-        ]
-      },
-      { 
-        "source": "/(.*)", 
-        "destination": "/" 
-      }
-    ]
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "hiretab-admin.gdsc.dev" }],
+      "destination": "/login",
+      "permanent": false
+    },
+    {
+      "source": "/login",
+      "has": [{ "type": "host", "value": "hiretab.gdsc.dev" }],
+      "destination": "https://hiretab-admin.gdsc.dev/login",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ]
 }

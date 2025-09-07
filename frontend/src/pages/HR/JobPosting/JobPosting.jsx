@@ -153,7 +153,7 @@ const JobPosting = () => {
     handleViewDetails(job)
   }
 
-  if (isLoading) {
+  if (isJobsLoading) {
     return <LoadingSpinner />
   }
 

@@ -184,7 +184,7 @@ export default function JobDetail() {
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="flex items-start gap-6">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-400 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
-              G
+              H
             </div>
             <div className="flex-1">
               <h2 className="text-2xl font-bold mb-3 text-gray-900">About the Company</h2>
