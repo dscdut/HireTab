@@ -15,11 +15,13 @@ import ProtectedRoute from '@/guard/ProtectedRoute'
 import ManageCandidates from '@/pages/HR/CandidateManage/ManageCandidates'
 import HRDashboard from '@/pages/HR/Dashboard/Hr_Dashboard'
 import CreateResume from '@/pages/UV/CreateResume'  
+import ContactPage from '@/pages/contact/ContactPage'
 export default function useRoutesElements() {
   const location = useLocation()
 
   const routes = [
     { path: path.home, element: <HomePage /> },
+    { path: path.contact, element: <ContactPage /> },
     { path: path.login, element: <LoginPage /> },
     { path: path.register, element: <Register /> },
     {
