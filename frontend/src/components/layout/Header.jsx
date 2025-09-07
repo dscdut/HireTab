@@ -39,7 +39,7 @@ const Header = () => {
   const menuItems = [
     { label: 'Find Jobs', href: '#jobs', icon: Search },
     { label: 'Resume', href: path.create_resume, icon: Contact },
-    { label: 'Mission & Value', href: '#advice', icon: Briefcase },
+    { label: 'Mission & Value', href: path.mission, icon: Briefcase },
     { label: 'Contact Us', href: path.contact, icon: Headset }
   ]
 
