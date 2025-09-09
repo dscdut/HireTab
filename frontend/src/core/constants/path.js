@@ -4,6 +4,7 @@ export const path = {
   register: '/register',
   forgotPassword: '/forgot-password',
   blog: '/blog',
+  template_gallery: '/template-gallery',
   create_resume: '/create-resume',
   admin: {
     dashboard: '/admin/dashboard'

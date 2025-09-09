@@ -14,7 +14,8 @@ import JobDetailHR from '@/pages/HR/JobDetail'
 import ProtectedRoute from '@/guard/ProtectedRoute'
 import ManageCandidates from '@/pages/HR/CandidateManage/ManageCandidates'
 import HRDashboard from '@/pages/HR/Dashboard/Hr_Dashboard'
-import CreateResume from '@/pages/UV/CreateResume'  
+import CreateResume from '@/pages/UV/CreateResume/CreateResume'
+import TemplateGallery from '@/pages/UV/TemplateGallery'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -31,6 +32,10 @@ export default function useRoutesElements() {
     {
       path: path.candidate.jobDetail,
       element: <JobDetail />
+    },
+    {
+      path: path.template_gallery,
+      element: <TemplateGallery />
     },
     {
       path: path.create_resume,
@@ -118,4 +123,3 @@ export default function useRoutesElements() {
     </AnimatePresence>
   )
 }
-  

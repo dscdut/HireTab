@@ -13,7 +13,7 @@ export default function ClassicTemplate({
   onEditProjects,
 }) {
   return (
-    <div className={`${styles.layoutClass} ${styles.fontFamily} max-w-4xl mx-auto p-8 bg-white`}>
+    <div className="font-sans max-w-4xl mx-auto p-8 bg-white">
       {/* Header Section */}
       <div className="text-center mb-6 relative group">
         <button

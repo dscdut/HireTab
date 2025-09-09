@@ -13,9 +13,9 @@ export default function ModernTemplate({
   onEditProjects,
 }) {
   return (
-    <div className={`${styles.layoutClass} ${styles.fontFamily} min-h-screen bg-white`}>
+    <div className="flex min-h-screen bg-white font-sans">
       {/* LEFT SIDEBAR - 1/3 width */}
-      <div className={`${styles.sidebarClass} bg-gray-50 border-r-2`} style={{ borderColor: styles.headerColor }}>
+      <div className="w-1/3 p-8 bg-gray-50 border-r-2" style={{ borderColor: styles.headerColor }}>
         {/* Personal Info Section */}
         <div className="relative group mb-8">
           <button
@@ -144,7 +144,7 @@ export default function ModernTemplate({
       </div>
 
       {/* RIGHT MAIN CONTENT - 2/3 width */}
-      <div className={`${styles.mainClass} bg-white p-8`}>
+      <div className="flex-1 bg-white p-8">
         {/* Professional Summary */}
         {resumeData.personalInfo.summary && (
           <div className="mb-8">

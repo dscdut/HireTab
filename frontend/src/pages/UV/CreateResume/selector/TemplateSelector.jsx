@@ -1,6 +1,6 @@
 "use client"
 
-import { X, FileText, Minimize, Briefcase } from "lucide-react"
+import { X, FileText, Minimize, Briefcase, Layout, Globe, Edit, MapPin, Phone } from "lucide-react"
 
 // Component Preview Button with background patterns
 function PreviewButton({ template, isSelected }) {
@@ -34,6 +34,49 @@ function PreviewButton({ template, isSelected }) {
             color: "#333"
           }
         }
+      case "elegant":
+        return {
+          className: baseStyle,
+          style: {
+            background: "linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%)",
+            border: "1px solid #e2e8f0",
+            color: "#333"
+          }
+        }
+      case "traditional":
+        return {
+          className: baseStyle + " font-serif",
+          style: {
+            background: "linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%)",
+            border: "1px solid #e2e8f0",
+            color: "#333"
+          }
+        }
+      case "header-ats":
+        return {
+          className: baseStyle,
+          style: {
+            background: "linear-gradient(135deg, #89ff00 0%, #00bcd4 100%)",
+            border: "1px solid #e2e8f0"
+          }
+        }
+      case "prime-ats":
+        return {
+          className: baseStyle,
+          style: {
+            background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+            border: "1px solid #e2e8f0"
+          }
+        }
+      case "pure-ats":
+        return {
+          className: baseStyle,
+          style: {
+            background: "linear-gradient(135deg, #f6d365 0%, #fda085 100%)",
+            border: "1px solid #e2e8f0",
+            color: "#333"
+          }
+        }
       default:
         return {
           className: baseStyle,
@@ -54,6 +97,16 @@ function PreviewButton({ template, isSelected }) {
         return <Minimize className="w-4 h-4" />
       case "classic":
         return <FileText className="w-4 h-4" />
+      case "elegant":
+        return <Layout className="w-4 h-4" />
+      case "traditional":
+        return <Edit className="w-4 h-4" />
+      case "header-ats":
+        return <Globe className="w-4 h-4" />
+      case "prime-ats":
+        return <MapPin className="w-4 h-4" />
+      case "pure-ats":
+        return <Phone className="w-4 h-4" />
       default:
         return <FileText className="w-4 h-4" />
     }
@@ -104,6 +157,31 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate, o
       name: "Classic",
       description: "Traditional one-column layout with serif fonts, suitable for formal industries",
     },
+    {
+      id: "elegant",
+      name: "Elegant",
+      description: "Elegant design with photo and skill levels, suitable for creative professionals",
+    },
+    {
+      id: "traditional",
+      name: "Traditional",
+      description: "Traditional serif font layout for conservative industries",
+    },
+    {
+      id: "header-ats",
+      name: "Header ATS",
+      description: "ATS-friendly template with prominent header and colored background",
+    },
+    {
+      id: "prime-ats",
+      name: "Prime ATS",
+      description: "Prime ATS-optimized template with photo and section dividers",
+    },
+    {
+      id: "pure-ats",
+      name: "Pure ATS",
+      description: "Pure black-and-white ATS template with simple structure",
+    },
   ]
 
   return (
@@ -115,7 +193,7 @@ export default function TemplateSelector({ selectedTemplate, onSelectTemplate, o
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 max-h-[400px] overflow-y-auto">
         {templates.map((template) => (
           <div
             key={template.id}
