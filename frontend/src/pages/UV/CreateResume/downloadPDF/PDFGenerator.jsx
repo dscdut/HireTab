@@ -230,7 +230,7 @@ const PDFGenerator = ({
       disabled={isGeneratingPreview}
     >
       <Download className="w-4 h-4" />
-      Download PDF
+      Download
     </button>
   );
 };

@@ -8,8 +8,6 @@ import SkillsPanel from "./panel/SkillsPanel";
 import PersonalInfoPanel from "./panel/PersonalInfoPanel";
 import ExperiencePanel from "./panel/ExperiencePanel";
 import EducationPanel from "./panel/EducationPanel";
-import TemplateSelector from "./selector/TemplateSelector";
-import ColorSelector from "./selector/ColorSelector";
 import CertificationsPanel from "./panel/CertificationsPanel";
 import ProjectsPanel from "./panel/ProjectsPanel";
 import { useLocation } from "react-router-dom";
@@ -101,15 +99,13 @@ export default function CreateResume() {
     const [activePanel, setActivePanel] = useState(null);
     const [selectedTemplate, setSelectedTemplate] = useState("classic");
     const [selectedColor, setSelectedColor] = useState("gray");
-    const [showTemplateSelector, setShowTemplateSelector] = useState(false);
-    const [showColorSelector, setShowColorSelector] = useState(false);
 
     // Read template from URL query parameter on mount
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const templateFromUrl = params.get('template');
         if (templateFromUrl) {
-            console.log("Template from URL:", templateFromUrl); // Debug log
+            console.log("Template from URL:", templateFromUrl);
             setSelectedTemplate(templateFromUrl);
         }
     }, [location]);
@@ -184,255 +180,34 @@ export default function CreateResume() {
     const handleExport = () => {
         const dataStr = JSON.stringify(resumeData, null, 2);
         const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
-        const exportFileDefaultName = "resume-data.json";
-        const linkElement = document.createElement("a");
-        linkElement.setAttribute("href", dataUri);
-        linkElement.setAttribute("download", exportFileDefaultName);
+        const exportFileDefaultName = 'resume-data.json';
+
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
         linkElement.click();
     };
 
-    const getDefaultResumeStructure = () => ({
-        personalInfo: {
-            fullName: "Your Full Name",
-            title: "Your Professional Title",
-            email: "your.email@example.com",
-            phone: "Your Phone Number",
-            location: "Your City, Country",
-            summary: "Professional summary goes here",
-            linkedinUrl: "",
-            githubUrl: "",
-            websiteUrl: "",
-        },
-        experience: [],
-        education: [],
-        skills: {
-            TechnicalSkills: [],
-            ProgrammingLanguages: [],
-            ToolsAndTechnologies: [],
-            SoftSkills: [],
-        },
-        certifications: [],
-        projects: [],
-    });
-
-    const formatResumeDataLocally = (importedData) => {
-        try {
-            const defaultStructure = getDefaultResumeStructure();
-
-            if (typeof importedData === 'string') {
-                importedData = JSON.parse(importedData);
-            }
-
-            if (importedData.personalInfo && importedData.experience) {
-                return {
-                    ...defaultStructure,
-                    ...importedData,
-                    experience: Array.isArray(importedData.experience)
-                        ? importedData.experience.map((exp, index) => ({
-                            id: exp.id || index + 1,
-                            company: exp.company || "Company Name",
-                            position: exp.position || exp.title || "Job Title",
-                            startDate: exp.startDate || exp.start_date || "Start Date",
-                            endDate: exp.endDate || exp.end_date || "End Date",
-                            current: exp.current || false,
-                            location: exp.location || "City, Country",
-                            description: Array.isArray(exp.description)
-                                ? exp.description
-                                : (exp.description ? exp.description.split('\n') : ["Job description"]),
-                        }))
-                        : [],
-                    education: Array.isArray(importedData.education)
-                        ? importedData.education.map((edu, index) => ({
-                            id: edu.id || index + 1,
-                            institution: edu.institution || edu.school || "Institution Name",
-                            degree: edu.degree || "Degree",
-                            startDate: edu.startDate || edu.start_date || "Start Year",
-                            endDate: edu.endDate || edu.end_date || "End Year",
-                            location: edu.location || "City, Country",
-                            gpa: edu.gpa || "",
-                            relevantCoursework: edu.relevantCoursework || "",
-                        }))
-                        : [],
-                };
-            }
-
-            const formatted = { ...defaultStructure };
-
-            if (importedData.name) formatted.personalInfo.fullName = importedData.name;
-            if (importedData.fullName) formatted.personalInfo.fullName = importedData.fullName;
-            if (importedData.email) formatted.personalInfo.email = importedData.email;
-            if (importedData.phone) formatted.personalInfo.phone = importedData.phone;
-            if (importedData.location) formatted.personalInfo.location = importedData.location;
-            if (importedData.summary) formatted.personalInfo.summary = importedData.summary;
-            if (importedData.title) formatted.personalInfo.title = importedData.title;
-
-            if (importedData.skills) {
-                if (Array.isArray(importedData.skills)) {
-                    formatted.skills.TechnicalSkills = importedData.skills;
-                } else if (typeof importedData.skills === 'object') {
-                    formatted.skills = { ...formatted.skills, ...importedData.skills };
-                }
-            }
-
-            return formatted;
-        } catch (error) {
-            console.error("Error in local formatting:", error);
-            return getDefaultResumeStructure();
-        }
-    };
-
-    const callGeminiWithRetry = async (prompt, maxRetries = 3) => {
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-        if (!apiKey) {
-            throw new Error("Gemini API key not configured");
-        }
-
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{
-                                    text: prompt
-                                }]
-                            }]
-                        })
-                    }
-                );
-
-                if (!response.ok) {
-                    if (response.status === 503 && attempt < maxRetries) {
-                        const delay = Math.pow(2, attempt) * 1000;
-                        console.log(`Gemini API unavailable, retrying in ${delay / 1000}s... (attempt ${attempt}/${maxRetries})`);
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        continue;
-                    }
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                const generatedText = result.candidates[0].content.parts[0].text;
-                const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
-
-                if (!jsonMatch) {
-                    throw new Error("Could not parse JSON from Gemini response");
-                }
-
-                return JSON.parse(jsonMatch[0]);
-            } catch (error) {
-                console.error(`Attempt ${attempt} failed:`, error.message);
-                if (attempt === maxRetries) {
-                    throw error;
-                }
-            }
-        }
-    };
-
-    const formatResumeDataWithGemini = async (importedData) => {
-        const prompt = `
-        You are an AI assistant tasked with formatting resume data into a specific JSON structure. The input data is provided below, and you must return a JSON object that adheres to the following structure:
-
-        {
-          "personalInfo": {
-            "fullName": "string",
-            "title": "string",
-            "email": "string",
-            "phone": "string",
-            "location": "string",
-            "summary": "string",
-            "linkedinUrl": "string",
-            "githubUrl": "string",
-            "websiteUrl": "string"
-          },
-          "experience": [
-            {
-              "id": number,
-              "company": "string",
-              "position": "string",
-              "startDate": "string",
-              "endDate": "string",
-              "current": boolean,
-              "location": "string",
-              "description": ["string"]
-            }
-          ],
-          "education": [
-            {
-              "id": number,
-              "institution": "string",
-              "degree": "string",
-              "startDate": "string",
-              "endDate": "string",
-              "location": "string",
-              "gpa": "string",
-              "relevantCoursework": "string"
-            }
-          ],
-          "skills": {
-            "Technical Skills": ["string"],
-            "Programming Languages": ["string"],
-            "Tools And Technologies": ["string"],
-            "Soft Skills": ["string"]
-          },
-          "certifications": [
-            {
-              "id": number,
-              "name": "string",
-              "issuer": "string",
-              "date": "string",
-              "credentialId": "string"
-            }
-          ],
-          "projects": [
-            {
-              "id": number,
-              "name": "string",
-              "description": "string",
-              "technologies": ["string"],
-              "url": "string"
-            }
-          ]
-        }
-
-        If the input data is missing fields, fill them with appropriate default values (e.g., empty strings, empty arrays, or false for booleans). If the input data has additional fields or is malformed, restructure it to fit the required format. Ensure each array item has a unique "id" starting from 1.
-
-        Input data:
-        ${JSON.stringify(importedData, null, 2)}
-
-        Please return the formatted JSON object.
-        `;
-
-        return await callGeminiWithRetry(prompt);
-    };
-
-    const handleImport = async (event) => {
+    const handleImport = (event) => {
         const file = event.target.files[0];
         if (!file) return;
 
-        const toastId = toast.loading("Using AI to format your resume data...", {
-            duration: 0
-        });
+        const toastId = toast.loading("Importing resume data...");
         const reader = new FileReader();
 
         reader.onload = async (e) => {
             try {
                 const importedData = JSON.parse(e.target.result);
-                let formattedData;
+                let formattedData = importedData;
                 let isProcessingComplete = false;
 
                 try {
-                    formattedData = await formatResumeDataWithGemini(importedData);
-                    if (!isProcessingComplete) {
-                        toast.dismiss(toastId);
-                        toast.success("Resume data processed with AI formatting!");
-                        isProcessingComplete = true;
-                    }
+                    // Placeholder for Gemini API call (if implemented)
+                    // const geminiFormatted = await formatWithGemini(importedData);
+                    // formattedData = geminiFormatted;
+                    // toast.dismiss(toastId);
+                    // toast.success("Resume data imported and formatted with AI!");
+                    // isProcessingComplete = true;
                 } catch (geminiError) {
                     console.warn("Gemini API failed, using local formatting:", geminiError.message);
                     formattedData = formatResumeDataLocally(importedData);
@@ -460,6 +235,12 @@ export default function CreateResume() {
         event.target.value = "";
     };
 
+    // Placeholder for local formatting function
+    const formatResumeDataLocally = (data) => {
+        // Implement basic formatting logic if needed
+        return data;
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <Toaster
@@ -485,33 +266,13 @@ export default function CreateResume() {
                 }}
             />
             <ResumeHeader
-                onTemplateClick={() => setShowTemplateSelector(!showTemplateSelector)}
-                onColorClick={() => setShowColorSelector(!showColorSelector)}
                 onExport={handleExport}
                 onImport={handleImport}
+                selectedTemplate={selectedTemplate}
+                onSelectTemplate={setSelectedTemplate}
+                selectedColor={selectedColor}
+                onSelectColor={setSelectedColor}
             />
-
-            {showTemplateSelector && (
-                <TemplateSelector
-                    selectedTemplate={selectedTemplate}
-                    onSelectTemplate={(template) => {
-                        setSelectedTemplate(template);
-                        setShowTemplateSelector(false);
-                    }}
-                    onClose={() => setShowTemplateSelector(false)}
-                />
-            )}
-
-            {showColorSelector && (
-                <ColorSelector
-                    selectedColor={selectedColor}
-                    onSelectColor={(color) => {
-                        setSelectedColor(color);
-                        setShowColorSelector(false);
-                    }}
-                    onClose={() => setShowColorSelector(false)}
-                />
-            )}
 
             <div className="flex h-[calc(100vh-64px)]">
                 <div className="flex-1 p-6">

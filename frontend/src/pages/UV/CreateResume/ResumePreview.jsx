@@ -306,7 +306,7 @@ export default function ResumePreview({
             ) : (
               <>
                 <Eye className="w-4 h-4" />
-                Preview PDF
+                Preview
               </>
             )}
           </button>
