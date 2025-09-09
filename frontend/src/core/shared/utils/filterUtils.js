@@ -1,4 +1,4 @@
-import { parseDate, isDateInRange } from '../../shared/utils/dateUtils'
+import { parseDate, isDateInRange } from './dateUtils'
 
 /**
  * Apply date filter to a candidate based on filter criteria
