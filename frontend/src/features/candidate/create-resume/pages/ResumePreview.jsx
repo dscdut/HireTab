@@ -5,6 +5,11 @@ import { Eye, FileText, ZoomIn, ZoomOut } from "lucide-react"
 import ModernTemplate from "../templates/ModernTemplate"
 import MinimalistTemplate from "../templates/MinimalistTemplate"
 import ClassicTemplate from "../templates/ClassicTemplate"
+import ElegantTemplate from "../templates/ElegantTemplate"
+import TraditionalTemplate from "../templates/TraditionalTemplate"
+import HeaderATSTemplate from "../templates/HeaderATSTemplate"
+import PrimeATSTemplate from "../templates/PrimeATSTemplate"
+import PureATSTemplate from "../templates/PureATSTemplate"
 import PDFGenerator from "../downloadPDF/PDFGenerator"
 import PreviewPages from "../downloadPDF/PreviewPages"
 import ResumeOptimizer from "../downloadPDF/ResumeOptimizer"
@@ -152,94 +157,83 @@ export default function ResumePreview({
 
   const getTemplateStyles = () => {
     const colorSchemes = {
-      gray: { primary: "#374151", secondary: "#4B5563", accent: "#111827" },
-      blue: { primary: "#2563EB", secondary: "#3B82F6", accent: "#111827" },
-      black: { primary: "#111827", secondary: "#374151", accent: "#4B5563" },
-      navy: { primary: "#1E3A8A", secondary: "#2563EB", accent: "#111827" },
+      gray: {
+        primary: "#374151",
+        secondary: "#4B5563",
+        accent: "#111827",
+        headerColor: "#374151",
+        textColor: "#4B5563"
+      },
+      blue: {
+        primary: "#2563EB",
+        secondary: "#3B82F6",
+        accent: "#111827",
+        headerColor: "#2563EB",
+        textColor: "#3B82F6"
+      },
+      black: {
+        primary: "#111827",
+        secondary: "#374151",
+        accent: "#4B5563",
+        headerColor: "#111827",
+        textColor: "#374151"
+      },
+      navy: {
+        primary: "#1E3A8A",
+        secondary: "#2563EB",
+        accent: "#111827",
+        headerColor: "#1E3A8A",
+        textColor: "#2563EB"
+      },
     }
 
-    const colors = colorSchemes[colorScheme] || colorSchemes.gray
+    const baseStyles = colorSchemes[colorScheme] || colorSchemes.gray;
 
-    const baseStyles = {
-      headerColor: colors.primary,
-      textColor: colors.secondary,
-      accentColor: colors.accent,
-    }
-
-    switch (template) {
-      case "modern":
-        return {
-          ...baseStyles,
-          fontFamily: "font-sans",
-          headerStyle: "text-2xl font-bold uppercase tracking-wide",
-          sectionStyle: "text-xl font-bold uppercase tracking-wide border-b-2 pb-2",
-          layoutClass: "grid grid-cols-3 gap-0",
-          sidebarClass: "col-span-1 p-6",
-          mainClass: "col-span-2",
-        }
-      case "minimalist":
-        return {
-          ...baseStyles,
-          fontFamily: "font-sans",
-          headerStyle: "text-3xl font-bold",
-          sectionStyle: "text-sm font-medium uppercase tracking-wider text-gray-500",
-          layoutClass: "space-y-0",
-          sidebarClass: "bg-gray-100",
-          mainClass: "bg-white",
-        }
-      case "classic":
-        return {
-          ...baseStyles,
-          fontFamily: "font-serif",
-          headerStyle: "text-4xl font-bold text-center",
-          sectionStyle: "text-lg font-bold capitalize border-b border-gray-300 pb-1",
-          layoutClass: "space-y-8",
-          sidebarClass: "",
-          mainClass: "",
-        }
-      default:
-        return {
-          ...baseStyles,
-          fontFamily: "font-sans",
-          headerStyle: "text-2xl font-bold uppercase tracking-wide",
-          sectionStyle: "text-xl font-bold uppercase tracking-wide border-b-2 pb-2",
-          layoutClass: "grid grid-cols-3 gap-0",
-          sidebarClass: "col-span-1 p-6",
-          mainClass: "col-span-2",
-        }
-    }
-  }
-
-  const styles = getTemplateStyles()
+    return {
+      ...baseStyles,
+      backgroundColor: "#ffffff",
+      borderColor: baseStyles.primary,
+    };
+  };
 
   const renderTemplate = () => {
     const templateProps = {
       resumeData: currentResumeData,
-      styles,
+      styles: getTemplateStyles(),
       onEditPersonalInfo,
       onEditExperience,
       onEditEducation,
       onEditSkills,
       onEditCertifications,
       onEditProjects,
-    }
+    };
 
     switch (template) {
       case "modern":
-        return <ModernTemplate {...templateProps} />
+        return <ModernTemplate {...templateProps} />;
       case "minimalist":
-        return <MinimalistTemplate {...templateProps} />
+        return <MinimalistTemplate {...templateProps} />;
       case "classic":
-        return <ClassicTemplate {...templateProps} />
+        return <ClassicTemplate {...templateProps} />;
+      case "elegant":
+        return <ElegantTemplate {...templateProps} />;
+      case "traditional":
+        return <TraditionalTemplate {...templateProps} />;
+      case "header-ats":
+        return <HeaderATSTemplate {...templateProps} />;
+      case "prime-ats":
+        return <PrimeATSTemplate {...templateProps} />;
+      case "pure-ats":
+        return <PureATSTemplate {...templateProps} />;
       default:
-        return <ModernTemplate {...templateProps} />
+        return <ClassicTemplate {...templateProps} />;
     }
-  }
+  };
 
   return (
-    <div className="bg-white h-full flex flex-col shadow-md">
+    <div className="flex flex-col h-full bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between py-3 px-6 border-b bg-gray-50">
+      <div className="flex items-center justify-between px-6 border-b bg-gray-50">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-semibold text-gray-800">
             {isPreviewMode ? "PDF Preview" : "ATS-Optimized Resume"}
@@ -294,8 +288,8 @@ export default function ResumePreview({
           <button
             onClick={togglePreview}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${isPreviewMode
-                ? "bg-gray-600 text-white hover:bg-gray-700 shadow-md"
-                : "bg-green-600 text-white hover:bg-green-700 shadow-md"
+              ? "bg-gray-600 text-white hover:bg-gray-700 shadow-md"
+              : "bg-green-600 text-white hover:bg-green-700 shadow-md"
               }`}
             disabled={isGeneratingPreview}
           >

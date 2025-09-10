@@ -13,7 +13,7 @@ export default function MinimalistTemplate({
   onEditProjects,
 }) {
   return (
-    <div className={`${styles.fontFamily} min-h-screen bg-white`}>
+    <div className="min-h-screen bg-white font-sans">
       {/* HEADER SECTION */}
       <div className="bg-gray-100 py-6 px-8 mb-6 relative group">
         <button
@@ -22,12 +22,9 @@ export default function MinimalistTemplate({
         >
           <Edit className="w-4 h-4 text-gray-500" />
         </button>
-        <div className="flex items-start space-x-6">
-          {/* Profile Image Placeholder */}
-          <div className="w-20 h-20 bg-gray-300 rounded-lg flex-shrink-0"></div>
-          
+        <div>
           {/* Name and Contact */}
-          <div className="flex-1">
+          <div>
             <h1 className="text-3xl font-bold mb-1" style={{ color: styles.headerColor }}>
               {resumeData.personalInfo.fullName}
             </h1>

@@ -8,7 +8,7 @@ import { path } from '@/core/constants/path'
 
 const MENU_ITEMS = [
   { label: 'Find Jobs', href: '#jobs', icon: Search },
-  { label: 'Resume', href: path.candidate.create_resume, icon: Contact },
+  { label: 'Resume', href: path.candidate.template_gallery, icon: Contact },
   { label: 'Mission & Value', href: path.candidate.mission, icon: Briefcase },
   { label: 'Contact Us', href: path.candidate.contact, icon: Headset }
 ]
