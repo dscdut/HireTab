@@ -1,19 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import ResumeHeader from "./components/ResumeHeader";
-import ResumePreview from "./components/ResumePreview";
-import SkillsPanel from "./components/SkillsPanel";
-import PersonalInfoPanel from "./components/PersonalInfoPanel";
-import ExperiencePanel from "./components/ExperiencePanel";
-import EducationPanel from "./components/EducationPanel";
-import TemplateSelector from "./components/TemplateSelector";
-import ColorSelector from "./components/ColorSelector";
-import CertificationsPanel from "./components/CertificationsPanel";
-import ProjectsPanel from "./components/ProjectsPanel";
+import ResumeHeader from "../component/ResumeHeader";
+import ResumePreview from "./ResumePreview";
+import SkillsPanel from "../panel/SkillsPanel";
+import PersonalInfoPanel from "../panel/PersonalInfoPanel";
+import ExperiencePanel from "../panel/ExperiencePanel";
+import EducationPanel from "../panel/EducationPanel";
+import TemplateSelector from "../selector/TemplateSelector";
+import ColorSelector from "../selector/ColorSelector";
+import CertificationsPanel from "../panel/CertificationsPanel";
+import ProjectsPanel from "../panel/ProjectsPanel";
+import { useLocation } from "react-router-dom";
 
 export default function CreateResume() {
+    const location = useLocation();
     const [resumeData, setResumeData] = useState({
         personalInfo: {
             fullName: "Your Full Name",
@@ -101,6 +103,16 @@ export default function CreateResume() {
     const [showTemplateSelector, setShowTemplateSelector] = useState(false);
     const [showColorSelector, setShowColorSelector] = useState(false);
 
+    // Read template from URL query parameter on mount
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const templateFromUrl = params.get('template');
+        if (templateFromUrl) {
+            console.log("Template from URL:", templateFromUrl); // Debug log
+            setSelectedTemplate(templateFromUrl);
+        }
+    }, [location]);
+
     // Real-time update functions
     const updatePersonalInfo = (newPersonalInfo) => {
         setResumeData((prev) => ({
@@ -109,7 +121,6 @@ export default function CreateResume() {
         }));
     };
 
-    // Function to close panel (separate from update)
     const closePersonalInfoPanel = () => {
         setActivePanel(null);
     };
@@ -179,7 +190,6 @@ export default function CreateResume() {
         linkElement.click();
     };
 
-    // Default resume structure for fallback
     const getDefaultResumeStructure = () => ({
         personalInfo: {
             fullName: "Your Full Name",
@@ -204,22 +214,18 @@ export default function CreateResume() {
         projects: [],
     });
 
-    // Smart fallback formatting without API
     const formatResumeDataLocally = (importedData) => {
         try {
             const defaultStructure = getDefaultResumeStructure();
 
-            // Handle different possible input formats
             if (typeof importedData === 'string') {
                 importedData = JSON.parse(importedData);
             }
 
-            // If the data already matches our structure, use it
             if (importedData.personalInfo && importedData.experience) {
                 return {
                     ...defaultStructure,
                     ...importedData,
-                    // Ensure arrays have proper structure
                     experience: Array.isArray(importedData.experience)
                         ? importedData.experience.map((exp, index) => ({
                             id: exp.id || index + 1,
@@ -249,10 +255,8 @@ export default function CreateResume() {
                 };
             }
 
-            // Try to extract data from common resume formats
             const formatted = { ...defaultStructure };
 
-            // Extract personal info
             if (importedData.name) formatted.personalInfo.fullName = importedData.name;
             if (importedData.fullName) formatted.personalInfo.fullName = importedData.fullName;
             if (importedData.email) formatted.personalInfo.email = importedData.email;
@@ -261,7 +265,6 @@ export default function CreateResume() {
             if (importedData.summary) formatted.personalInfo.summary = importedData.summary;
             if (importedData.title) formatted.personalInfo.title = importedData.title;
 
-            // Extract skills
             if (importedData.skills) {
                 if (Array.isArray(importedData.skills)) {
                     formatted.skills.TechnicalSkills = importedData.skills;
@@ -277,7 +280,6 @@ export default function CreateResume() {
         }
     };
 
-    // Retry mechanism with exponential backoff
     const callGeminiWithRetry = async (prompt, maxRetries = 3) => {
         const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
         if (!apiKey) {
@@ -305,7 +307,6 @@ export default function CreateResume() {
 
                 if (!response.ok) {
                     if (response.status === 503 && attempt < maxRetries) {
-                        // Exponential backoff: 2^attempt seconds
                         const delay = Math.pow(2, attempt) * 1000;
                         console.log(`Gemini API unavailable, retrying in ${delay / 1000}s... (attempt ${attempt}/${maxRetries})`);
                         await new Promise(resolve => setTimeout(resolve, delay));
@@ -427,7 +428,7 @@ export default function CreateResume() {
                 try {
                     formattedData = await formatResumeDataWithGemini(importedData);
                     if (!isProcessingComplete) {
-                        toast.dismiss(toastId); 
+                        toast.dismiss(toastId);
                         toast.success("Resume data processed with AI formatting!");
                         isProcessingComplete = true;
                     }
@@ -435,7 +436,7 @@ export default function CreateResume() {
                     console.warn("Gemini API failed, using local formatting:", geminiError.message);
                     formattedData = formatResumeDataLocally(importedData);
                     if (!isProcessingComplete) {
-                        toast.dismiss(toastId); 
+                        toast.dismiss(toastId);
                         toast.success("Resume data imported with local formatting!");
                         isProcessingComplete = true;
                     }
@@ -444,18 +445,17 @@ export default function CreateResume() {
                 setResumeData(formattedData);
             } catch (error) {
                 console.error("Error processing imported file:", error);
-                toast.dismiss(toastId); 
+                toast.dismiss(toastId);
                 toast.error("Failed to import resume data. Please check the file format.");
             }
         };
 
         reader.onerror = () => {
-            toast.dismiss(toastId); 
+            toast.dismiss(toastId);
             toast.error("Failed to read the file.");
         };
 
         reader.readAsText(file);
-
         event.target.value = "";
     };
 
@@ -527,7 +527,6 @@ export default function CreateResume() {
                     />
                 </div>
 
-                {/* Updated panel width from w-80 (320px) to w-[440px] (320px + 120px = 440px, but using 350px for better proportion) */}
                 {activePanel === "personalInfo" && (
                     <div className="w-[420px] bg-white border-l border-gray-200">
                         <PersonalInfoPanel
