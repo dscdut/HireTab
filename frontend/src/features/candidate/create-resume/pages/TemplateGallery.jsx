@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { FileText, Briefcase, Minimize, Star, Download, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { path } from "@/core/constants/path";
-import Header from "@/shared/layout/candidate-layout/Header"
+import Header from "@/shared/layout/candidate-layout/Header";
 
 const TemplateGallery = () => {
   const [selectedTemplate, setSelectedTemplate] = useState('modern');
@@ -115,7 +116,7 @@ const TemplateGallery = () => {
         onMouseLeave={() => setHoveredTemplate(null)}
         onClick={() => setSelectedTemplate(template.id)}
       >
-        <div className="relative bg-white rounded-lg shadow-lg overflow-hidden border-2 border-gray-200 hover:border-gray-300">
+        <div className={`relative bg-white rounded-lg shadow-lg overflow-hidden border-2 ${isSelected ? 'border-blue-500' : 'border-gray-200 hover:border-gray-300'}`}>
           <div
             className="h-96 relative overflow-hidden bg-gray-100"
             style={{
