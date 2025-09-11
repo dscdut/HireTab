@@ -6,6 +6,7 @@ import { ChevronDown, Search, Filter, Plus, MoreVertical, Trash2, Edit, MapPin, 
 import { useNavigate } from "react-router-dom"
 import { jobApi } from "@/core/services/job.service"
 import AddJobModal from "./components/AddJobModal"
+import { candidateApi } from "@/core/services/candidate.service"
 import EditJobModal from "./components/EditJobModal"
 import { toast } from "react-toastify"
 import { path } from "@/core/constants/path"

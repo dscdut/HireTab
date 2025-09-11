@@ -18,6 +18,7 @@ import Register from '@/features/hr/register/RegisterPage'
 import PageNotFound from '@/shared/layout/404/PageNotFound'
 import JobOpeningDetailPage from '@/features/candidate/job-opening-details/JobOpeningDetail'
 import JobPosting from '@/features/hr/JobPosting/JobPosting'
+import JobDetail from '@/features/hr/JobDetail'
 
 export default function useRoutesElements() {
   const location = useLocation()
@@ -69,7 +70,7 @@ export default function useRoutesElements() {
       element: (
         <LayoutMain>
           <ProtectedRoute allowedRoles={['HR']}>
-            <JobDetailHR />
+            <JobDetail />
           </ProtectedRoute>
         </LayoutMain>
       )
