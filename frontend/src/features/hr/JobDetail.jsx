@@ -8,6 +8,7 @@ import { toast } from "react-toastify"
 import { ArrowLeft, Calendar, MapPin, DollarSign, Users, Briefcase } from "lucide-react"
 import { useState } from "react"
 import EditJobModal from "./JobPosting/components/EditJobModal"
+import ReactMarkdown from "react-markdown"
 
 export default function JobDetail() {
   const { id } = useParams()
@@ -214,12 +215,9 @@ export default function JobDetail() {
                 Job Description
               </h2>
               <div className="prose prose-gray max-w-none">
-                <p className="text-gray-700 leading-relaxed">
-                  {getJobProperty(
-                    "description",
-                    "As a Software Engineer at GDSC - DUT, you will design, develop, and maintain innovative web applications that empower our student community. You will work closely with other engineers and designers to deliver high-quality solutions that address real-world problems in education and technology."
-                  )}
-                </p>
+                <ReactMarkdown>
+                  {getJobProperty("description", "No description provided")}
+                </ReactMarkdown>
               </div>
             </div>
 
