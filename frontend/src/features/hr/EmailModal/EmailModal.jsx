@@ -56,6 +56,7 @@ export default function EmailModal({
   onInsertImage,
 }) {
   const textareaRef = useRef(null)
+  const modalRef = useRef(null)
 
   const handleUndo = () => {
     if (undoStack.length > 0) {
@@ -95,6 +96,12 @@ export default function EmailModal({
     setEmailData({ ...emailData, body: newBody })
   }
 
+  const handleOutsideClick = (e) => {
+    if (modalRef.current && !modalRef.current.contains(e.target)) {
+      onCloseModal()
+    }
+  }
+
   if (emailModalState === "closed") return null
 
   // Minimized state
@@ -126,8 +133,12 @@ export default function EmailModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      onClick={handleOutsideClick}
+    >
       <div
+        ref={modalRef}
         className={`bg-white rounded-xl shadow-2xl mx-4 flex flex-col ${
           emailModalState === "maximized" ? "w-full h-full max-w-none max-h-none m-4" : "w-full max-w-4xl max-h-[90vh]"
         }`}

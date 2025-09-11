@@ -1,46 +1,58 @@
 import { CheckCircle, XCircle, UserCheck, Clock } from "lucide-react"
 import { CANDIDATE_STATUSES, STATUS_TRANSITIONS } from "../../constants/candidateConstants"
 
+export const STATUS_COLORS = {
+  [CANDIDATE_STATUSES.ALL]: {
+    bg: 'bg-gray-100',
+    text: 'text-gray-800',
+    buttonBg: 'bg-gray-500',
+    buttonHoverBg: 'hover:bg-gray-600',
+    color: '#6b7280',
+  },
+  [CANDIDATE_STATUSES.IN_REVIEW]: {
+    bg: 'bg-blue-100',
+    text: 'text-blue-800',
+    buttonBg: 'bg-blue-500',
+    buttonHoverBg: 'hover:bg-blue-600',
+    color: '#007BFF',
+  },
+  [CANDIDATE_STATUSES.INTERVIEW]: {
+    bg: 'bg-yellow-100',
+    text: 'text-yellow-800',
+    buttonBg: 'bg-yellow-500',
+    buttonHoverBg: 'hover:bg-yellow-600',
+    color: '#ffc107',
+  },
+  [CANDIDATE_STATUSES.HIRED]: {
+    bg: 'bg-green-100',
+    text: 'text-green-800',
+    buttonBg: 'bg-green-500',
+    buttonHoverBg: 'hover:bg-green-600',
+    color: '#28a745',
+  },
+  [CANDIDATE_STATUSES.REJECTED]: {
+    bg: 'bg-red-100',
+    text: 'text-red-800',
+    buttonBg: 'bg-red-500',
+    buttonHoverBg: 'hover:bg-red-600',
+    color: '#dc3545',
+  },
+};
+
 /**
  * Get status configuration for UI styling
  * @param {string} status - Candidate status
  * @returns {Object} Status configuration object
  */
 export const getStatusConfig = (status) => {
-  const statusConfigs = {
-    [CANDIDATE_STATUSES.HIRED]: {
-      bg: "bg-green-100",
-      text: "text-green-800",
-      icon: CheckCircle,
-      color: "#28a745",
-    },
-    [CANDIDATE_STATUSES.REJECTED]: {
-      bg: "bg-red-100",
-      text: "text-red-800",
-      icon: XCircle,
-      color: "#dc3545",
-    },
-    [CANDIDATE_STATUSES.INTERVIEW]: {
-      bg: "bg-yellow-100",
-      text: "text-yellow-800",
-      icon: UserCheck,
-      color: "#ffc107",
-    },
-    [CANDIDATE_STATUSES.IN_REVIEW]: {
-      bg: "bg-blue-100",
-      text: "text-blue-800",
-      icon: Clock,
-      color: "#007BFF",
-    },
-  }
-
-  return statusConfigs[status] || {
-    bg: "bg-gray-100",
-    text: "text-gray-800",
-    icon: Clock,
-    color: "#6b7280",
-  }
-}
+  const config = STATUS_COLORS[status] || STATUS_COLORS[CANDIDATE_STATUSES.ALL];
+  return {
+    bg: config.bg,
+    text: config.text,
+    icon: config.icon || Clock,
+    color: config.color,
+  };
+};
 
 /**
  * Get button styling classes for status actions
@@ -48,14 +60,9 @@ export const getStatusConfig = (status) => {
  * @returns {string} CSS classes for button styling
  */
 export const getStatusButtonClass = (status) => {
-  const buttonClasses = {
-    [CANDIDATE_STATUSES.INTERVIEW]: "bg-yellow-500 hover:bg-yellow-600 shadow-sm hover:shadow-md",
-    [CANDIDATE_STATUSES.HIRED]: "bg-green-500 hover:bg-green-600 shadow-sm hover:shadow-md",
-    [CANDIDATE_STATUSES.REJECTED]: "bg-red-500 hover:bg-red-600 shadow-sm hover:shadow-md",
-  }
-
-  return buttonClasses[status] || "bg-blue-500 hover:bg-blue-600 shadow-sm hover:shadow-md"
-}
+  const config = STATUS_COLORS[status] || STATUS_COLORS[CANDIDATE_STATUSES.ALL];
+  return `${config.buttonBg} ${config.buttonHoverBg} shadow-sm hover:shadow-md`;
+};
 
 /**
  * Get next status for a candidate based on current status
@@ -102,7 +109,6 @@ export const getAvailableStatusTransitions = (selectedCandidates, candidates, ac
     return Array.from(availableTransitions)
   }
 
-  // Status transitions based on active tab
   const tabTransitions = {
     [CANDIDATE_STATUSES.IN_REVIEW]: [CANDIDATE_STATUSES.INTERVIEW],
     [CANDIDATE_STATUSES.INTERVIEW]: [CANDIDATE_STATUSES.HIRED, CANDIDATE_STATUSES.REJECTED],
