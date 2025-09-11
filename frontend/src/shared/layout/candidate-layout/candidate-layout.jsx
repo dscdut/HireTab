@@ -5,7 +5,7 @@ import ChatWootWidget from "@/shared/components/ui/chatwoot-widget";
 
 export default function CandidateLayout({ children }) {
   return (
-    <div data-scope="candidate" className="flex flex-col min-h-screen app-shell candidate">
+    <div data-scope="candidate" className="flex flex-col min-h-screen overflow-x-hidden app-shell candidate">
       {/* Header is fixed positioned, doesn't take up flow space */}
       <Header />
       
