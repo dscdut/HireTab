@@ -71,7 +71,7 @@ export default function useRoutesElements() {
       element: (
         <LayoutMain>
           <ProtectedRoute allowedRoles={['HR']}>
-            <JobDetail />
+            <JobDetailHR />
           </ProtectedRoute>
         </LayoutMain>
       )
