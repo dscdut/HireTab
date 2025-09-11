@@ -1,4 +1,4 @@
-import { Upload, FileText, Brain, Plus } from "lucide-react"
+import { Upload, FileText, Plus } from "lucide-react"
 
 export const FileUploadSection = ({ 
     file, 
@@ -6,7 +6,6 @@ export const FileUploadSection = ({
     onFileChange, 
     onDrop, 
     onDragOver, 
-    isAnalyzing,
     createResumeUrl 
 }) => {
     return (
@@ -29,6 +28,7 @@ export const FileUploadSection = ({
                         accept=".pdf"
                         required={!file}
                     />
+                    
                     <div className="flex flex-col items-center">
                         {file ? (
                             <>
@@ -72,18 +72,6 @@ export const FileUploadSection = ({
                     </div>
                 </a>
             </div>
-
-            {isAnalyzing && (
-                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                        <Brain className="w-6 h-6 text-blue-600 animate-spin" />
-                        <div>
-                            <p className="text-sm font-medium text-blue-900">Analyzing your CV...</p>
-                            <p className="text-xs text-blue-700">Our AI is comparing your resume with the job requirements</p>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     )
 }

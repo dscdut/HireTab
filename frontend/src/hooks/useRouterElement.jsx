@@ -18,6 +18,8 @@ import Register from '@/features/hr/register/RegisterPage'
 import PageNotFound from '@/shared/layout/404/PageNotFound'
 import JobOpeningDetailPage from '@/features/candidate/job-opening-details/JobOpeningDetail'
 import JobPosting from '@/features/hr/JobPosting/JobPosting'
+import JobDetail from '@/features/hr/JobDetail'
+import TalentPool from '@/features/hr/CandidateManage/TalentPool'
 
 export default function useRoutesElements() {
   const location = useLocation()
@@ -69,7 +71,7 @@ export default function useRoutesElements() {
       element: (
         <LayoutMain>
           <ProtectedRoute allowedRoles={['HR']}>
-            <JobDetailHR />
+            <JobDetail />
           </ProtectedRoute>
         </LayoutMain>
       )
@@ -95,6 +97,17 @@ export default function useRoutesElements() {
 
       )
     },
+    {
+      path: path.hr.hr_talent_pool,
+      element: (
+        <LayoutMain>
+          <ProtectedRoute allowedRoles={['HR']}>
+            <TalentPool />
+          </ProtectedRoute>
+        </LayoutMain>
+
+      )
+      },
     { path: '*', element: <PageNotFound /> }
   ]
 

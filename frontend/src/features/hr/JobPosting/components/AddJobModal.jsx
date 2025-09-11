@@ -683,7 +683,7 @@ Do not include any HTML or CSS, only pure Markdown.`
                                 checked={autoPost}
                                 onChange={() => setAutoPost(true)}
                             />
-                            <span className="text-gray-700">Tự động đăng bài</span>
+                            <span className="text-gray-700">Automation Mode</span>
                         </label>
                         <label className="flex items-center gap-2">
                             <input
@@ -691,7 +691,7 @@ Do not include any HTML or CSS, only pure Markdown.`
                                 checked={!autoPost}
                                 onChange={() => setAutoPost(false)}
                             />
-                            <span className="text-gray-700">Không tự động đăng bài</span>
+                            <span className="text-gray-700">Manual</span>
                         </label>
                     </div>
                 </div>

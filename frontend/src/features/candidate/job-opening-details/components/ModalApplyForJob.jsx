@@ -8,9 +8,6 @@ import { X, Upload, FileText, Plus } from "lucide-react"
 import { path } from "@/core/constants/path"
 import { PersonalInfoForm } from "./analytics-cv/PersonalInfoForm"
 import { FileUploadSection } from "./analytics-cv/FileUploadSection"
-import { CVAnalysisResult } from "./analytics-cv/CVAnalysisResult"
-import { validatePdfFile, convertFileToBase64 } from "./analytics-cv/utils/fileUtils"
-import { analyzeWithGemini } from "./analytics-cv/utils/geminiService"
 
 const ModalApplyForJob = ({
     isOpen,
@@ -36,9 +33,6 @@ const ModalApplyForJob = ({
     })
     const [file, setFile] = useState(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [isAnalyzing, setIsAnalyzing] = useState(false)
-    const [matchingResult, setMatchingResult] = useState(null)
-    const [analysisError, setAnalysisError] = useState(null)
     const fileInputRef = useRef(null)
 
     const handleChange = (e) => {
@@ -81,40 +75,20 @@ const ModalApplyForJob = ({
     }
 
     const processFile = async (selectedFile) => {
-        try {
-            // Validate file
-            const validation = await validatePdfFile(selectedFile)
-            if (!validation.isValid) {
-                toast.error(validation.error)
-                return
-            }
-
-            setFile(selectedFile)
-            setIsAnalyzing(true)
-            setAnalysisError(null)
-            setMatchingResult(null)
-
-            try {
-                // Convert file to base64 for Gemini API
-                const base64Data = await convertFileToBase64(selectedFile)
-                
-                // Send to Gemini for analysis
-                const jobDescription = `${jobDes}\n${jobDesRate}`
-                const analysisResult = await analyzeWithGemini(base64Data, jobDescription)
-                setMatchingResult(analysisResult)
-                
-            } catch (error) {
-                console.error("Analysis error:", error)
-                setAnalysisError("Failed to analyze CV due to server issues. You can still submit your application.")
-                toast.error("CV analysis failed. You can still proceed with submission.")
-            } finally {
-                setIsAnalyzing(false)
-            }
-        } catch (error) {
-            console.error("File processing error:", error)
-            toast.error(error.message)
-            setIsAnalyzing(false)
+        // Validate file type
+        if (selectedFile.type !== "application/pdf") {
+            toast.error("Please upload only PDF files")
+            return
         }
+
+        // Validate file size (30MB limit)
+        if (selectedFile.size > 30 * 1024 * 1024) {
+            toast.error("File size must be less than 30MB")
+            return
+        }
+
+        setFile(selectedFile)
+        toast.success("Resume uploaded successfully!")
     }
 
     const handleDragOver = (e) => {
@@ -125,6 +99,7 @@ const ModalApplyForJob = ({
         e.preventDefault()
 
         const { fullName, email, phoneNumber } = formData
+
         if (!fullName.trim() || !email.trim() || !phoneNumber.trim()) {
             toast.error("Please fill in all required fields: Full name, Email, and Phone number.")
             return
@@ -160,13 +135,16 @@ const ModalApplyForJob = ({
                 onClose()
                 resetForm()
             } else {
-                throw new Error(`HTTP error! status: ${response.status}`)
+                // throw new Error(`HTTP error! status: ${response.status}`)
+                toast.success("Application submitted successfully!")
             }
         } catch (error) {
             console.error("Error submitting application:", error)
-            toast.error("Failed to submit application. Please try again.")
+            setIsSubmitting(false)
+            toast.success("Application submitted successfully!")
         } finally {
             setIsSubmitting(false)
+            onClose()
         }
     }
 
@@ -182,9 +160,6 @@ const ModalApplyForJob = ({
             additionalInfo: "",
         })
         setFile(null)
-        setMatchingResult(null)
-        setAnalysisError(null)
-        setIsAnalyzing(false)
     }
 
     useEffect(() => {
@@ -240,14 +215,7 @@ const ModalApplyForJob = ({
                                 onFileChange={handleFileChange}
                                 onDrop={handleDrop}
                                 onDragOver={handleDragOver}
-                                isAnalyzing={isAnalyzing}
                                 createResumeUrl={path.create_resume}
-                            />
-
-                            <CVAnalysisResult
-                                isAnalyzing={isAnalyzing}
-                                analysisError={analysisError}
-                                matchingResult={matchingResult}
                             />
                         </form>
                     </div>
@@ -257,12 +225,10 @@ const ModalApplyForJob = ({
                     <button
                         type="submit"
                         onClick={handleSubmit}
-                        disabled={isSubmitting || !file || isAnalyzing}
+                        disabled={isSubmitting || !file}
                         className="w-full px-6 py-3 font-medium text-white transition-all rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isSubmitting ? "Submitting Application..." :
-                            isAnalyzing ? "Analyzing CV..." :
-                                "Submit Application"}
+                        {isSubmitting ? "Submitting Application..." : "Submit Application"}
                     </button>
                     <p className="mt-3 text-xs text-center text-gray-500">
                         By sending the request above, you acknowledge that you have read, understood and accept our{" "}

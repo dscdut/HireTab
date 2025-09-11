@@ -3,7 +3,7 @@ import { matchPath } from 'react-router'
 import { ChevronLeft, ChevronRight, User, LogOut } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { path } from '@/core/constants/path'
-import { hrLinks, candidateLinks, settingsBtn, helpCenterBtn, hrDashboard } from '@/core/constants/general.const'
+import { hrLinks, candidateLinks, settingsBtn, helpCenterBtn, hrDashboard, talentPoolLinks } from '@/core/constants/general.const'
 import useToggleSideBar from '@/core/store'
 
 const SidebarLink = ({ link, isCollapsed }) => {
@@ -204,9 +204,9 @@ const Sidebar = () => {
   const { sidebarOpen, toggleSidebar } = useToggleSideBar()
 
   // Combine all links
-  const allLinks = [...hrDashboard, ...hrLinks, ...candidateLinks]
+  const allLinks = [...hrDashboard, ...hrLinks, ...candidateLinks, ...talentPoolLinks]
   const allButtons = [...settingsBtn, ...helpCenterBtn]
-
+  console.log('allLinks:', allLinks)
   return (
     <div className={`px-3 py-3 bg-[#FCFCFC] ${sidebarOpen ? 'w-20' : 'w-64'} transition-all duration-300 flex flex-col h-screen`}>
       <div className="flex items-center gap-2 mb-4">
