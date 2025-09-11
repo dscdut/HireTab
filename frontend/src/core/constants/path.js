@@ -9,6 +9,7 @@ export const path = {
     contact: '/contact-us',
     mission: '/mission-value',
     create_resume: '/create-resume',
+    template_gallery: '/template-gallery',
     job: '/candidate/job',
     jobDetail: '/candidate/job/:id',
     

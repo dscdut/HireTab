@@ -215,7 +215,8 @@ const ModalApplyForJob = ({
                                 onFileChange={handleFileChange}
                                 onDrop={handleDrop}
                                 onDragOver={handleDragOver}
-                                createResumeUrl={path.create_resume}
+                                isAnalyzing={isAnalyzing}
+                                createResumeUrl={path.candidate.template_gallery }
                             />
                         </form>
                     </div>

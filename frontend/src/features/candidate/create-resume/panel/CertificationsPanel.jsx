@@ -171,15 +171,15 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="h-full flex flex-col">
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-lg font-semibold">Certifications</h2>
-        <button onClick={onClose} className="p-1 rounded hover:bg-gray-100" disabled={isProcessing}>
+        <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded" disabled={isProcessing}>
           <X className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+      <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {certs.map((cert, index) => {
           const isDragOver = dragOverItem === index;
 
@@ -194,7 +194,7 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, index)}
             >
-              <div className="flex items-start justify-between">
+              <div className="flex justify-between items-start">
                 <div className="flex items-center space-x-2">
                   <button
                     className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing"
@@ -206,7 +206,7 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
                 </div>
                 <button
                   onClick={() => removeCertification(cert.id)}
-                  className="p-1 text-red-600 rounded hover:bg-red-100"
+                  className="p-1 hover:bg-red-100 rounded text-red-600"
                   disabled={isProcessing}
                 >
                   <Trash2 className="w-4 h-4" />
@@ -215,7 +215,7 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
 
               <div className="space-y-3">
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Certification Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -229,7 +229,7 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
                 </div>
 
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Issuing Organization <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -243,7 +243,7 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
                 </div>
 
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Date Obtained <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -257,7 +257,7 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
                 </div>
 
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Credential ID (Optional)
                   </label>
                   <input
@@ -276,7 +276,7 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
 
         <button
           onClick={addCertification}
-          className="flex items-center justify-center w-full py-6 space-x-2 transition-colors border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-500 hover:bg-blue-50"
+          className="w-full py-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors flex items-center justify-center space-x-2"
           disabled={isProcessing}
         >
           <Plus className="w-5 h-5 text-gray-500" />
@@ -285,10 +285,10 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
 
       </div>
 
-      <div className="flex p-4 space-x-2 border-t">
+      <div className="p-4 border-t flex space-x-2">
         <button
           onClick={handleSave}
-          className="flex items-center justify-center flex-1 px-4 py-3 space-x-2 text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
           disabled={isProcessing}
         >
           {isProcessing ? (
@@ -302,7 +302,7 @@ export default function CertificationsPanel({ certifications = [], onUpdateCerti
         </button>
         <button
           onClick={onClose}
-          className="flex-1 px-4 py-3 text-gray-800 transition-colors bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
+          className="flex-1 bg-gray-200 text-gray-800 py-3 px-4 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50"
           disabled={isProcessing}
         >
           CANCEL

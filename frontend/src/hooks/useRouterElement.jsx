@@ -2,7 +2,7 @@ import { useLocation, useRoutes } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { path } from '@/core/constants/path'
 import JobOpeningPage from '@/features/candidate/job-opening/JobOpenningPage'
-import CreateResume from '@/features/candidate/create-resume/CreateResume'
+import CreateResume from '@/features/candidate/create-resume/pages/CreateResume'
 import LayoutMain from '@/shared/layout/hr-layout/LayoutMain'
 import ProtectedRoute from '@/guard/ProtectedRoute'
 import HrDashboard from '@/features/hr/Dashboard/Hr_Dashboard'
@@ -18,8 +18,7 @@ import Register from '@/features/hr/register/RegisterPage'
 import PageNotFound from '@/shared/layout/404/PageNotFound'
 import JobOpeningDetailPage from '@/features/candidate/job-opening-details/JobOpeningDetail'
 import JobPosting from '@/features/hr/JobPosting/JobPosting'
-import JobDetail from '@/features/hr/JobDetail'
-
+import TemplateGallery from '@/features/candidate/create-resume/pages/TemplateGallery'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -31,12 +30,14 @@ export default function useRoutesElements() {
     { path: path.candidate.job, element: <JobOpeningPage /> },
     { path: path.candidate.jobDetail, element: <JobOpeningDetailPage /> },
     { path: path.candidate.create_resume, element: <CreateResume /> },
+    { path: path.candidate.template_gallery, element: <TemplateGallery /> },
 
     // Auth routes - HR
     { path: path.login, element: <LoginPage /> },
     { path: path.register, element: <Register /> },
     // HR routes
-    { path: path.hr.hr_dashboard,
+    {
+      path: path.hr.hr_dashboard,
       element: (
         <LayoutMain>
           <ProtectedRoute allowedRoles={['HR']}>
@@ -117,4 +118,3 @@ export default function useRoutesElements() {
     </AnimatePresence>
   )
 }
-  
