@@ -1,14 +1,14 @@
 export const path = {
-  home: '/',
   login: '/login',
   register: '/register',
-  forgotPassword: '/forgot-password',
-  blog: '/blog',
-  create_resume: '/create-resume',
   admin: {
     dashboard: '/admin/dashboard'
   },
   candidate: {
+    home: '/',
+    contact: '/contact-us',
+    mission: '/mission-value',
+    create_resume: '/create-resume',
     job: '/candidate/job',
     jobDetail: '/candidate/job/:id',
     
