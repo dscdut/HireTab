@@ -1,4 +1,3 @@
-// ...existing code...
 "use client"
 
 import { useEffect } from "react"
