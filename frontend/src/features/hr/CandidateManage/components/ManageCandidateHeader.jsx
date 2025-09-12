@@ -1,7 +1,7 @@
 "use client"
 
 import { Search, Filter, Users, Mail } from "lucide-react"
-import { SORT_OPTIONS } from "../../job-dashboard/constants/candidateConstants"
+import { SORT_OPTIONS } from "../../../../shared/constants/candidateConstants"
 
 export default function ManageCandidateHeader({
   jobName,
@@ -50,8 +50,8 @@ export default function ManageCandidateHeader({
             {/* Filter Button */}
             <button
               className={`px-3 py-2 border rounded-lg flex items-center space-x-1 text-sm font-medium transition-all duration-200 ${showFilterPanel
-                  ? "bg-blue-50 border-blue-300 text-blue-700"
-                  : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                ? "bg-blue-50 border-blue-300 text-blue-700"
+                : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
                 }`}
               onClick={() => setShowFilterPanel(!showFilterPanel)}
             >
@@ -84,8 +84,8 @@ export default function ManageCandidateHeader({
             {/* Send Email Button */}
             <button
               className={`px-3 py-2 rounded-lg flex items-center space-x-1 text-sm font-medium transition-all duration-200 ${selectedCandidatesCount > 0
-                  ? "bg-blue-600 text-white hover:bg-blue-700 shadow-sm hover:shadow-md"
-                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                ? "bg-blue-600 text-white hover:bg-blue-700 shadow-sm hover:shadow-md"
+                : "bg-gray-100 text-gray-400 cursor-not-allowed"
                 }`}
               onClick={onSendEmail}
               disabled={selectedCandidatesCount === 0}

@@ -6,8 +6,8 @@ import { XCircle } from "lucide-react"
 import { candidateApi } from "@/core/services/candidate.service";
 import { toast } from "react-toastify"
 
-import { CANDIDATE_STATUSES } from "../job-dashboard/constants/candidateConstants"
-import ManageCandidateHeader from "./components/Header"
+import { CANDIDATE_STATUSES } from "../../../shared/constants/candidateConstants"
+import ManageCandidateHeader from "./components/ManageCandidateHeader"
 import BulkActionsBar from "../../../shared/components/ui/BulkActionsBar"
 import CandidateTable from "../../../shared/components/ui/CandidateTable"
 import FilterModal from "../../../shared/components/ui/FilterModal"

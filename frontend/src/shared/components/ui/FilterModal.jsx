@@ -1,7 +1,7 @@
 "use client"
 
 import { Filter, X } from "lucide-react"
-import { FILTER_FIELDS, FILTER_OPERATORS } from "../../../features/hr/job-dashboard/constants/candidateConstants"
+import { FILTER_FIELDS, FILTER_OPERATORS } from "../../constants/candidateConstants"
 
 export default function FilterModal({
   showFilterPanel,
