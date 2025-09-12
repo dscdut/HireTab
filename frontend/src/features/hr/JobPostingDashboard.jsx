@@ -14,7 +14,7 @@ import BulkActionsBar from "../../shared/components/ui/BulkActionsBar"
 import CandidateTable from "../../shared/components/ui/CandidateTable"
 import FilterModal from "../../shared/components/ui/FilterModal"
 import EmailModal from "./EmailModal/EmailModal"
-import ConfirmModal from "../../shared/components/ui/ConfirmModal"
+import ConfirmModal from "../../shared/components/ui/confirmModal"
 import { getAvailableStatusTransitions, getNextStatus } from "@/core/shared/utils/statusUtils"
 import { applyFilters } from "@/core/shared/utils/filterUtils"
 
