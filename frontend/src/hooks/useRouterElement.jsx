@@ -7,8 +7,7 @@ import LayoutMain from '@/shared/layout/hr-layout/LayoutMain'
 import ProtectedRoute from '@/guard/ProtectedRoute'
 import HrDashboard from '@/features/hr/Dashboard/Hr_Dashboard'
 import JobPostingDashboard from '@/features/hr/JobPostingDashboard'
-import JobDetailHR from '@/features/hr/JobPosting/JobPosting'
-
+import JobDetail from '@/features/hr/JobDetail'
 import ManageCandidates from '@/features/hr/CandidateManage/ManageCandidates'
 import HomePage from '@/features/candidate/home/HomePage'
 import ContactPage from '@/features/candidate/contact/ContactPage'
@@ -71,7 +70,7 @@ export default function useRoutesElements() {
       element: (
         <LayoutMain>
           <ProtectedRoute allowedRoles={['HR']}>
-            <JobDetailHR />
+            <JobDetail />
           </ProtectedRoute>
         </LayoutMain>
       )

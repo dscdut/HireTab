@@ -204,9 +204,9 @@ const ModalApplyForJob = ({
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-5">
-                            <PersonalInfoForm 
-                                formData={formData} 
-                                onChange={handleChange} 
+                            <PersonalInfoForm
+                                formData={formData}
+                                onChange={handleChange}
                             />
 
                             <FileUploadSection
@@ -215,8 +215,7 @@ const ModalApplyForJob = ({
                                 onFileChange={handleFileChange}
                                 onDrop={handleDrop}
                                 onDragOver={handleDragOver}
-                                isAnalyzing={isAnalyzing}
-                                createResumeUrl={path.candidate.template_gallery }
+                                createResumeUrl={path.candidate.template_gallery}
                             />
                         </form>
                     </div>
