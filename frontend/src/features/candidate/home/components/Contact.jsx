@@ -1,5 +1,7 @@
 import { Button } from '@/shared/components/ui/button'
 import { motion } from 'framer-motion'
+import { path } from '@/core/constants/path'
+
 
 const Contact = () => {
   return (
@@ -24,14 +26,17 @@ const Contact = () => {
               animate={{ y: [0, -8, 0], scale: [1, 1.08, 1] }}
               transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
             >
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-[#0247c7] border-2 border-[#0247c7] bg-white shadow-lg hover:bg-[#0247c7] hover:text-white hover:scale-110 transition-all duration-200 text-xl px-10 py-6 font-bold"
-                onClick={() => window.open('mailto:hi@hiretab.dev', '_blank')}
-              >
-                Contact Us
-              </Button>
+              <a href={path.candidate.contact}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="text-[#0247c7] border-2 border-[#0247c7] bg-white shadow-lg hover:bg-[#0247c7] hover:text-white hover:scale-110 transition-all duration-200 text-xl px-10 py-6 font-bold"
+                >
+                  Contact Us
+                </Button>
+              </a>
+
+
             </motion.div>
           </div>
         </motion.div>

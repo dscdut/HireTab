@@ -7,7 +7,7 @@ import HireTabLogo from '@/assets/images/hiretab-logo.png'
 import { path } from '@/core/constants/path'
 
 const MENU_ITEMS = [
-  { label: 'Find Jobs', href: '#jobs', icon: Search },
+  { label: 'Find Jobs', href: path.candidate.job , icon: Search },
   { label: 'Resume', href: path.candidate.template_gallery, icon: Contact },
   { label: 'Mission & Value', href: path.candidate.mission, icon: Briefcase },
   { label: 'Contact Us', href: path.candidate.contact, icon: Headset }
@@ -24,23 +24,19 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const headerClasses = `fixed top-0 left-0 right-0 z-50 transition-all duration-300 select-none ${
-    isScrolled
-      ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100'
-      : 'bg-white/90 backdrop-blur-sm'
-  }`
+  const headerClasses = `fixed top-0 left-0 right-0 z-50 transition-all duration-300 select-none ${isScrolled
+    ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100'
+    : 'bg-white/90 backdrop-blur-sm'
+    }`
 
-  const containerClasses = `flex items-center justify-between transition-all duration-300 ${
-    isScrolled ? 'h-16 py-0' : 'h-20 py-2'
-  }`
+  const containerClasses = `flex items-center justify-between transition-all duration-300 ${isScrolled ? 'h-16 py-0' : 'h-20 py-2'
+    }`
 
-  const logoClasses = `transition-all duration-300 ${
-    isScrolled ? 'w-10 h-10' : 'w-12 h-12'
-  }`
+  const logoClasses = `transition-all duration-300 ${isScrolled ? 'w-10 h-10' : 'w-12 h-12'
+    }`
 
-  const titleClasses = `font-bold text-gray-900 transition-all duration-300 ${
-    isScrolled ? 'text-xl' : 'text-2xl'
-  }`
+  const titleClasses = `font-bold text-gray-900 transition-all duration-300 ${isScrolled ? 'text-xl' : 'text-2xl'
+    }`
 
   return (
     <motion.header
@@ -51,7 +47,7 @@ const Header = () => {
     >
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className={containerClasses}>
-          
+
           {/* Logo & Brand */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -62,9 +58,9 @@ const Header = () => {
             role="button"
             tabIndex={0}
           >
-            <img 
-              src={HireTabLogo} 
-              alt="HireTab" 
+            <img
+              src={HireTabLogo}
+              alt="HireTab"
               className={logoClasses}
               draggable={false}
             />
@@ -116,8 +112,8 @@ const Header = () => {
             </button>
 
             {/* Desktop Apply Button */}
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               className="hidden px-6 py-2 font-bold text-white bg-blue-900 border-blue-600 md:block hover:bg-white hover:text-blue-600"
             >
               <Link to='/candidate/job'>Apply Now</Link>
@@ -150,7 +146,7 @@ const Header = () => {
                     <span>{item.label}</span>
                   </motion.a>
                 ))}
-                
+
                 {/* Mobile Apply Button */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
@@ -158,8 +154,8 @@ const Header = () => {
                   transition={{ duration: 0.2, delay: MENU_ITEMS.length * 0.1 }}
                   className="pt-3 border-t border-gray-200"
                 >
-                  <Button 
-                    variant="secondary" 
+                  <Button
+                    variant="secondary"
                     className="w-full px-6 py-3 font-bold text-white bg-blue-900 border-blue-600 hover:bg-white hover:text-blue-600"
                   >
                     <Link to='/candidate/job'>Apply Now</Link>
