@@ -13,7 +13,7 @@ import CandidateTable from "../../../shared/components/ui/CandidateTable"
 import FilterModal from "../../../shared/components/ui/FilterModal"
 import { getEmailTemplate, getEmailTemplateForTransition, shouldSendEmailForStatus, getEmailTemplateByCurrentStatus } from '@/core/shared/utils/emailTemplates';
 import EmailModal from "../EmailModal/EmailModal"
-import ConfirmModal from "../../../shared/components/ui/confirmModal"
+import StatusConfirmModal from "../../../shared/components/ui/StatusConfirmModal"
 import { applyFilters } from "@/core/shared/utils/filterUtils";
 import { getAvailableStatusTransitions, getNextStatus } from "@/core/shared/utils/statusUtils";
 
@@ -34,6 +34,7 @@ export default function ManageCandidates() {
     currentStatus: "",
     nextStatus: "",
   })
+  const [isStatusUpdating, setIsStatusUpdating] = useState(false)
 
   // Email Modal States
   const [emailModalState, setEmailModalState] = useState("closed")
@@ -156,62 +157,21 @@ export default function ManageCandidates() {
 
   const availableTransitions = getAvailableStatusTransitions(selectedCandidates, candidates, activeTab)
 
-  const handleStatusTransition = async (candidateId, currentStatus) => {
-    const nextStatus = getNextStatus(currentStatus)
+  const handleStatusTransition = async (candidateId, nextStatus) => {
     if (!nextStatus) return
 
     // Find candidate data
     const candidate = candidates.find(c => c.id === candidateId)
     if (!candidate) return
 
-    try {
-      // Update status first
-      await candidateApi.updateCandidateStatus(candidateId, nextStatus)
-
-      // Check if we need to send an email for this transition
-      const emailTemplate = getEmailTemplateForTransition(
-        currentStatus,
-        nextStatus,
-        candidate,
-        { companyName: 'HireTab' }
-      );
-
-      if (emailTemplate) {
-        // Send email automatically
-        try {
-          const response = await fetch(import.meta.env.VITE_EMAIL_WEBHOOK_URL, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              to: candidate.email,
-              subject: emailTemplate.subject,
-              body: emailTemplate.body,
-              cc: "",
-              bcc: "",
-            }),
-          })
-
-          if (response.ok) {
-            toast.success(`Status updated to ${nextStatus} and notification email sent to ${candidate.name}`)
-          } else {
-            toast.warning(`Status updated to ${nextStatus} but failed to send email to ${candidate.name}`)
-          }
-        } catch (emailError) {
-          console.error("Error sending email:", emailError)
-          toast.warning(`Status updated to ${nextStatus} but failed to send email to ${candidate.name}`)
-        }
-      } else {
-        toast.success(`Status updated to ${nextStatus} for ${candidate.name}`)
-      }
-
-      // Refetch candidates to update the UI
-      refetch()
-    } catch (error) {
-      console.error("Error updating status:", error)
-      toast.error("Failed to update candidate status")
-    }
+    // Show confirmation modal with options
+    setStatusConfirmModal({
+      isOpen: true,
+      candidateId,
+      candidateName: candidate.name,
+      currentStatus: candidate.status,
+      nextStatus: nextStatus,
+    })
   }
   const handleSendEmail = (customStatus = null) => {
     if (selectedCandidates.size === 0) return
@@ -285,14 +245,24 @@ export default function ManageCandidates() {
     })
     setEmailModalState("normal")
   }
-  const handleStatusConfirm = () => {
+  const handleStatusConfirm = async () => {
     const { candidateId, nextStatus } = statusConfirmModal
+    const candidate = candidates.find(c => c.id === candidateId)
 
-    // Update status after confirmation
-    bulkUpdateStatusMutation.mutate({
-      candidateIds: [candidateId],
-      status: nextStatus,
-    })
+    setIsStatusUpdating(true)
+    try {
+      // Update status
+      await candidateApi.updateStatus(candidateId, nextStatus)
+      toast.success(`Status updated to ${nextStatus} for ${candidate.name}`)
+      
+      // Refetch candidates to update the UI
+      refetch()
+    } catch (error) {
+      console.error("Error updating status:", error)
+      toast.error("Failed to update candidate status")
+    } finally {
+      setIsStatusUpdating(false)
+    }
 
     // Close modal
     setStatusConfirmModal({
@@ -304,7 +274,57 @@ export default function ManageCandidates() {
     })
   }
 
+  const handleStatusConfirmWithEmail = async () => {
+    const { candidateId, nextStatus } = statusConfirmModal
+    const candidate = candidates.find(c => c.id === candidateId)
+
+    if (!candidate) return
+
+    setIsStatusUpdating(true)
+    try {
+      // Update status first
+      await candidateApi.updateStatus(candidateId, nextStatus)
+      toast.success(`Status updated to ${nextStatus} for ${candidate.name}`)
+      
+      // Refetch candidates to update the UI
+      refetch()
+
+      // Get email template for the transition
+      const emailTemplate = getEmailTemplateForTransition(
+        candidate.status, // current status
+        nextStatus,       // new status
+        candidate,
+        { companyName: 'HireTab' }
+      )
+
+      // Open email modal with template
+      setEmailData({
+        to: candidate.email,
+        cc: "",
+        bcc: "",
+        subject: emailTemplate?.subject || `Status Update: ${nextStatus}`,
+        body: emailTemplate?.body || `Your application status has been updated to ${nextStatus}.`,
+      })
+      setEmailModalState("normal")
+    } catch (error) {
+      console.error("Error updating status:", error)
+      toast.error("Failed to update candidate status")
+    } finally {
+      setIsStatusUpdating(false)
+    }
+
+    // Close status modal
+    setStatusConfirmModal({
+      isOpen: false,
+      candidateId: null,
+      candidateName: "",
+      currentStatus: "",
+      nextStatus: "",
+    })
+  }
+
   const handleStatusCancel = () => {
+    setIsStatusUpdating(false)
     setStatusConfirmModal({
       isOpen: false,
       candidateId: null,
@@ -578,6 +598,7 @@ export default function ManageCandidates() {
             sortConfig={sortConfig}
             setSortConfig={setSortConfig}
             onStatusTransition={handleStatusTransition}
+            onClearSelection={() => setSelectedCandidates(new Set())}
             showJobName={true}
             refetchCandidates={refetch}
           />
@@ -632,12 +653,15 @@ export default function ManageCandidates() {
       />
 
       {/* Status Confirmation Modal */}
-      <ConfirmModal
+      <StatusConfirmModal
         open={statusConfirmModal.isOpen}
-        message={`Are you sure you want to change ${statusConfirmModal.candidateName}'s status from "${statusConfirmModal.currentStatus}" to "${statusConfirmModal.nextStatus}"?`}
-        isLoading={bulkUpdateStatusMutation.isPending}
+        candidateName={statusConfirmModal.candidateName}
+        currentStatus={statusConfirmModal.currentStatus}
+        nextStatus={statusConfirmModal.nextStatus}
+        isLoading={isStatusUpdating}
         onClose={handleStatusCancel}
-        onConfirm={handleStatusConfirm}
+        onUpdateOnly={handleStatusConfirm}
+        onUpdateWithEmail={handleStatusConfirmWithEmail}
       />
     </div>
   )

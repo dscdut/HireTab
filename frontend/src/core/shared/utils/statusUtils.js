@@ -65,12 +65,23 @@ export const getStatusButtonClass = (status) => {
 };
 
 /**
- * Get next status for a candidate based on current status
+ * Get next statuses for a candidate based on current status
+ * @param {string} currentStatus - Current candidate status
+ * @returns {Array} Array of possible next statuses or empty array if no transitions available
+ */
+export const getNextStatuses = (currentStatus) => {
+  const transitions = STATUS_TRANSITIONS[currentStatus]
+  return transitions ? (Array.isArray(transitions) ? transitions : [transitions]) : []
+}
+
+/**
+ * Get next status for a candidate based on current status (legacy - returns first available option)
  * @param {string} currentStatus - Current candidate status
  * @returns {string|null} Next status or null if no transition available
  */
 export const getNextStatus = (currentStatus) => {
-  return STATUS_TRANSITIONS[currentStatus] || null
+  const nextStatuses = getNextStatuses(currentStatus)
+  return nextStatuses.length > 0 ? nextStatuses[0] : null
 }
 
 /**
@@ -90,33 +101,23 @@ export const getAvailableStatusTransitions = (selectedCandidates, candidates, ac
     const availableTransitions = new Set()
     
     uniqueStatuses.forEach((status) => {
-      switch (status) {
-        case CANDIDATE_STATUSES.IN_REVIEW:
-          availableTransitions.add(CANDIDATE_STATUSES.INTERVIEW)
-          break
-        case CANDIDATE_STATUSES.INTERVIEW:
-          availableTransitions.add(CANDIDATE_STATUSES.HIRED)
-          availableTransitions.add(CANDIDATE_STATUSES.REJECTED)
-          break
-        case CANDIDATE_STATUSES.HIRED:
-          availableTransitions.add(CANDIDATE_STATUSES.INTERVIEW)
-          break
-        default:
-          break
-      }
+      const nextStatuses = getNextStatuses(status)
+      nextStatuses.forEach(nextStatus => {
+        availableTransitions.add(nextStatus)
+      })
     })
     
     return Array.from(availableTransitions)
   }
 
-  const tabTransitions = {
-    [CANDIDATE_STATUSES.IN_REVIEW]: [CANDIDATE_STATUSES.INTERVIEW],
-    [CANDIDATE_STATUSES.INTERVIEW]: [CANDIDATE_STATUSES.HIRED, CANDIDATE_STATUSES.REJECTED],
-    [CANDIDATE_STATUSES.HIRED]: [CANDIDATE_STATUSES.INTERVIEW],
-    [CANDIDATE_STATUSES.REJECTED]: [],
-  }
+  // For specific status tabs, return all possible transitions from current status
+  const availableTransitions = new Set()
+  const nextStatuses = getNextStatuses(activeTab)
+  nextStatuses.forEach(status => {
+    availableTransitions.add(status)
+  })
 
-  return tabTransitions[activeTab] || []
+  return Array.from(availableTransitions)
 }
 
 /**
@@ -126,6 +127,6 @@ export const getAvailableStatusTransitions = (selectedCandidates, candidates, ac
  * @returns {boolean} Whether transition is valid
  */
 export const isValidStatusTransition = (fromStatus, toStatus) => {
-  const nextStatus = getNextStatus(fromStatus)
-  return nextStatus === toStatus || fromStatus === CANDIDATE_STATUSES.HIRED
+  const nextStatuses = getNextStatuses(fromStatus)
+  return nextStatuses.includes(toStatus)
 }
