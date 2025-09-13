@@ -1,17 +1,18 @@
 import { motion } from 'framer-motion'
 import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react'
+import { path } from '@/core/constants/path'
 
 const Footer = () => {
   const quickLinks = [
-    { label: 'About Us', href: '#' },
-    { label: 'Find Jobs', href: '#' },
-    { label: 'Post Jobs', href: '#' },
-    { label: 'Contact', href: '#' },
+    { label: 'About Us', href: path.candidate.mission },
+    { label: 'Find Jobs', href: path.candidate.job },
+    { label: 'Post Jobs', href: path.candidate.job },
+    { label: 'Contact', href: path.candidate.contact },
     { label: 'Privacy Policy', href: '#' },
     { label: 'Terms of Service', href: '#' },
   ]
   const socialLinks = [
-    { icon: <Facebook className="w-5 h-5" />, href: '#' },
+    { icon: <Facebook className="w-5 h-5" />, href: 'https://www.facebook.com/profile.php?id=61555259425799' },
     { icon: <Instagram className="w-5 h-5" />, href: '#' },
     { icon: <Linkedin className="w-5 h-5" />, href: '#' },
     { icon: <Twitter className="w-5 h-5" />, href: '#' },
@@ -119,7 +120,7 @@ const Footer = () => {
                 </a>
               </li>
             </ul>
-            
+
             <h4 className="mt-6 mb-4 text-lg font-semibold text-white">Follow Us</h4>
             <div className="flex space-x-4">
               {socialLinks.map((link, index) => (

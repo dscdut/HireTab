@@ -7,6 +7,7 @@ import { useState } from "react"
 import ModalApplyForJob from "./components/ModalApplyForJob"
 import ChatWootWidget from "@/shared/components/ui/chatwoot-widget"
 import Header from "@/shared/layout/candidate-layout/Header"
+import ReactMarkdown from "react-markdown"
 
 export default function JobOpeningDetailPage() {
   const { id } = useParams()
@@ -91,6 +92,24 @@ export default function JobOpeningDetailPage() {
       num.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
     return `${formatNumber(min)} - ${formatNumber(max)}`
   }
+
+  // Convert requirements and responsibilities arrays to Markdown lists
+  const requirementsMarkdown = job?.requirements && Array.isArray(job.requirements) && job.requirements.length > 0
+    ? job.requirements.map(req => `- ${req}`).join('\n')
+    : `- Bachelor's degree in Computer Science, Software Engineering, or related field.\n` +
+      `- Independent and Collaborative Work: Ability to work both independently and as part of a team, with a passion for continuous learning and excellence in software development.\n` +
+      `- Experience with RESTful APIs and state management libraries (Redux, Zustand, etc.).\n` +
+      `- Problem-Solving: Strong analytical and problem-solving skills with the ability to manage technical complexities.\n` +
+      `- Solid understanding of Git and collaborative development workflows.\n` +
+      `- Strong problem-solving skills and attention to detail.`
+
+  const responsibilitiesMarkdown = job?.responsibilities && Array.isArray(job.responsibilities) && job.responsibilities.length > 0
+    ? job.responsibilities.map(resp => `- ${resp}`).join('\n')
+    : `- Work Environment: Fun, open, and family-like atmosphere.\n` +
+      `- Compensation: Excellent salary with 13th month bonus and quarterly bonuses available based on personal and corporate goals met.\n` +
+      `- Health Benefits: Yearly renewed health allowance or a comprehensive health insurance package, depending on your preference.\n` +
+      `- Extra Paid Time Off: 1 Christmas day, and up to 10 days of Sick leave.\n` +
+      `- Work Schedule: 5-day work week (Mon-Fri) with no regular overtime expected.`
 
   return (
     <>
@@ -191,115 +210,27 @@ export default function JobOpeningDetailPage() {
                   Job Description
                 </h2>
                 <div className="prose prose-gray max-w-none">
-                  <p className="leading-relaxed text-gray-700">
+                  <ReactMarkdown>
                     {job.description ||
                       "As a Software Engineer at GDSC - DUT, you will design, develop, and maintain innovative web applications that empower our student community. You will work closely with other engineers and designers to deliver high-quality solutions that address real-world problems in education and technology."}
-                  </p>
+                  </ReactMarkdown>
                 </div>
               </div>
 
               {/* Requirements */}
               <div className="p-8 bg-white border border-gray-100 shadow-sm rounded-2xl">
                 <h2 className="mb-6 text-2xl font-bold text-gray-900">Requirements</h2>
-                <ul className="space-y-3 text-gray-700">
-                  {job?.requirements && Array.isArray(job.requirements) && job.requirements.length > 0 ? (
-                    job.requirements.map((requirement, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
-                        <span className="leading-relaxed">{requirement}</span>
-                      </li>
-                    ))
-                  ) : (
-                    <>
-                      <li className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
-                        <span className="leading-relaxed">
-                          Bachelor's degree in Computer Science, Software Engineering, or related field.
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
-                        <span className="leading-relaxed">
-                          Independent and Collaborative Work: Ability to work both independently and as part of a team,
-                          with a passion for continuous learning and excellence in software development.
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
-                        <span className="leading-relaxed">
-                          Experience with RESTful APIs and state management libraries (Redux, Zustand, etc.).
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
-                        <span className="leading-relaxed">
-                          Problem-Solving: Strong analytical and problem-solving skills with the ability to manage
-                          technical complexities.
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
-                        <span className="leading-relaxed">
-                          Solid understanding of Git and collaborative development workflows.
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
-                        <span className="leading-relaxed">Strong problem-solving skills and attention to detail.</span>
-                      </li>
-                    </>
-                  )}
-                </ul>
+                <div className="prose prose-gray max-w-none">
+                  <ReactMarkdown>{requirementsMarkdown}</ReactMarkdown>
+                </div>
               </div>
 
               {/* Responsibilities */}
               <div className="p-8 bg-white border border-gray-100 shadow-sm rounded-2xl">
                 <h2 className="mb-6 text-2xl font-bold text-gray-900">Job highlights</h2>
-                <ul className="space-y-3 text-gray-700">
-                  {job?.responsibilities && Array.isArray(job.responsibilities) && job.responsibilities.length > 0 ? (
-                    job.responsibilities.map((responsibility, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
-                        <span className="leading-relaxed">{responsibility}</span>
-                      </li>
-                    ))
-                  ) : (
-                    <>
-                      <li className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
-                        <span className="leading-relaxed">
-                          Work Environment: Fun, open, and family-like atmosphere.
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
-                        <span className="leading-relaxed">
-                          Compensation: Excellent salary with 13th month bonus and quarterly bonuses available based on
-                          personal and corporate goals met.
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
-                        <span className="leading-relaxed">
-                          Health Benefits: Yearly renewed health allowance or a comprehensive health insurance package,
-                          depending on your preference.
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
-                        <span className="leading-relaxed">
-                          Extra Paid Time Off: 1 Christmas day, and up to 10 days of Sick leave.
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
-                        <span className="leading-relaxed">
-                          Work Schedule: 5-day work week (Mon-Fri) with no regular overtime expected.
-                        </span>
-                      </li>
-                    </>
-                  )}
-                </ul>
+                <div className="prose prose-gray max-w-none">
+                  <ReactMarkdown>{responsibilitiesMarkdown}</ReactMarkdown>
+                </div>
               </div>
             </div>
 
@@ -391,6 +322,16 @@ export default function JobOpeningDetailPage() {
 
         <ChatWootWidget />
       </div>
+
+      <style>
+        {`.prose ul {
+          list-style-type: disc;
+          padding-left: 1.5rem;
+        }
+        .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+          font-weight: bold;
+        }`}
+      </style>
     </>
   )
 }
