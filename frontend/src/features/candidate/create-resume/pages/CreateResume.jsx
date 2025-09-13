@@ -3,6 +3,8 @@
 
 import { useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { useLocation } from "react-router-dom";
+import CreateResumeGuard from "@/shared/components/guards/CreateResumeGuard";
 import ResumeHeader from "../component/ResumeHeader";
 import ResumePreview from "./ResumePreview";
 import SkillsPanel from "../panel/SkillsPanel";
@@ -13,7 +15,6 @@ import TemplateSelector from "../selector/TemplateSelector";
 import ColorSelector from "../selector/ColorSelector";
 import CertificationsPanel from "../panel/CertificationsPanel";
 import ProjectsPanel from "../panel/ProjectsPanel";
-import { useLocation } from "react-router-dom";
 
 export default function CreateResume() {
   const location = useLocation();
@@ -461,35 +462,36 @@ export default function CreateResume() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#363636',
-            color: '#fff',
-          },
-          success: {
-            iconTheme: {
-              primary: '#4ade80',
-              secondary: '#fff',
+    <CreateResumeGuard>
+      <div className="min-h-screen bg-gray-50">
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#363636',
+              color: '#fff',
             },
-          },
-          error: {
-            iconTheme: {
-              primary: '#ef4444',
-              secondary: '#fff',
+            success: {
+              iconTheme: {
+                primary: '#4ade80',
+                secondary: '#fff',
+              },
             },
-          },
-        }}
-      />
-      <ResumeHeader
-        onTemplateClick={() => setShowTemplateSelector(!showTemplateSelector)}
-        onColorClick={() => setShowColorSelector(!showColorSelector)}
-        onExport={handleExport}
-        onImport={handleImport}
-      />
+            error: {
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#fff',
+              },
+            },
+          }}
+        />
+        <ResumeHeader
+          onTemplateClick={() => setShowTemplateSelector(!showTemplateSelector)}
+          onColorClick={() => setShowColorSelector(!showColorSelector)}
+          onExport={handleExport}
+          onImport={handleImport}
+        />
 
       {showTemplateSelector && (
         <TemplateSelector
@@ -596,6 +598,7 @@ export default function CreateResume() {
         onChange={handleImport}
         className="hidden"
       />
-    </div>
+      </div>
+    </CreateResumeGuard>
   );
 }
