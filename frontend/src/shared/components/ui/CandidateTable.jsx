@@ -3,7 +3,8 @@
 import { useState, useMemo } from "react"
 import { ChevronDown, Users, Calendar, FileText, Briefcase, ChevronLeft, ChevronRight } from "lucide-react"
 import StatusBadge from "./StatusBadge"
-import { getNextStatus, getStatusButtonClass, getStatusConfig } from "@/core/shared/utils/statusUtils"
+import { getNextStatuses, getNextStatus, getStatusButtonClass, getStatusConfig } from "@/core/shared/utils/statusUtils"
+import { shouldSendEmailForStatus } from "@/core/shared/utils/emailTemplates"
 import { formatDate } from "@/core/helpers/utils"
 import { CANDIDATE_STATUSES } from "@/core/constants/candidateConstants"
 
@@ -18,8 +19,10 @@ export default function CandidateTable({
   sortConfig,
   setSortConfig,
   onStatusTransition,
-  showJobName = false, // New prop to control job name column visibility
+  onOpenEmailModal,
+  showJobName = false,
   refetchCandidates,
+  onClearSelection, // Add this prop to clear selections
 }) {
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
@@ -40,7 +43,7 @@ export default function CandidateTable({
     { key: "resumeFile", label: "Resume", icon: FileText, width: "w-24" },
     { key: "status", label: "Status", icon: null, width: "w-32" },
     { key: "score", label: "Score", icon: null, width: "w-28" },
-    { key: null, label: "Actions", icon: null, width: "w-32" },
+    { key: null, label: "Actions", icon: null, width: "w-48" },
   ], [showJobName])
 
   // Pagination logic
@@ -53,6 +56,12 @@ export default function CandidateTable({
   const handleTabChange = (tab) => {
     setActiveTab(tab)
     setCurrentPage(1)
+    
+    // Clear selection when changing tabs
+    if (onClearSelection) {
+      onClearSelection()
+    }
+    
     if (refetchCandidates) {
       refetchCandidates()
     }
@@ -323,22 +332,34 @@ export default function CandidateTable({
 
                   {/* Actions Column */}
                   <td className="w-32 px-4 py-4">
-                    {getNextStatus(candidate.status) ? (
-                      <button
-                        onClick={() => onStatusTransition(candidate.id, candidate.status)}
-                        className={`px-3 py-1.5 text-white text-xs font-medium rounded-lg transition-all duration-200 ${getStatusButtonClass(getNextStatus(candidate.status))}`}
-                      >
-                        → {getNextStatus(candidate.status)}
-                      </button>
-                    ) : (
-                      <span className="text-xs font-medium text-gray-400">Final</span>
-                    )}
+                    {(() => {
+                      const nextStatus = getNextStatus(candidate.status); // Chỉ lấy status đầu tiên theo thứ tự logic
+                      
+                      if (!nextStatus) {
+                        return <span className="text-xs font-medium text-gray-400">Final</span>;
+                      }
+                      
+                      return (
+                        <button
+                          onClick={() => {
+                            if (shouldSendEmailForStatus(nextStatus) && onOpenEmailModal) {
+                              onOpenEmailModal(candidate.id, nextStatus);
+                            } else {
+                              onStatusTransition(candidate.id, nextStatus);
+                            }
+                          }}
+                          className={`px-3 py-1.5 text-white text-xs font-medium rounded-lg transition-all duration-200 hover:shadow-md ${getStatusButtonClass(nextStatus)}`}
+                        >
+                          → {nextStatus}
+                        </button>
+                      );
+                    })()}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={9} className="px-8 py-16 text-center">
+                <td colSpan={columns.length + 1} className="px-8 py-16 text-center">
                   <div className="flex flex-col items-center gap-4">
                     <div className="flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full">
                       <Users className="w-10 h-10 text-gray-400" />

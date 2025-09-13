@@ -14,7 +14,7 @@ import BulkActionsBar from "../../shared/components/ui/BulkActionsBar"
 import CandidateTable from "../../shared/components/ui/CandidateTable"
 import FilterModal from "../../shared/components/ui/FilterModal"
 import EmailModal from "./EmailModal/EmailModal"
-import ConfirmModal from "../../shared/components/ui/confirmModal"
+import StatusConfirmModal from "../../shared/components/ui/StatusConfirmModal"
 import { getAvailableStatusTransitions, getNextStatus } from "@/core/shared/utils/statusUtils"
 import { applyFilters } from "@/core/shared/utils/filterUtils"
 
@@ -55,9 +55,15 @@ export default function JobPostingDashboard() {
   const [showQuickReplyPrompt, setShowQuickReplyPrompt] = useState(false)
   const [quickReplyPrompt, setQuickReplyPrompt] = useState("")
   const [isGeneratingContent, setIsGeneratingContent] = useState(false)
-  // Thêm state cho confirm gửi email
-  const [showEmailConfirm, setShowEmailConfirm] = useState(false)
-  const [pendingTransition, setPendingTransition] = useState(null) // { candidateId, newStatus }
+  
+  // Status Confirmation Modal
+  const [statusConfirmModal, setStatusConfirmModal] = useState({
+    isOpen: false,
+    candidateId: null,
+    candidateName: "",
+    currentStatus: "",
+    nextStatus: "",
+  })
 
   const queryClient = useQueryClient()
   const { jobId } = useParams()
@@ -158,7 +164,7 @@ export default function JobPostingDashboard() {
 
   const updateCandidateStatus = async (candidateId, newStatus) => {
     try {
-      await candidateApi.updateCandidateStatus(candidateId, newStatus)
+      await candidateApi.updateStatus(candidateId, newStatus)
       toast.success(`Status updated to ${newStatus}`)
       queryClient.invalidateQueries(["candidates", jobId])
     } catch (error) {
@@ -167,44 +173,76 @@ export default function JobPostingDashboard() {
     }
   }
 
-  const handleStatusTransition = (candidateId, currentStatus) => {
-    const nextStatus = getNextStatus(currentStatus)
+  const handleStatusTransition = (candidateId, nextStatus) => {
     if (!nextStatus) return
 
+    const candidate = candidates.find(c => c.id === candidateId)
+    if (!candidate) return
+
     if (shouldSendEmailForStatus(nextStatus)) {
-      setPendingTransition({ candidateId, newStatus: nextStatus })
-      setShowEmailConfirm(true)
+      setStatusConfirmModal({
+        isOpen: true,
+        candidateId,
+        candidateName: candidate.name,
+        currentStatus: candidate.status,
+        nextStatus: nextStatus,
+      })
     } else {
       updateCandidateStatus(candidateId, nextStatus)
     }
   }
 
-  const handleEmailConfirm = (sendEmail) => {
-    setShowEmailConfirm(false)
-    if (sendEmail && pendingTransition) {
-      const candidate = candidates.find(c => c.id === pendingTransition.candidateId)
-      if (!candidate) return
+  const handleStatusConfirm = async () => {
+    const { candidateId, nextStatus } = statusConfirmModal
+    await updateCandidateStatus(candidateId, nextStatus)
+    setStatusConfirmModal({
+      isOpen: false,
+      candidateId: null,
+      candidateName: "",
+      currentStatus: "",
+      nextStatus: "",
+    })
+  }
 
-      const nextStatus = pendingTransition.newStatus
-      const emailTemplate = getEmailTemplateForTransition(
-        candidate.status,
-        nextStatus,
-        candidate,
-        { companyName: 'HireTab', jobPostingName: jobName }
-      )
+  const handleStatusConfirmWithEmail = () => {
+    const { candidateId, nextStatus } = statusConfirmModal
+    const candidate = candidates.find(c => c.id === candidateId)
+    
+    if (!candidate) return
 
-      setEmailData({
-        to: candidate.email,
-        cc: "",
-        bcc: "",
-        subject: emailTemplate?.subject || `Update on your application for ${jobName}`,
-        body: emailTemplate?.body || "",
-      })
-      setEmailModalState("normal")
-    } else if (pendingTransition) {
-      updateCandidateStatus(pendingTransition.candidateId, pendingTransition.newStatus)
-      setPendingTransition(null)
-    }
+    const emailTemplate = getEmailTemplateForTransition(
+      candidate.status,
+      nextStatus,
+      candidate,
+      { companyName: 'HireTab', jobPostingName: jobName }
+    )
+
+    setEmailData({
+      to: candidate.email,
+      cc: "",
+      bcc: "",
+      subject: emailTemplate?.subject || `Update on your application for ${jobName}`,
+      body: emailTemplate?.body || "",
+    })
+    setEmailModalState("normal")
+    
+    setStatusConfirmModal({
+      isOpen: false,
+      candidateId: null,
+      candidateName: "",
+      currentStatus: "",
+      nextStatus: "",
+    })
+  }
+
+  const handleStatusCancel = () => {
+    setStatusConfirmModal({
+      isOpen: false,
+      candidateId: null,
+      candidateName: "",
+      currentStatus: "",
+      nextStatus: "",
+    })
   }
 
   const handleBulkStatusUpdate = async (newStatus) => {
@@ -338,7 +376,6 @@ export default function JobPostingDashboard() {
     setEmailData({ to: "", cc: "", bcc: "", subject: "", body: "" })
     setShowFormattingToolbar(false)
     setShowQuickReplyPrompt(false)
-    setPendingTransition(null) // Reset pendingTransition khi đóng modal
   }
 
   const minimizeEmailModal = () => {
@@ -387,9 +424,9 @@ export default function JobPostingDashboard() {
 
       if (response.ok) {
         toast.success("Email sent successfully!")
-        if (pendingTransition) {
-          await updateCandidateStatus(pendingTransition.candidateId, pendingTransition.newStatus)
-          setPendingTransition(null)
+        // Update candidate status after sending email
+        if (statusConfirmModal.candidateId && statusConfirmModal.nextStatus) {
+          await updateCandidateStatus(statusConfirmModal.candidateId, statusConfirmModal.nextStatus)
         }
         closeEmailModal()
         setSelectedCandidates(new Set())
@@ -572,6 +609,7 @@ export default function JobPostingDashboard() {
             sortConfig={sortConfig}
             setSortConfig={setSortConfig}
             onStatusTransition={handleStatusTransition}
+            onClearSelection={() => setSelectedCandidates(new Set())}
             showJobName={false}
             refetch={() => queryClient.invalidateQueries(["candidates", jobId])}
           />
@@ -625,18 +663,15 @@ export default function JobPostingDashboard() {
         onInsertImage={handleInsertImage}
       />
 
-      <ConfirmModal
-        open={showEmailConfirm}
-        message="Do you want to send a notification email for this status change?"
-        onClose={() => {
-          setShowEmailConfirm(false)
-          setPendingTransition(null)
-        }}
-        onConfirm={() => handleEmailConfirm(true)}
-        onCancel={() => handleEmailConfirm(false)}
-        confirmText="Yes, send email"
-        cancelText="No, just update status"
+      <StatusConfirmModal
+        open={statusConfirmModal.isOpen}
+        candidateName={statusConfirmModal.candidateName}
+        currentStatus={statusConfirmModal.currentStatus}
+        nextStatus={statusConfirmModal.nextStatus}
         isLoading={false}
+        onClose={handleStatusCancel}
+        onUpdateOnly={handleStatusConfirm}
+        onUpdateWithEmail={handleStatusConfirmWithEmail}
       />
     </div>
   )

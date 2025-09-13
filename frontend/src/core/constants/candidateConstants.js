@@ -9,10 +9,10 @@ export const CANDIDATE_STATUSES = {
 
 // Status transition rules
 export const STATUS_TRANSITIONS = {
-  "In-Review": "Interview",
-  Interview: "Hired",
-  Hired: "Interview",
-  Rejected: null,
+  "In-Review": ["Interview", "Rejected"],
+  Interview: ["Hired", "Rejected"],
+  Hired: null,
+  Rejected: ["Interview"],
 }
 
 // Sort options for candidate lists

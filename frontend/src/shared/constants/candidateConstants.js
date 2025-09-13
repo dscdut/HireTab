@@ -7,10 +7,10 @@ export const CANDIDATE_STATUSES = {
 }
 
 export const STATUS_TRANSITIONS = {
-  "In-Review": "Interview",
-  Interview: "Hired",
-  Hired: "Interview",
-  Rejected: null,
+  "In-Review": ["Interview", "Rejected"],
+  Interview: ["Hired", "Rejected"],
+  Hired: null,
+  Rejected: ["Interview"],
 }
 
 export const SORT_OPTIONS = [

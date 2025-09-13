@@ -21,6 +21,9 @@ export const candidateApi = {
         return res;
     },
     updateStatus: (id, status) => axiosClient.put(`/candidates/${id}/status`, { status }),
+    
+    // Alias for backward compatibility
+    updateCandidateStatus: (id, status) => axiosClient.put(`/candidates/${id}/status`, { status }),
 
     bulkUpdateStatus: async (candidateIds, { status, currentStatuses }) => {
         try {
