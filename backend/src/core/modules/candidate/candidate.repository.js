@@ -36,8 +36,8 @@ class Repository extends DataRepository {
             .count('id as total')
             .first()
             .then(result => {
-            return result || { total: 0 };
-        });
+                return result || { total: 0 };
+            });
     }
 
     searchCandidatesByNameAndJob(page, size, keyword) {
@@ -67,7 +67,7 @@ class Repository extends DataRepository {
             .limit(size)
             .offset(offset);
     }
-    
+
     getSearchTotalCount(keyword) {
         return this.query()
             .innerJoin('job_postings', 'job_postings.id', 'candidates.job_posting_id')
@@ -103,27 +103,27 @@ class Repository extends DataRepository {
     }
 
     getCandidateByJobId(jobPostingId) {
-    return this.query()
-        .innerJoin('job_postings', 'job_postings.id', 'candidates.job_posting_id') // Join với bảng job_postings
-        .select(
-            'candidates.id',
-            'candidates.name',
-            'candidates.email',
-            'candidates.phone',
-            'candidates.note',
-            'candidates.summary',
-            'candidates.experiences',
-            'candidates.education',
-            'candidates.score',
-            'candidates.certifications',
-            'candidates.resume_file as resumeFile',
-            'candidates.cover_letter as coverLatter',
-            'candidates.status',
-            'job_postings.title as jobPostingName',
-            'candidates.created_at as createdAt',
-        )
-        .where('candidates.job_posting_id', jobPostingId)
-        .whereNull('candidates.deleted_at') 
+        return this.query()
+            .innerJoin('job_postings', 'job_postings.id', 'candidates.job_posting_id') // Join với bảng job_postings
+            .select(
+                'candidates.id',
+                'candidates.name',
+                'candidates.email',
+                'candidates.phone',
+                'candidates.note',
+                'candidates.summary',
+                'candidates.experiences',
+                'candidates.education',
+                'candidates.score',
+                'candidates.certifications',
+                'candidates.resume_file as resumeFile',
+                'candidates.cover_letter as coverLatter',
+                'candidates.status',
+                'job_postings.title as jobPostingName',
+                'candidates.created_at as createdAt',
+            )
+            .where('candidates.job_posting_id', jobPostingId)
+            .whereNull('candidates.deleted_at')
     }
     deleteCandidateById(id) {
         return this.query()
@@ -131,21 +131,38 @@ class Repository extends DataRepository {
             .del();
     }
     updateCandidateStatus(id, status) {
-    return this.query()
-        .where('id', id)
-        .whereNull('deleted_at') 
-        .update({
-            status: status,
-            updated_at: new Date()
-        })
-        .returning([
-            'id',
-            'name', 
-            'email',
-            'status',
-            'updated_at as updatedAt'
-        ]);
-}
+        return this.query()
+            .where('id', id)
+            .whereNull('deleted_at')
+            .update({
+                status: status,
+                updated_at: new Date()
+            })
+            .returning([
+                'id',
+                'name',
+                'email',
+                'status',
+                'updated_at as updatedAt'
+            ]);
+    }
+
+    getSuggestionSkillsByCandidateId(candidateId) {
+        if (!candidateId) return Promise.resolve([]);
+        return this.query()
+            .leftJoin('suggestion_skills', 'suggestion_skills.candidate_id', 'candidates.id')
+            .select(
+                'suggestion_skills.id as id',
+                'suggestion_skills.candidate_id as candidateId',
+                'suggestion_skills.categories',
+                'suggestion_skills.level',
+                'suggestion_skills.keywords',
+                'suggestion_skills.created_at as createdAt'
+            )
+            .where('candidates.id', candidateId)
+            .whereNull('candidates.deleted_at')
+            .orderBy('suggestion_skills.id', 'asc');
+    }
 }
 
 export const CandidateRepository = new Repository('candidates');

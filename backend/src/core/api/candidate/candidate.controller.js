@@ -2,7 +2,7 @@ import { ValidHttpResponse } from '../../../packages/handler/response/validHttp.
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from 'core/common/constants/default-params.constant';
 import { PaginationCandidateDto } from 'core/modules/candidate/dto/pagination-candidate.dto';
 import { CandidateService } from 'core/modules/candidate/services/candidate.service';
-import { CreateCandidateDto, UpdateCandidateStatusDto } from 'core/modules/candidate/dto';
+import { CreateCandidateDto, UpdateCandidateStatusDto, SuggestionSkillDto } from 'core/modules/candidate/dto';
 class Controller {
     constructor() {
         this.service = CandidateService;
@@ -17,7 +17,7 @@ class Controller {
         );
         return ValidHttpResponse.toOkResponse(PaginationCandidateDto(data));
     };
-    
+
     findById = async req => {
         const data = await this.service.getCandidateByJobId(req.params.id);
         return ValidHttpResponse.toOkResponse(data);;
@@ -43,18 +43,24 @@ class Controller {
         );
         return ValidHttpResponse.toOkResponse(data[0]);
     };
-    
+
     deleteCandidateById = async req => {
         const data = await this.service.deleteCandidateById(req.params.id);
         return ValidHttpResponse.toOkResponse(data);
     }
 
     updateCandidateStatus = async req => {
-    const data = await this.service.updateCandidateStatus(
-        req.params.id, 
-        UpdateCandidateStatusDto(req.body).status
-    );
+        const data = await this.service.updateCandidateStatus(
+            req.params.id,
+            UpdateCandidateStatusDto(req.body).status
+        );
         return ValidHttpResponse.toOkResponse(data);
+    }
+    getSuggestionSkills = async req => {
+        const candidateId = req.params.id;
+        const data = await this.service.getSuggestionSkillsByCandidateId(candidateId);
+        const formattedData = (data || []).map(skill => SuggestionSkillDto(skill));
+        return ValidHttpResponse.toOkResponse(formattedData);
     }
 }
 
