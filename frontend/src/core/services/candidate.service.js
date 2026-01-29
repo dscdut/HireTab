@@ -21,36 +21,57 @@ export const candidateApi = {
         return res;
     },
     updateStatus: (id, status) => axiosClient.put(`/candidates/${id}/status`, { status }),
-    
+
     // Alias for backward compatibility
     updateCandidateStatus: (id, status) => axiosClient.put(`/candidates/${id}/status`, { status }),
 
     bulkUpdateStatus: async (candidateIds, { status, currentStatuses }) => {
         try {
-            const updatePromises = candidateIds.map(id => 
+            const updatePromises = candidateIds.map(id =>
                 axiosClient.put(`/candidates/${id}/status`, { status })
             )
-            
+
             await Promise.all(updatePromises)
-            
+
             return {
                 success: true,
                 updatedCount: candidateIds.length,
                 message: `Successfully updated ${candidateIds.length} candidates to ${status}`,
             }
         } catch (error) {
-            
+
             if (error.response?.status === 404 || error.code === 'ERR_BAD_REQUEST' || error.code === 'ERR_NETWORK') {
                 await new Promise((resolve) => setTimeout(resolve, 800))
-                
+
                 return {
                     success: true,
                     updatedCount: candidateIds.length,
                     message: `Successfully updated ${candidateIds.length} candidates to ${status} (fallback mode)`,
                 }
             }
-            
+
             throw new Error(`Failed to update candidates: ${error.message}`)
+        }
+    },
+
+    getSuggestionSkillsByCandidateId: (candidateId) => {
+        return axiosClient.get(`/candidates/${candidateId}/suggestion-skills`);
+    },
+
+    // New method to call VITE_SUGGESTION_SKILLS API
+    getSuggestedCourses: async (data) => {
+        try {
+            const SUGGESTION_SKILLS_URL = import.meta.env.VITE_SUGGESTION_SKILLS;
+            const response = await axios.post(SUGGESTION_SKILLS_URL, data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                timeout: 30000
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Suggestion Skills API Error:", error);
+            throw error;
         }
     },
 

@@ -1,10 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { jobApi } from "@/core/services/job.service"
+import { candidateApi } from "@/core/services/candidate.service"
 import { toast } from "react-toastify"
 import { ArrowLeft, Calendar, DollarSign, Users, Briefcase, MapPin } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import ModalApplyForJob from "./components/ModalApplyForJob"
+import SuggestedCoursesModal from "./components/SuggestedCoursesModal"
 import ChatWootWidget from "@/shared/components/ui/chatwoot-widget"
 import Header from "@/shared/layout/candidate-layout/Header"
 import ReactMarkdown from "react-markdown"
@@ -14,6 +16,59 @@ export default function JobOpeningDetailPage() {
   const navigate = useNavigate()
   console.log("Job ID:", id)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isCoursesModalOpen, setIsCoursesModalOpen] = useState(false)
+  const [suggestionSkills, setSuggestionSkills] = useState([])
+  const [coursesLoading, setCoursesLoading] = useState(false)
+
+  // Function to fetch suggested courses
+  const fetchSuggestedCourses = async () => {
+    if (coursesLoading) return; // Prevent multiple calls
+
+    setCoursesLoading(true)
+    try {
+      console.log("Step 1: Getting suggestion skills from getSuggestionSkillsByCandidateId")
+
+      // First, get suggestion skills data
+      const suggestionSkillsResponse = await candidateApi.getSuggestionSkillsByCandidateId(7)
+      console.log("Suggestion Skills Response:", suggestionSkillsResponse)
+
+      // Extract the suggestion_skills data
+      const suggestion_skills = suggestionSkillsResponse || []
+      console.log("Suggestion Skills Data:", suggestion_skills)
+
+      console.log("Step 2: Sending suggestion_skills to getSuggestedCourses API")
+
+      // Use suggestion_skills as input for getSuggestedCourses
+      const requestData = {
+        suggestion_skills: suggestion_skills
+      }
+
+      console.log("Request data for getSuggestedCourses:", requestData)
+
+      const coursesResponse = await candidateApi.getSuggestedCourses(requestData)
+      console.log("Suggested Courses API Response:", coursesResponse)
+
+      // API should return array of courses directly
+      const courses = Array.isArray(coursesResponse) ? coursesResponse : []
+      console.log("Final Suggested Courses Data:", courses)
+      setSuggestionSkills(courses)
+    } catch (error) {
+      console.error("Error fetching suggested courses:", error)
+      setSuggestionSkills([])
+      toast.error("Failed to load suggested courses")
+    } finally {
+      setCoursesLoading(false)
+    }
+  }
+
+  // Handle opening courses modal
+  const handleOpenCoursesModal = () => {
+    setIsCoursesModalOpen(true)
+    // Fetch courses when modal is opened
+    if (suggestionSkills.length === 0) {
+      fetchSuggestedCourses()
+    }
+  }
 
   const handleOpenModal = () => {
     setIsModalOpen(true)
@@ -97,19 +152,19 @@ export default function JobOpeningDetailPage() {
   const requirementsMarkdown = job?.requirements && Array.isArray(job.requirements) && job.requirements.length > 0
     ? job.requirements.map(req => `- ${req}`).join('\n')
     : `- Bachelor's degree in Computer Science, Software Engineering, or related field.\n` +
-      `- Independent and Collaborative Work: Ability to work both independently and as part of a team, with a passion for continuous learning and excellence in software development.\n` +
-      `- Experience with RESTful APIs and state management libraries (Redux, Zustand, etc.).\n` +
-      `- Problem-Solving: Strong analytical and problem-solving skills with the ability to manage technical complexities.\n` +
-      `- Solid understanding of Git and collaborative development workflows.\n` +
-      `- Strong problem-solving skills and attention to detail.`
+    `- Independent and Collaborative Work: Ability to work both independently and as part of a team, with a passion for continuous learning and excellence in software development.\n` +
+    `- Experience with RESTful APIs and state management libraries (Redux, Zustand, etc.).\n` +
+    `- Problem-Solving: Strong analytical and problem-solving skills with the ability to manage technical complexities.\n` +
+    `- Solid understanding of Git and collaborative development workflows.\n` +
+    `- Strong problem-solving skills and attention to detail.`
 
   const responsibilitiesMarkdown = job?.responsibilities && Array.isArray(job.responsibilities) && job.responsibilities.length > 0
     ? job.responsibilities.map(resp => `- ${resp}`).join('\n')
     : `- Work Environment: Fun, open, and family-like atmosphere.\n` +
-      `- Compensation: Excellent salary with 13th month bonus and quarterly bonuses available based on personal and corporate goals met.\n` +
-      `- Health Benefits: Yearly renewed health allowance or a comprehensive health insurance package, depending on your preference.\n` +
-      `- Extra Paid Time Off: 1 Christmas day, and up to 10 days of Sick leave.\n` +
-      `- Work Schedule: 5-day work week (Mon-Fri) with no regular overtime expected.`
+    `- Compensation: Excellent salary with 13th month bonus and quarterly bonuses available based on personal and corporate goals met.\n` +
+    `- Health Benefits: Yearly renewed health allowance or a comprehensive health insurance package, depending on your preference.\n` +
+    `- Extra Paid Time Off: 1 Christmas day, and up to 10 days of Sick leave.\n` +
+    `- Work Schedule: 5-day work week (Mon-Fri) with no regular overtime expected.`
 
   return (
     <>
@@ -295,12 +350,27 @@ export default function JobOpeningDetailPage() {
                   </div>
                 </div>
 
-                <div className="mt-8">
+                <div className="mt-8 space-y-3">
                   <button
                     onClick={handleOpenModal}
                     className="w-full py-3 text-lg font-semibold text-white transition-all duration-200 bg-blue-600 shadow-lg hover:bg-blue-700 rounded-xl"
                   >
                     Apply for this position
+                  </button>
+
+                  <button
+                    onClick={handleOpenCoursesModal}
+                    disabled={coursesLoading}
+                    className="w-full py-3 text-lg font-semibold text-blue-600 bg-blue-50 border-2 border-blue-200 transition-all duration-200 hover:bg-blue-100 hover:border-blue-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {coursesLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                        Loading Courses...
+                      </span>
+                    ) : (
+                      `View Suggested Courses ${suggestionSkills.length > 0 ? `(${suggestionSkills.length})` : ''}`
+                    )}
                   </button>
                 </div>
               </div>
@@ -317,6 +387,13 @@ export default function JobOpeningDetailPage() {
             jobLevel={job.level}
             jobDesRate={job.descRate}
             jobDescription={job.description}
+          />
+
+          <SuggestedCoursesModal
+            isOpen={isCoursesModalOpen}
+            onClose={() => setIsCoursesModalOpen(false)}
+            suggestionSkills={suggestionSkills}
+            loading={coursesLoading}
           />
         </div>
 
