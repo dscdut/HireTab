@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom'
 import { getUserFromLocalStorage } from '@/core/shared/storage/storage'
+import { path } from '@/core/constants/path'
 
 export default function ProtectedRoute({ children, allowedRoles }) {
     const user = getUserFromLocalStorage()

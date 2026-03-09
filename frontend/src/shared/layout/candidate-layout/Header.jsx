@@ -7,7 +7,7 @@ import HireTabLogo from '@/assets/images/hiretab-logo.png'
 import { path } from '@/core/constants/path'
 
 const MENU_ITEMS = [
-  { label: 'Find Jobs', href: path.candidate.job , icon: Search },
+  { label: 'Find Jobs', href: path.candidate.job, icon: Search },
   { label: 'Resume', href: path.candidate.template_gallery, icon: Contact },
   { label: 'Mission & Value', href: path.candidate.mission, icon: Briefcase },
   { label: 'Contact Us', href: path.candidate.contact, icon: Headset }
@@ -24,143 +24,124 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const headerClasses = `fixed top-0 left-0 right-0 z-50 transition-all duration-300 select-none ${isScrolled
-    ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100'
-    : 'bg-white/90 backdrop-blur-sm'
-    }`
-
-  const containerClasses = `flex items-center justify-between transition-all duration-300 ${isScrolled ? 'h-16 py-0' : 'h-20 py-2'
-    }`
-
-  const logoClasses = `transition-all duration-300 ${isScrolled ? 'w-10 h-10' : 'w-12 h-12'
-    }`
-
-  const titleClasses = `font-bold text-gray-900 transition-all duration-300 ${isScrolled ? 'text-xl' : 'text-2xl'
+  const headerClasses = `fixed top-0 left-0 right-0 z-[100] transition-all duration-500 select-none ${isScrolled
+    ? 'bg-white/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.04)] py-3'
+    : 'bg-transparent py-6'
     }`
 
   return (
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className={headerClasses}
     >
-      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div className={containerClasses}>
-
+      <div className="container px-6 mx-auto lg:px-12">
+        <div className="flex items-center justify-between">
           {/* Logo & Brand */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center space-x-3 cursor-pointer"
+            className="flex items-center space-x-3 cursor-pointer group"
             onClick={() => navigate(path.candidate.home)}
-            role="button"
-            tabIndex={0}
           >
-            <img
-              src={HireTabLogo}
-              alt="HireTab"
-              className={logoClasses}
-              draggable={false}
-            />
+            <div className="relative">
+              <img
+                src={HireTabLogo}
+                alt="HireTab"
+                className={`transition-all duration-500 object-contain ${isScrolled ? 'w-10 h-10' : 'w-12 h-12'
+                  } group-hover:scale-110`}
+                draggable={false}
+              />
+              <div className="absolute inset-0 bg-blue-400 rounded-full blur-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500" />
+            </div>
             <div className="flex flex-col">
-              <span className={titleClasses}>Hiretab</span>
-              <span className="-mt-1 text-xs font-medium text-blue-600">
-                Your Career Partner
+              <span className={`font-bold tracking-tight text-[#18191C] transition-all duration-500 ${isScrolled ? 'text-xl' : 'text-2xl'
+                }`}>
+                Hiretab
+              </span>
+              <span className={`-mt-1 text-[10px] font-bold uppercase tracking-widest text-[#4640DE] transition-all duration-500 ${isScrolled ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'
+                }`}>
+                Career Partner
               </span>
             </div>
           </motion.div>
 
-          {/* Desktop Navigation */}
-          <motion.nav
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="items-center hidden space-x-8 md:flex"
-          >
+          {/* Desktop Navigation - Centered & Premium */}
+          <nav className="hidden lg:flex items-center absolute left-1/2 -translate-x-1/2 space-x-1">
             {MENU_ITEMS.map((item, index) => (
-              <motion.a
+              <Link
                 key={index}
-                href={item.href}
-                className="flex items-center px-3 py-2 space-x-2 font-medium text-gray-700 transition-colors duration-200 hover:text-blue-600"
+                to={item.href}
+                className="relative px-6 py-2 text-[17px] font-bold text-[#515B6F] hover:text-[#4640DE] transition-colors duration-300 group"
               >
-                <item.icon className="w-4 h-4" />
-                <span>{item.label}</span>
-              </motion.a>
+                <div className="flex items-center gap-2">
+                  <item.icon className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                  <span className="group-hover:-translate-x-2 transition-transform duration-300">{item.label}</span>
+                </div>
+                <motion.div
+                  className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#4640DE] rounded-full group-hover:w-1/2 transition-all duration-300"
+                />
+              </Link>
             ))}
-          </motion.nav>
+          </nav>
 
           {/* Right Side - Actions */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex items-center space-x-4"
-          >
-            {/* Mobile Menu Button */}
-            <button
-              className="p-2 md:hidden"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="Toggle mobile menu"
-            >
-              {isMobileMenuOpen ? (
-                <X className="w-6 h-6 text-gray-700" />
-              ) : (
-                <Menu className="w-6 h-6 text-gray-700" />
-              )}
-            </button>
+          <div className="flex items-center space-x-4">
+            <div className="hidden sm:flex items-center space-x-2 mr-2">
+              <button className="text-[17px] font-bold text-[#18191C] px-5 py-2 hover:bg-gray-100/50 rounded-lg transition-all">
+                Login
+              </button>
+            </div>
 
-            {/* Desktop Apply Button */}
             <Button
-              variant="secondary"
-              className="hidden px-6 py-2 font-bold text-white bg-blue-900 border-blue-600 md:block hover:bg-white hover:text-blue-600"
+              className="bg-[#4640DE] hover:bg-[#322BB3] text-white px-8 py-3 text-[17px] font-bold rounded-xl shadow-lg shadow-[#4640DE]/20 hover:shadow-[#4640DE]/30 transition-all duration-300 active:scale-95"
             >
               <Link to='/candidate/job'>Apply Now</Link>
             </Button>
-          </motion.div>
+
+            {/* Mobile Menu Button */}
+            <button
+              className="p-2 lg:hidden text-[#18191C] hover:bg-gray-100 rounded-lg transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation Menu */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="border-gray-400 rounded-xl border-1 md:hidden bg-white/95 backdrop-blur-md"
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="absolute top-full left-4 right-4 mt-4 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden lg:hidden"
             >
-              <div className="py-4 m-4 space-y-3">
+              <div className="p-4 space-y-1">
                 {MENU_ITEMS.map((item, index) => (
-                  <motion.a
+                  <Link
                     key={index}
-                    href={item.href}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.2, delay: index * 0.1 }}
-                    className="flex items-center px-3 py-3 space-x-3 font-medium text-gray-700 transition-colors duration-200 rounded-lg hover:bg-gray-100 hover:text-blue-600"
+                    to={item.href}
+                    className="flex items-center p-4 space-x-4 text-base font-semibold text-[#18191C] hover:bg-gray-50 rounded-xl transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <item.icon className="w-5 h-5" />
+                    <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-[#4640DE]">
+                      <item.icon size={20} />
+                    </div>
                     <span>{item.label}</span>
-                  </motion.a>
+                  </Link>
                 ))}
-
-                {/* Mobile Apply Button */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.2, delay: MENU_ITEMS.length * 0.1 }}
-                  className="pt-3 border-t border-gray-200"
-                >
+                <div className="pt-4 border-t border-gray-100 mt-2">
                   <Button
-                    variant="secondary"
-                    className="w-full px-6 py-3 font-bold text-white bg-blue-900 border-blue-600 hover:bg-white hover:text-blue-600"
+                    className="w-full bg-[#4640DE] py-6 text-base font-bold rounded-xl"
                   >
                     <Link to='/candidate/job'>Apply Now</Link>
                   </Button>
-                </motion.div>
+                </div>
               </div>
             </motion.div>
           )}
