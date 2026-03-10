@@ -90,9 +90,9 @@ const Header = () => {
           {/* Right Side - Actions */}
           <div className="flex items-center space-x-4">
             <div className="hidden sm:flex items-center space-x-2 mr-2">
-              <button className="text-[17px] font-bold text-[#18191C] px-5 py-2 hover:bg-gray-100/50 rounded-lg transition-all">
+              <Link to={path.login} className="text-[17px] font-bold text-[#18191C] px-5 py-2 hover:bg-gray-100/50 rounded-lg transition-all">
                 Login
-              </button>
+              </Link>
             </div>
 
             <Button
