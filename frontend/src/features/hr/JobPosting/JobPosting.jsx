@@ -38,28 +38,18 @@ const JobPosting = () => {
     queryFn: async () => {
       try {
         const jobs = await jobApi.listJobs()
-        // Fetch candidates for each job
         const jobsWithCounts = await Promise.all(
           jobs.map(async (job) => {
             try {
               const candidates = await candidateApi.listCandidate(job.id)
-              const candidateArray = Array.isArray(candidates) ? candidates : [candidates]
+              const candidateArray = Array.isArray(candidates) ? candidates : (candidates?.data || [])
               const totalApplications = candidateArray.length
               const applicationsCount = candidateArray.filter(
                 (candidate) => candidate.status !== "In-Review"
               ).length
-              return {
-                ...job,
-                totalApplications,
-                applicationsCount,
-              }
+              return { ...job, totalApplications, applicationsCount }
             } catch (error) {
-              console.error(`Failed to fetch candidates for job ${job.id}:`, error)
-              return {
-                ...job,
-                totalApplications: 0,
-                applicationsCount: 0,
-              }
+              return { ...job, totalApplications: 0, applicationsCount: 0 }
             }
           })
         )
@@ -88,45 +78,30 @@ const JobPosting = () => {
     )
   }, [jobListings, searchTerm, location, status])
 
-  // Modern status color mapping with softer colors
-  const getStatusColor = (status) => {
+  // Stats Calculation
+  const stats = useMemo(() => {
+    return {
+      total: jobListings.length,
+      active: jobListings.filter(j => j.status === "In Progress" || j.status === "To Do").length,
+      newApplicants: jobListings.reduce((acc, curr) => acc + (curr.applicationsCount || 0), 0)
+    }
+  }, [jobListings])
+
+  const getStatusDisplay = (status) => {
     switch (status) {
-      case "To Do":
-        return "bg-blue-50 text-blue-700 border border-blue-200"
-      case "In Progress":
-        return "bg-amber-50 text-amber-700 border border-amber-200"
-      case "Done":
-        return "bg-emerald-50 text-emerald-700 border border-emerald-200"
-      case "Closed":
-        return "bg-rose-50 text-rose-700 border border-rose-200"
-      default:
-        return "bg-slate-50 text-slate-700 border border-slate-200"
+      case "To Do": return { label: "DRAFT", style: "bg-slate-50 text-slate-500 border border-slate-200 border-dashed opacity-80" }
+      case "In Progress": return { label: "ACTIVE", style: "bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm" }
+      case "Done": return { label: "COMPLETED", style: "bg-blue-50 text-blue-600 border border-blue-100 shadow-sm" }
+      case "Closed": return { label: "CLOSED", style: "bg-rose-50 text-rose-600 border border-rose-100 shadow-sm" }
+      default: return { label: status, style: "bg-gray-50 text-gray-600 border border-gray-100" }
     }
   }
 
-  // Modern job type color mapping
-  const getJobTypeColor = (type) => {
-    switch (type) {
-      case "Fulltime":
-        return "bg-indigo-50 text-indigo-700 border border-indigo-200"
-      case "Freelance":
-        return "bg-orange-50 text-orange-700 border border-orange-200"
-      case "Part-time":
-        return "bg-purple-50 text-purple-700 border border-purple-200"
-      case "Contract":
-        return "bg-teal-50 text-teal-700 border border-teal-200"
-      default:
-        return "bg-slate-50 text-slate-700 border border-slate-200"
-    }
-  }
-
-  const handleViewDetails = (job) => {
+  const handleRowClick = (job) => {
     const pathWithId = path.hr.job_detail.replace(':id', job.id)
     navigate(pathWithId)
-    setMenuOpen(null)
   }
 
-  // Handle Edit Job
   const handleEditJob = (job) => {
     setSelectedJob(job)
     setShowEditModal(true)
@@ -134,6 +109,7 @@ const JobPosting = () => {
   }
 
   const handleDeleteJob = async (job) => {
+    if (!window.confirm("Are you sure you want to delete this job posting?")) return;
     try {
       await jobApi.deleteJob(job.id)
       toast.success("Job deleted successfully!")
@@ -144,302 +120,182 @@ const JobPosting = () => {
     }
   }
 
-  // Toggle menu
-  const toggleMenu = (jobId) => {
-    setMenuOpen(menuOpen === jobId ? null : jobId)
-  }
-
-  // Handle row click
-  const handleRowClick = (job) => {
-    handleViewDetails(job)
-  }
-
-  if (isJobsLoading) {
-    return <LoadingSpinner />
-  }
-
-  if (isJobsError) {
-    return (
-      <ErrorState
-        title="Error loading jobs"
-        message="Please try refreshing the page"
-      />
-    )
-  }
+  if (isJobsLoading) return <LoadingSpinner />
+  if (isJobsError) return <ErrorState title="Error loading jobs" message="Please try refreshing the page" />
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Modern Header */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-200">
-        <div className="px-6 py-4">
-          {/* Title Section */}
-          <div className="mb-4">
-            <h1 className="mb-1 text-2xl font-bold text-gray-900">Job Posting Board</h1>
-          </div>
+    <div className="min-h-screen bg-[#F8FAFC] p-8">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+        <div>
+          <h1 className="text-[28px] font-bold text-[#1E293B] mb-2">Job Postings</h1>
+          <p className="text-gray-500 font-medium">Manage and track all your recruitment openings</p>
+        </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-200"
+        >
+          <Plus size={20} />
+          <span>Create New Job</span>
+        </button>
+      </div>
 
-          {/* Search and Filters */}
-          <div className="flex flex-col items-start justify-between gap-3 lg:flex-row lg:items-center">
-            <div className="flex flex-col items-start flex-1 w-full gap-3 sm:flex-row sm:items-center lg:w-auto">
-              {/* Enhanced Search Input */}
-              <div className="relative flex-grow min-w-[250px] max-w-sm">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                  <Search className="w-5 h-5 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search jobs, descriptions..."
-                  className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
 
-              {/* Modern Dropdowns */}
-              <div className="flex gap-2">
-                {/* Location Dropdown */}
-                <div className="relative">
-                  <button
-                    className="px-3 py-2.5 bg-white border border-gray-200 rounded-lg flex items-center gap-2 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-700 font-medium min-w-[130px]"
-                    onClick={() => setShowLocationDropdown(!showLocationDropdown)}
-                  >
-                    <MapPin className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm truncate">{location}</span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${showLocationDropdown ? "rotate-180" : ""}`}
-                    />
-                  </button>
-                  {showLocationDropdown && (
-                    <div className="absolute z-30 w-56 mt-2 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg">
-                      {locations.map((loc) => (
-                        <button
-                          key={loc}
-                          className="w-full px-4 py-3 text-left text-gray-700 transition-colors duration-150 border-b border-gray-100 hover:bg-gray-50 last:border-b-0"
-                          onClick={() => {
-                            setLocation(loc)
-                            setShowLocationDropdown(false)
-                          }}
-                        >
-                          {loc}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
 
-                {/* Status Dropdown */}
-                <div className="relative">
-                  <button
-                    className="px-3 py-2.5 bg-white border border-gray-200 rounded-lg flex items-center gap-2 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-700 font-medium min-w-[130px]"
-                    onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                  >
-                    <Filter className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm truncate">{status}</span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${showStatusDropdown ? "rotate-180" : ""}`}
-                    />
-                  </button>
-                  {showStatusDropdown && (
-                    <div className="absolute z-30 w-56 mt-2 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg">
-                      {statuses.map((stat) => (
-                        <button
-                          key={stat}
-                          className="w-full px-4 py-3 text-left text-gray-700 transition-colors duration-150 border-b border-gray-100 hover:bg-gray-50 last:border-b-0"
-                          onClick={() => {
-                            setStatus(stat)
-                            setShowStatusDropdown(false)
-                          }}
-                        >
-                          {stat}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Enhanced Add Button */}
+      {/* Filters Section */}
+      <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-8 flex flex-col xl:flex-row items-center gap-4">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <input
+            type="text"
+            placeholder="Search by job title, department or keyword..."
+            className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-blue-100 transition-all font-medium text-[#1E293B]"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-3 w-full xl:w-auto">
+          <div className="relative flex-1 xl:flex-none">
             <button
-              onClick={() => setShowAddModal(true)}
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+              onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+              className="w-full xl:w-[200px] flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-all"
             >
-              <Plus className="w-4 h-4" />
-              Add New Job
+              <div className="flex items-center gap-2">
+                <MapPin size={16} />
+                <span className="truncate max-w-[120px]">{location}</span>
+              </div>
+              <ChevronDown size={16} />
             </button>
+            {showLocationDropdown && (
+              <div className="absolute top-full mt-2 left-0 w-full bg-white border border-gray-100 rounded-xl shadow-xl z-30 py-2">
+                {locations.map(loc => (
+                  <button key={loc} className="w-full text-left px-4 py-2 hover:bg-gray-50 font-medium text-gray-700" onClick={() => { setLocation(loc); setShowLocationDropdown(false); }}>{loc}</button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="relative flex-1 xl:flex-none">
+            <button
+              onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+              className="w-full xl:w-[180px] flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <Filter size={16} />
+                <span className="truncate">{status}</span>
+              </div>
+              <ChevronDown size={16} />
+            </button>
+            {showStatusDropdown && (
+              <div className="absolute top-full mt-2 left-0 w-full bg-white border border-gray-100 rounded-xl shadow-xl z-30 py-2">
+                {statuses.map(s => (
+                  <button key={s} className="w-full text-left px-4 py-2 hover:bg-gray-50 font-medium text-gray-700" onClick={() => { setStatus(s); setShowStatusDropdown(false); }}>{s}</button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="px-6 py-8">
-        {filteredJobs.length === 0 ? (
-          <div className="p-12 text-center bg-white border border-gray-200 rounded-lg shadow-sm">
-            <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full">
-              <Briefcase className="w-10 h-10 text-gray-400" />
-            </div>
-            <h3 className="mb-2 text-xl font-semibold text-gray-900">No jobs found</h3>
-            <p className="mb-6 text-gray-600">No jobs match your current search criteria</p>
-            <button
-              onClick={() => {
-                setSearchTerm("")
-                setLocation("All Locations")
-                setStatus("All Statuses")
-              }}
-              className="px-4 py-2 font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700"
-            >
-              Clear all filters
-            </button>
-          </div>
-        ) : (
-          <div className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
-            {/* Table Header */}
-            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-              <div className="grid grid-cols-12 gap-6 text-sm font-semibold text-gray-700">
-                <div className="col-span-3">Job Title</div>
-                <div className="col-span-1">Status</div>
-                <div className="col-span-2">Start Date</div>
-                <div className="col-span-2">End Date</div>
-                <div className="col-span-2">Type</div>
-                <div className="col-span-1">Applications</div>
-                <div className="col-span-1 text-right">Actions</div>
-              </div>
-            </div>
-
-            {/* Table Body */}
-            <div className="divide-y divide-gray-100">
-              {filteredJobs.map((job, index) => (
-                <div
-                  key={index}
-                  className="grid items-center grid-cols-12 gap-6 px-6 py-4 transition-colors cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleRowClick(job)}
-                >
-                  {/* Job Title */}
-                  <div className="col-span-3">
-                    <h3 className="mb-1 font-medium text-gray-900">{job.title}</h3>
-                    <p className="mb-1 text-sm text-gray-500">{job.location}</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {typeof job.salary_min === "number" && typeof job.salary_max === "number"
-                        ? `${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()}`
-                        : "Negotiable"} $
-                    </p>
-                  </div>
-
-                  {/* Status */}
-                  <div className="col-span-1">
-                    <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(job.status)}`}
-                    >
-                      {job.status}
-                    </span>
-                  </div>
-
-                  {/* Start Date */}
-                  <div className="col-span-2">
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span>
-                        {job.start_time
-                          ? new Date(job.start_time).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
-                          : "Not set"}
-                      </span>
+      {/* Jobs Grid/Table */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-gray-50/50">
+              <th className="px-6 py-5 text-left text-sm font-semibold text-[#1E293B] w-[35%]">Postings Details</th>
+              <th className="px-6 py-5 text-left text-sm font-semibold text-[#1E293B] w-[20%]">Applications</th>
+              <th className="px-6 py-5 text-left text-sm font-semibold text-[#1E293B] w-[18%]">Timeline</th>
+              <th className="px-6 py-5 text-center text-sm font-semibold text-[#1E293B] w-[15%]">Status</th>
+              <th className="px-6 py-5 text-right text-sm font-semibold text-[#1E293B] w-[12%]">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {filteredJobs.map((job) => (
+              <tr key={job.id} className="group hover:bg-blue-50/10 transition-all cursor-pointer" onClick={() => handleRowClick(job)}>
+                <td className="px-6 py-6">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all shadow-inner ${job.status === 'To Do' ? 'bg-slate-50 group-hover:bg-slate-100' : 'bg-gray-50 group-hover:bg-white'}`}>
+                      <Briefcase className={job.status === 'To Do' ? 'text-slate-300' : 'text-gray-400'} size={20} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className={`text-[16px] font-bold transition-colors capitalize ${job.status === 'To Do' ? 'text-slate-400 group-hover:text-slate-600' : 'text-[#1E293B] group-hover:text-blue-600'}`}>{job.title}</h4>
+                        {job.status === "To Do" && <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 text-slate-500 text-[9px] rounded font-black uppercase tracking-widest">Draft</span>}
+                      </div>
+                      <p className={`text-sm font-medium mt-0.5 ${job.status === 'To Do' ? 'text-slate-300' : 'text-gray-400'}`}>{job.location} • {job.type || 'Full-time'}</p>
                     </div>
                   </div>
-
-                  {/* End Date */}
-                  <div className="col-span-2">
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span>
-                        {job.end_time
-                          ? new Date(job.end_time).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
-                          : "Not set"}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Job Type */}
-                  <div className="col-span-2">
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getJobTypeColor(job.type || "Fulltime")}`}
-                    >
-                      {job.type || "Fulltime"}
-                    </span>
-                  </div>
-
-                  {/* Applications */}
-                  <div className="col-span-1">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-gray-400" />
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm font-semibold text-gray-900">{job.applicationsCount || 0}</span>
-                        <span className="text-xs text-gray-400">/ {job.totalApplications || 0}</span>
+                </td>
+                <td className={`px-6 py-6 transition-opacity ${job.status === 'To Do' ? 'opacity-40 grayscale' : ''}`}>
+                  <div className="flex items-center gap-3">
+                    <div className="flex -space-x-2">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 overflow-hidden">
+                          <img src={`https://i.pravatar.cc/100?u=${job.id + i}`} alt="" />
+                        </div>
+                      ))}
+                      <div className="w-8 h-8 rounded-full border-2 border-white bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-600">
+                        +{job.totalApplications || 0}
                       </div>
                     </div>
+                    <span className="text-sm font-bold text-gray-900">{job.applicationsCount || 0} New</span>
                   </div>
-
-                  {/* Actions Menu */}
-                  <div className="flex justify-end col-span-1">
-                    <div className="relative">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          toggleMenu(job.id)
-                        }}
-                        className="p-1 transition-colors rounded-full hover:bg-gray-100"
-                      >
-                        <MoreVertical size={16} className="text-gray-500" />
-                      </button>
-
-                      {/* Dropdown Menu */}
-                      {menuOpen === job.id && (
-                        <div className="absolute right-0 z-20 w-32 bg-white border border-gray-200 rounded-lg shadow-lg top-8">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleEditJob(job)
-                            }}
-                            className="flex items-center w-full gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 first:rounded-t-lg"
-                          >
-                            <Edit size={14} />
-                            Edit
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleDeleteJob(job)
-                            }}
-                            className="flex items-center w-full gap-2 px-3 py-2 text-sm text-left text-red-600 hover:bg-gray-50 last:rounded-b-lg"
-                          >
-                            <Trash2 size={14} />
-                            Delete
-                          </button>
-                        </div>
-                      )}
+                </td>
+                <td className={`px-6 py-6 transition-opacity ${job.status === 'To Do' ? 'opacity-40 grayscale' : ''}`}>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
+                      <Calendar size={12} className="text-blue-400" />
+                      <span>Start: {new Date(job.start_time).toLocaleDateString('vi-VN')}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
+                      <Calendar size={12} className="text-red-300" />
+                      <span>End: {new Date(job.end_time).toLocaleDateString('vi-VN')}</span>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                </td>
+                <td className="px-6 py-6 text-center">
+                  <span className={`px-4 py-1.5 rounded-lg text-[10px] font-bold tracking-wider inline-block min-w-[100px] ${getStatusDisplay(job.status).style}`}>
+                    {getStatusDisplay(job.status).label}
+                  </span>
+                </td>
+                <td className="px-6 py-6 text-right">
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleEditJob(job); }}
+                      className="p-2.5 text-blue-600 bg-blue-50/50 hover:bg-blue-100 rounded-xl transition-all shadow-sm"
+                      title="Edit Post"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDeleteJob(job); }}
+                      className="p-2.5 text-red-600 bg-red-50/50 hover:bg-red-100 rounded-xl transition-all shadow-sm"
+                      title="Delete Post"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                    <button
+                      className="p-2.5 text-gray-500 bg-gray-50 hover:bg-gray-200 rounded-xl transition-all shadow-sm"
+                      title="More Options"
+                    >
+                      <MoreVertical size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {filteredJobs.length === 0 && (
+          <div className="py-20 text-center">
+            <p className="text-gray-400 font-medium">No job postings matched your criteria.</p>
           </div>
         )}
       </div>
 
-      {/* Click outside to close menu */}
-      {menuOpen && <div className="fixed inset-0 z-20" onClick={() => setMenuOpen(null)} />}
-
       {/* Modals */}
-      <AddJobModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} />
-      {showEditModal && <EditJobModal job={selectedJob} onClose={() => setShowEditModal(false)} />}
+      <AddJobModal isOpen={showAddModal} onClose={() => { setShowAddModal(false); refetch(); }} />
+      {showEditModal && <EditJobModal job={selectedJob} onClose={() => { setShowEditModal(false); refetch(); }} />}
     </div>
-  )
-}
-
+  );
+};
 export default JobPosting

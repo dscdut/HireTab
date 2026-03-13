@@ -1,12 +1,16 @@
-import { useState, useEffect } from 'react'
+// ...existing code...
+import { useState, useEffect } from "react";
+import TypewriterLoading from './components/TypewriterLoading'
+import LoadingTerminal from './components/LoadingTerminal'
+import CandidateLayout from '@/shared/layout/candidate-layout/candidate-layout'
 import Openning from './components/Openning'
 import Benefit from './components/Benefit'
 import InspirationalSection from './components/InspirationalSection'
 import Contact from './components/Contact'
 import LogoScrambleSlogan from './components/LogoScrambleSlogan'
-import TypewriterLoading from './components/TypewriterLoading'
-import LoadingTerminal from './components/LoadingTerminal'
-import CandidateLayout from '@/shared/layout/candidate-layout/candidate-layout'
+import FeaturedJobs from "./components/FeaturedJobs";
+import LatestJobs from "./components/LatestJobs";
+import PostJobCTA from "./components/PostJobCTA";
 
 const randomLogs = [
   'Installing dependencies...',
@@ -103,9 +107,10 @@ const HomePage = () => {
       <Openning />
       <Benefit />
       <InspirationalSection />
-      <Contact />
+      <FeaturedJobs />
+      <LatestJobs />
+      <PostJobCTA />
     </CandidateLayout>
   )
 }
-
 export default HomePage

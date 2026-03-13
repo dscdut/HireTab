@@ -1,0 +1,152 @@
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.08);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal Card */
+.modalCard {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.12);
+  padding: 32px 36px 24px;
+  min-width: 340px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatarWrap {
+  margin-bottom: 12px;
+}
+.avatarIcon {
+  background: #e0e7ff;
+  border-radius: 50%;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 12px;
+}
+.infoRow {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 1rem;
+}
+.label {
+  color: #6b7280;
+}
+.value {
+  color: #2563eb;
+  font-weight: 500;
+}
+.statusChange {
+  display: flex;
+  align-items: center;
+}
+.statusFrom {
+  color: #6b7280;
+  font-weight: 500;
+}
+.arrow {
+  margin: 0 6px;
+  color: #6b7280;
+}
+.statusTo {
+  color: #059669;
+  font-weight: 700;
+}
+.question {
+  margin: 18px 0 10px;
+  font-size: 1.05rem;
+  color: #374151;
+}
+.optionsWrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.optionBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.optionBtn:hover {
+  background: #e5e7eb;
+}
+.optionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.optionTitle {
+  font-weight: 600;
+  color: #374151;
+}
+.optionDesc {
+  font-size: 0.92rem;
+  color: #6b7280;
+}
+.optionBtnBlue {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #2563eb;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.optionBtnBlue:hover {
+  background: #1d4ed8;
+}
+.optionIconBlue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.optionTitleBlue {
+  font-weight: 600;
+  color: #fff;
+}
+.optionDescBlue {
+  font-size: 0.92rem;
+  color: #e0e7ff;
+}
+.cancelBtn {
+  margin-top: 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #6b7280;
+  font-size: 1rem;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: border 0.2s, color 0.2s;
+}
+.cancelBtn:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}

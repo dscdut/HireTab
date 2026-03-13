@@ -1,4 +1,4 @@
-import { IconDashboard, IconCandidates , IconJobPosting, IconSettings, IconHelpCenter} from '@/assets/icons'
+import { IconDashboard, IconCandidates, IconJobPosting, IconSettings, IconHelpCenter } from '@/assets/icons'
 import IconHrDashboard from '@/assets/icons/icon-company-profile'
 import { path } from '@/core/constants/path'
 
@@ -12,7 +12,7 @@ export const sidebarLinks = [
 
 export const candidateLinks = [
   {
-    title: 'Candicates',
+    title: 'Candidates',
     path: path.hr.candidates_manage,
     icon: <IconCandidates />
   }
@@ -29,7 +29,7 @@ export const hrDashboard = [
 export const hrLinks = [
   {
     title: 'Job Posting',
-    path: [path.hr.job_posting, path.hr.job_detail, path.hr.dashboard], 
+    path: [path.hr.job_posting, path.hr.job_detail, path.hr.dashboard],
     icon: <IconJobPosting />
   }
 ]

@@ -106,87 +106,127 @@ export default function JobDetail() {
   const salaryMax = job.salaryMax ?? job.salary_max
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Hero section with blue overlay */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-700 via-blue-600/80 to-blue-400/80 z-10" />
+    <div className="flex flex-col min-h-screen bg-gray-50 font-sans">
+      {/* Premium Hero Section with Cover */}
+      <div className="relative bg-white border-b border-gray-100 pb-12">
+        {/* Cover Image Header */}
         <div
-          className="relative bg-cover bg-center h-[340px] md:h-[420px]"
+          className="absolute top-0 left-0 w-full h-[320px] z-0"
           style={{
-            backgroundImage:
-              "url('https://github.com/meishenry/HireNova/blob/main/%E1%BB%A8ng%20Vi%C3%AAn/M%C3%B4%20t%E1%BA%A3%20c%C3%B4ng%20vi%E1%BB%87c%20khi%20ch%C6%B0a%20apply%20(%E1%BB%A9ng%20vi%C3%AAn)/images/main-image.jpg?raw=true')",
+            backgroundImage: "url('https://github.com/meishenry/HireNova/blob/main/%E1%BB%A8ng%20Vi%C3%AAn/M%C3%B4%20t%E1%BA%A3%20c%C3%B4ng%20vi%E1%BB%87c%20khi%20ch%C6%B0a%20apply%20(%E1%BB%A9ng%20vi%C3%AAn)/images/main-image.jpg?raw=true')",
+            backgroundPosition: "center",
+            backgroundSize: "cover"
           }}
         >
-          {/* Navigation */}
-          <div className="relative z-20 p-6 flex items-center justify-between">
+          <div className="absolute inset-0 bg-gray-900/40"></div>
+        </div>
+
+        <div className="relative z-10 max-w-6xl mx-auto px-6 h-full flex flex-col pt-8">
+          {/* Navigation & Actions */}
+          <div className="flex items-center justify-between mb-24">
             <button
-              className="flex items-center text-white hover:text-blue-100 transition text-lg font-medium bg-blue-700/40 px-4 py-2 rounded-lg shadow backdrop-blur-sm"
+              className="flex items-center text-white/90 hover:text-white transition-colors text-sm font-semibold"
               onClick={() => navigate(-1)}
             >
-              <ArrowLeft className="mr-2 h-5 w-5" />
-              <span>Back to Jobs</span>
+              <ArrowLeft className="mr-2 w-4 h-4" />
+              Back to Dashboard
             </button>
+            <div className="flex items-center gap-3">
+              <button
+                className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all border border-white/20 backdrop-blur-md shadow-sm text-sm"
+                onClick={() => setShowEditModal(true)}
+              >
+                Edit Details
+              </button>
+              <button
+                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg text-sm"
+                onClick={() => navigate(`/hr/job-dashboard/${job?.id}`)}
+              >
+                View Candidates
+              </button>
+            </div>
           </div>
 
-          {/* Apply Button */}
-          <div className="absolute z-20 top-6 right-6">
-            <button
-              className="bg-white text-blue-600 px-6 py-2 rounded-lg hover:bg-blue-50 transition font-medium shadow-lg"
-              onClick={() => navigate(`/hr/job-dashboard/${job?.id}`)}
-            >
-              View List Candidate
-            </button>
-          </div>
+          {/* Job Header Content (Overlapping) */}
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 bg-white p-8 rounded-2xl shadow-2xl shadow-gray-200/50 border border-gray-200/60 mt-4 ring-1 ring-black/5">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-4">
+                <span className={`px-3 py-1 rounded-md text-[11px] font-black uppercase tracking-wider ${job.status === 'To Do' ? 'bg-slate-100 text-slate-500 border border-slate-200 border-dashed' :
+                  job.status === 'In Progress' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                    job.status === 'Done' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                      job.status === 'Closed' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                        'bg-gray-100 text-gray-600'
+                  }`}>
+                  {job.status === 'To Do' ? 'DRAFT' : job.status === 'In Progress' ? 'ACTIVE' : job.status.toUpperCase()}
+                </span>
+                <span className="text-sm font-bold text-gray-400">•</span>
+                <span className="text-sm font-bold text-gray-400">ID: #{job.id}</span>
+              </div>
 
-          {/* Job Title and Info */}
-          <div className="relative z-20 flex flex-col justify-center h-full px-6 pb-10 md:pb-16 max-w-6xl mx-auto">
-            <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg">{job.title}</h1>
-            <div className="flex flex-wrap items-center gap-3 text-white text-lg font-medium mb-4">
-              <span className="bg-blue-900/60 px-4 py-2 rounded-full text-base backdrop-blur-sm flex items-center gap-2">
-                <MapPin size={16} />
-                {job.location}
-              </span>
-              <span className="bg-blue-900/60 px-4 py-2 rounded-full text-base backdrop-blur-sm flex items-center gap-2">
-                <Briefcase size={16} />
-                Full-Time
-              </span>
-              <span className="bg-blue-900/60 px-4 py-2 rounded-full text-base backdrop-blur-sm">
-                {job.level || "Mid-Senior Level"}
-              </span>
-              <span className="bg-blue-900/60 px-4 py-2 rounded-full text-base backdrop-blur-sm">
-                {job.industryName}
-              </span>
-              <span className={`${getStatusColor(job.status)} px-4 py-2 rounded-full text-base backdrop-blur-sm`}>
-                {job.status}
-              </span>
+              <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight leading-tight">
+                {job.title}
+              </h1>
+
+              <div className="flex flex-wrap items-center gap-4 text-sm font-semibold text-gray-600">
+                <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg border border-gray-100">
+                  <MapPin className="text-gray-400 w-4 h-4" />
+                  {job.location || 'Location not specified'}
+                </div>
+                <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg border border-gray-100">
+                  <Briefcase className="text-gray-400 w-4 h-4" />
+                  {job.type || 'Full-Time'}
+                </div>
+                <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg border border-gray-100">
+                  <span className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center text-[8px] font-black text-gray-500">Lv</span>
+                  {job.level || 'Mid-Senior'}
+                </div>
+                <div className="flex items-center gap-2 bg-blue-50/50 text-blue-700 px-4 py-2 rounded-lg border border-blue-100/50">
+                  {job.industryName || 'Industry not specified'}
+                </div>
+              </div>
             </div>
 
-            {/* Quick Stats */}
-            <div className="flex flex-wrap items-center gap-6 text-white/90 text-sm">
-              <div className="flex items-center gap-2">
-                <DollarSign size={16} />
-                <span>{formatSalary(salaryMin, salaryMax)}</span>
+            {/* Quick Stats Card */}
+            <div className="w-full md:w-[320px] bg-white border border-gray-100 shadow-sm rounded-2xl p-6 flex flex-col gap-5 shrink-0">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
+                  <DollarSign className="w-5 h-5 text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Salary Offer</p>
+                  <p className="text-base font-bold text-gray-900">{formatSalary(salaryMin, salaryMax)}</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Users size={16} />
-                <span>{job.applicationsCount || 0} Applications</span>
+              <div className="w-full h-px bg-gray-50"></div>
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Total Applicants</p>
+                  <p className="text-base font-bold text-gray-900">{job.applicationsCount || 0} Candidates</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Calendar size={16} />
-                <span>{job.end_time ? calculateDaysLeft(job.end_time) : "No deadline"}</span>
+              <div className="w-full h-px bg-gray-50"></div>
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Timeline</p>
+                  <p className="text-base font-bold text-gray-900">{job.end_time ? calculateDaysLeft(job.end_time) : "No deadline"}</p>
+                </div>
               </div>
             </div>
+
           </div>
         </div>
-      </div>
+      </div >
 
       {/* Company Information */}
-      <div className="bg-white py-12 border-b border-gray-200">
+      <div className="bg-white py-12 border-b border-gray-100" >
         <div className="container mx-auto px-6 max-w-6xl">
-          <div className="flex items-start gap-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-400 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
-              H
-            </div>
+          <div className="flex flex-col gap-6">
             <div className="flex-1">
               <h2 className="text-2xl font-bold mb-3 text-gray-900">About the Company</h2>
               <p className="text-gray-700 mb-4 leading-relaxed">
@@ -203,7 +243,7 @@ export default function JobDetail() {
       </div>
 
       {/* Job Details */}
-      <div className="container mx-auto px-6 py-12 max-w-6xl">
+      < div className="container mx-auto px-6 py-12 max-w-6xl" >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             {/* Job Description */}
@@ -228,34 +268,34 @@ export default function JobDetail() {
                 {job?.requirements && Array.isArray(job.requirements) && job.requirements.length > 0 ? (
                   job.requirements.map((requirement, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
                       <span className="leading-relaxed">{requirement}</span>
                     </li>
                   ))
                 ) : (
                   <>
                     <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
                       <span className="leading-relaxed">Bachelor’s degree in Computer Science, Software Engineering, or related field.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
                       <span className="leading-relaxed">Independent and Collaborative Work: Ability to work both independently and as part of a team, with a passion for continuous learning and excellence in software development.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
                       <span className="leading-relaxed">Experience with RESTful APIs and state management libraries (Redux, Zustand, etc.).</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
                       <span className="leading-relaxed">Problem-Solving: Strong analytical and problem-solving skills with the ability to manage technical complexities.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
                       <span className="leading-relaxed">Solid understanding of Git and collaborative development workflows.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
                       <span className="leading-relaxed">Strong problem-solving skills and attention to detail.</span>
                     </li>
                   </>
@@ -270,31 +310,31 @@ export default function JobDetail() {
                 {job?.responsibilities && Array.isArray(job.responsibilities) && job.responsibilities.length > 0 ? (
                   job.responsibilities.map((responsibility, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
                       <span className="leading-relaxed">{responsibility}</span>
                     </li>
                   ))
                 ) : (
                   <>
                     <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
                       <span className="leading-relaxed">Work Environment: Fun, open, and family-like atmosphere.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">Compensation: Excellent salary with 13th month bonus and quarterly bonuses available based on personal and corporate goals met..</span>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
+                      <span className="leading-relaxed">Compensation: Excellent salary with 13th month bonus and quarterly bonuses available based on personal and corporate goals met.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">Health Benefits: Yearly renewed health allowance or a comprehensive health insurance package, depending on your preference..</span>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
+                      <span className="leading-relaxed">Health Benefits: Yearly renewed health allowance or a comprehensive health insurance package, depending on your preference.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">Extra Paid Time Off: 1 Christmas day, and up to 10 days of Sick leave. .</span>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
+                      <span className="leading-relaxed">Extra Paid Time Off: 1 Christmas day, and up to 10 days of Sick leave.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="leading-relaxed">Work Schedule: 5-day work week (Mon-Fri) with no regular overtime expected..</span>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2.5 flex-shrink-0"></div>
+                      <span className="leading-relaxed">Work Schedule: 5-day work week (Mon-Fri) with no regular overtime expected.</span>
                     </li>
                   </>
                 )}
@@ -305,75 +345,70 @@ export default function JobDetail() {
             <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 sticky top-8">
               <h3 className="text-xl font-bold mb-6 text-gray-900 flex items-center gap-3">
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Briefcase className="w-4 h-4 text-blue-600" />
+                  <Users className="w-4 h-4 text-blue-600" />
                 </div>
-                Job Information
+                Hiring Progress
               </h3>
 
+              {/* Hiring Progress Mock */}
               <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Briefcase className="w-5 h-5 text-purple-600" />
+                <div>
+                  <div className="flex justify-between items-end mb-2">
+                    <span className="text-gray-500 text-sm font-medium">Applied</span>
+                    <span className="font-bold text-gray-900">{job.applicationsCount || 0}</span>
                   </div>
-                  <div>
-                    <p className="text-gray-500 text-sm font-medium">Industry</p>
-                    <p className="font-semibold text-gray-900">{getJobProperty("industryName", "Not specified")}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Users className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-gray-500 text-sm font-medium">Job Level</p>
-                    <p className="font-semibold text-gray-900">{getJobProperty("level", "Mid-Senior Level")}</p>
+                  <div className="w-full bg-gray-100 rounded-full h-2">
+                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '100%' }}></div>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Calendar className="w-5 h-5 text-green-600" />
+                <div>
+                  <div className="flex justify-between items-end mb-2">
+                    <span className="text-gray-500 text-sm font-medium">Interviewing</span>
+                    <span className="font-bold text-gray-900">{Math.floor((job.applicationsCount || 50) * 0.4)}</span>
                   </div>
-                  <div>
-                    <p className="text-gray-500 text-sm font-medium">Employment Type</p>
-                    <p className="font-semibold text-gray-900">{getJobProperty("employmentType", "Full-Time")}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <DollarSign className="w-5 h-5 text-yellow-600" />
-                  </div>
-                  <div>
-                    <p className="text-gray-500 text-sm font-medium">Salary Range</p>
-                    <p className="font-semibold text-gray-900">{formatSalary(salaryMin, salaryMax)}</p>
+                  <div className="w-full bg-gray-100 rounded-full h-2">
+                    <div className="bg-amber-500 h-2 rounded-full" style={{ width: '40%' }}></div>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`w-10 h-10 ${getStatusColor(job?.status).replace("/90", "/20")} rounded-lg flex items-center justify-center flex-shrink-0`}
-                  >
-                    <div className={`w-3 h-3 ${getStatusColor(job?.status)} rounded-full`}></div>
+                <div>
+                  <div className="flex justify-between items-end mb-2">
+                    <span className="text-gray-500 text-sm font-medium">Hired</span>
+                    <span className="font-bold text-gray-900">1</span>
                   </div>
-                  <div>
-                    <p className="text-gray-500 text-sm font-medium">Status</p>
-                    <p className="font-semibold text-gray-900">{getJobProperty("status", "Open")}</p>
+                  <div className="w-full bg-gray-100 rounded-full h-2">
+                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '10%' }}></div>
                   </div>
+                </div>
+              </div>
+
+              <div className="w-full h-px bg-gray-100 my-8"></div>
+
+              {/* Hiring Team Mock */}
+              <h3 className="text-lg font-bold mb-6 text-gray-900 flex items-center gap-2">
+                <Users className="w-5 h-5 text-gray-400" />
+                Hiring Team
+              </h3>
+
+              <div className="flex items-center gap-4 mb-2">
+                <img src="https://i.pravatar.cc/150?u=phuoc" alt="Hiring Manager" className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm" />
+                <div>
+                  <p className="font-bold text-gray-900 text-sm">Huỳnh Thị Phước</p>
+                  <p className="text-gray-500 text-xs font-medium">Lead HR Manager</p>
                 </div>
               </div>
 
               <div className="mt-8 space-y-3">
                 <button
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white py-3 rounded-xl font-semibold text-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold text-[15px] transition-all shadow-lg"
                   onClick={() => navigate(`/hr/job-dashboard/${job.id}`)}
                 >
                   View Candidates
                 </button>
                 <button
                   onClick={() => setShowEditModal(true)}
-                  className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white py-3 rounded-xl font-semibold text-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+                  className="w-full bg-white hover:bg-blue-50 text-blue-600 border border-blue-200 py-3.5 rounded-xl font-bold text-[15px] transition-all"
                   type="button"
                 >
                   Edit Job
@@ -400,7 +435,7 @@ export default function JobDetail() {
         font-weight: bold;
       }`}
         </style>
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }

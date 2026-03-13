@@ -8,6 +8,7 @@ import { InvalidUrlFilter } from '../packages/handler/filter/InvalidUrlFilter';
 import { AppBundle } from './config';
 import { ModuleResolver } from './api';
 import { SENTRY_DSN } from './env';
+import chatboxcvRouter from './api/candidate/chatboxcv';
 
 const app = express();
 
@@ -25,6 +26,11 @@ Sentry.init({
         .applyGlobalFilters([new HttpExceptionFilter(), new InvalidUrlFilter()])
         .applySentryError(Sentry)
         .run();
+
+    // Đăng ký chatboxcv router sau khi app đã init
+    // (cần đặt sau init() để express.json đã được setup)
+    app.use('/v1/api/candidates', chatboxcvRouter);
 })();
 
 export default app;
+

@@ -1,0 +1,809 @@
+/* ─── Page Wrapper ────────────────────────────────────────────── */
+.pageWrapper {
+  padding: 48px 32px;
+  background: #f4f6fb;
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* ─── Card ─────────────────────────────────────────────────────── */
+.card {
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.10);
+  padding: 80px 120px 80px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  position: relative;
+/* Button group bottom right */
+.tabButtonGroup {
+  position: absolute;
+  bottom: 32px;
+  right: 48px;
+  display: flex;
+  gap: 12px;
+  z-index: 2;
+}
+}
+/* Style for tab buttons */
+.tabButton {
+  padding: 8px 20px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  background: #e0e7ff;
+  color: #2563eb;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.tabButton.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+
+/* ─── Card Header ───────────────────────────────────────────────── */
+.cardHeader {
+  margin-bottom: 24px;
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 6px;
+}
+
+.cardSubtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ─── Dropzone ─────────────────────────────────────────────────── */
+.dropzone {
+  border: 2.5px dashed #a5b4fc;
+  border-radius: 24px;
+  background: #f8fafc;
+  padding: 80px 0;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  margin-bottom: 36px;
+  font-size: 1.15rem;
+}
+
+.dropzone:hover {
+  background: #eef2ff;
+  border-color: #4f6ef7;
+}
+
+.dropzoneDragging {
+  background: #eef2ff;
+  border-color: #4f6ef7;
+}
+
+.dropzoneIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.dropzoneText {
+  font-size: 0.975rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 6px;
+}
+
+.dropzoneHint {
+  font-size: 0.825rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* ─── File List ─────────────────────────────────────────────────── */
+.fileList {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.fileListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.fileListTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #fff;
+  transition: background 0.15s;
+}
+
+.fileItem:last-child {
+  border-bottom: none;
+}
+
+.fileItem:hover {
+  background: #f9fafb;
+}
+
+.fileIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.fileInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fileName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileSize {
+  font-size: 0.775rem;
+  color: #9ca3af;
+}
+
+.fileStatus {
+  font-size: 0.775rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.status_pending {
+  background: #fef9c3;
+  color: #92400e;
+}
+
+.status_uploading {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status_done {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status_error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.candidateName {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #4f6ef7;
+  flex-shrink: 0;
+}
+
+.removeBtn {
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  color: #9ca3af;
+  padding: 4px 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.removeBtn:hover {
+  color: #ef4444;
+  border-color: #fca5a5;
+  background: #fee2e2;
+}
+
+/* ─── Upload All Button ─────────────────────────────────────────── */
+.uploadAllBtn {
+  padding: 7px 18px;
+  background: #4f6ef7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.uploadAllBtn:hover:not(:disabled) {
+  background: #3b57e0;
+  transform: translateY(-1px);
+}
+
+.uploadAllBtn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ─── Result Text ───────────────────────────────────────────────── */
+.resultText {
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+/* ─── Candidate Results ─────────────────────────────────────────── */
+.resultsSection {
+  margin-top: 8px;
+}
+
+.resultsSectionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 16px;
+}
+
+.candidateList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.candidateCard {
+  display: flex;
+  gap: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px 20px;
+  background: #fafbff;
+  position: relative;
+  transition: box-shadow 0.2s;
+}
+
+.candidateCard:hover {
+  box-shadow: 0 4px 16px rgba(79, 110, 247, 0.1);
+}
+
+.candidateRank {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #4f6ef7;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.candidateBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.candidateHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.candidateName2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.candidateEmail {
+  font-size: 0.825rem;
+  color: #6b7280;
+}
+
+.candidateLocation {
+  font-size: 0.825rem;
+  color: #0ea5e9;
+}
+
+.candidateExp {
+  font-size: 0.825rem;
+  color: #10b981;
+  font-weight: 500;
+}
+
+.candidateTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.tag {
+  background: #eff6ff;
+  color: #3b82f6;
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.matchRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.matchLabel {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.matchBar {
+  flex: 1;
+  max-width: 160px;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.matchBarInner {
+  height: 100%;
+  background: linear-gradient(90deg, #4f6ef7, #22c55e);
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+.matchScore {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #22c55e;
+}
+
+.strengths {
+  font-size: 0.825rem;
+  color: #374151;
+  margin-bottom: 10px;
+}
+
+.strengths b {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.viewCvLink {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #4f6ef7;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.viewCvLink:hover {
+  color: #3b57e0;
+  text-decoration: underline;
+}
+
+/* ─── Screening CV / Chat Interface ───────────────────────────── */
+.screeningCVContainer {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 160px);
+  min-height: 600px;
+  background: #f8fafc;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.chatHeader {
+  padding: 24px 32px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.chatHeader h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.chatHeader p {
+  font-size: 0.9375rem;
+  color: #64748b;
+  margin: 4px 0 0;
+}
+
+.chatMessages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 48px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.messageRow {
+  display: flex;
+  width: 100%;
+}
+
+.assistantMessage {
+  align-self: flex-start;
+  width: 100%;
+  max-width: 1400px;
+}
+
+.userMessage {
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 1400px;
+}
+
+.messageBubble {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #e2e8f0;
+  position: relative;
+  width: 100%;
+}
+
+.userMessage .messageBubble {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  width: auto;
+  max-width: 70%;
+  padding: 12px 20px;
+}
+
+.messageText {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #334155;
+}
+
+.userMessage .messageText {
+  color: #ffffff;
+}
+
+/* ─── Ranked Matches Header ─────────────────────────────────── */
+.matchesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 24px 0 16px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.rankedTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rankedTitle {
+  font-weight: 800;
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.countPill {
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.exportBtn:hover {
+  background: #1d4ed8;
+}
+
+.rerankBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.rerankBtn:hover {
+  background: #dbeafe;
+}
+
+/* ─── Detailed Candidate Card ─────────────────────────────────── */
+.detailedCard {
+  border: 1.5px solid #dbeafe;
+  border-radius: 16px;
+  padding: 24px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.cardTop {
+  display: flex;
+  gap: 20px;
+}
+
+.rankBox {
+  width: 48px;
+  height: 48px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cardInfo {
+  flex: 1;
+}
+
+.candName {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-right: 8px;
+}
+
+.candEmail {
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+.candMeta {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.candSkills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.skillPill {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.scoreWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  width: 140px;
+}
+
+.scoreLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.matchBar {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.matchFill {
+  height: 100%;
+  background: #10b981;
+  border-radius: 99px;
+}
+
+.scoreValue {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #10b981;
+}
+
+.candBio {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #475569;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.feedbackGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pointsRow {
+  display: flex;
+  gap: 12px;
+}
+
+.pointsIcon {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.pointsContent b {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.pointsContent p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.strengths b { color: #10b981; }
+.gaps b { color: #f59e0b; }
+
+/* ─── Chat Input ─────────────────────────────────────────────── */
+.chatInputWrapper {
+  padding: 20px 32px 32px;
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+}
+
+.chatInputContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px 10px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.chatInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.9375rem;
+  color: #1e293b;
+  background: transparent;
+}
+
+.sendButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #cbd5e1;
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sendButton:hover:not(:disabled) {
+  background: #94a3b8;
+}
+
+/* ─── Typing ─────────────────────────────────────────────────── */
+.typing {
+  display: flex;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.typing span {
+  width: 8px;
+  height: 8px;
+  background: #94a3b8;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+  40% { transform: scale(1); opacity: 1; }
+}
