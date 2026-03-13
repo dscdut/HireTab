@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { BookOpen, Briefcase, User, Sparkles } from 'lucide-react';
+import { BookOpenIcon, BriefcaseIcon, UserIcon, SparklesIcon } from 'lucide-react';
 
 // Mock Data
 const dashboardStats = [
@@ -43,7 +43,7 @@ const jobCards = [
     tags: ["Marketing", "Design"],
     capacity: "5 applied of 10 capacity",
     type: "Full-Time",
-    icon: <BookOpen className="text-blue-600 w-7 h-7" />,
+    icon: <BookOpenIcon className="text-blue-600 w-7 h-7" />,
   },
   {
     title: "Brand Designer",
@@ -52,7 +52,7 @@ const jobCards = [
     tags: ["Business", "Design"],
     capacity: "5 applied of 10 capacity",
     type: "Full-Time",
-    icon: <Briefcase className="text-blue-600 w-7 h-7" />,
+    icon: <BriefcaseIcon className="text-blue-600 w-7 h-7" />,
   },
   {
     title: "Interactive Developer",
@@ -61,7 +61,7 @@ const jobCards = [
     tags: ["Marketing", "Design"],
     capacity: "5 applied of 10 capacity",
     type: "Full-Time",
-    icon: <User className="text-blue-600 w-7 h-7" />,
+    icon: <UserIcon className="text-blue-600 w-7 h-7" />,
   },
   {
     title: "Product Designer",
@@ -70,7 +70,7 @@ const jobCards = [
     tags: ["Business", "Design"],
     capacity: "5 applied of 10 capacity",
     type: "Full-Time",
-    icon: <Sparkles className="text-blue-600 w-7 h-7" />,
+    icon: <SparklesIcon className="text-blue-600 w-7 h-7" />,
   },
 ];
 
@@ -95,8 +95,8 @@ const JobStatsChart = () => (
       <XAxis dataKey="day" />
       <YAxis />
       <Tooltip />
-      <Bar dataKey="views" fill="#6366f1" name="Job Views" radius={[8, 8, 0, 0]} />
-      <Bar dataKey="applied" fill="#fbbf24" name="Job Applied" radius={[8, 8, 0, 0]} />
+      <Bar dataKey="views" fill="#6366f1" name="Job Views" radius={[8,8,0,0]} />
+      <Bar dataKey="applied" fill="#fbbf24" name="Job Applied" radius={[8,8,0,0]} />
     </BarChart>
   </ResponsiveContainer>
 );
