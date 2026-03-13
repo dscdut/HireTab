@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 const ChatWootWidget = () => {
     const [isChatOpen, setIsChatOpen] = useState(false);
 
-    const toggleChat = () => {
-        setIsChatOpen(!isChatOpen);
-    };
+    const toggleChat = useCallback(() => {
+        setIsChatOpen((prev) => !prev);
+    }, []);
 
     useEffect(() => {
         const webhookUrl = import.meta.env.VITE_N8N_CHAT_WEBHOOK_URL
@@ -19,9 +19,6 @@ const ChatWootWidget = () => {
 
         // Add custom CSS for professional blue color scheme
         const style = document.createElement("style")
-        const chatWindowDisplay = isChatOpen ? 'block' : 'none'
-        const toggleBtnDisplay = isChatOpen ? 'none' : 'flex'
-        
         style.textContent = `
             /* Import Inter (modern, clean) */
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
@@ -293,7 +290,7 @@ const ChatWootWidget = () => {
             /* Message Styles - Like in the image */
             .n8n-chat .message,
             .n8n-chat .chat-message {
-                margin-top: 5px !important
+                margin-top: 5px !important;
                 font-size: 14px;
                 line-height: 1.4;
                 max-width: 75%;
@@ -347,7 +344,7 @@ const ChatWootWidget = () => {
 
             /* Message with emoji support */
             .n8n-chat .message-bot::before,
-                border: 1px solid red;
+            .n8n-chat .chat-message.chat-message-from-bot::before {
                 content: '';
                 position: absolute;
                 left: -8px;
@@ -405,104 +402,102 @@ const ChatWootWidget = () => {
                 list-style: inherit !important;
             }
 
-            /* Chat Input Area - Like in the image */
-            .n8n-chat .chat-input {
-                padding: 0.75rem 0.5rem;
-                border-top: 1px solid var(--chat--color-gray-200);
-                background: var(--chat--color-white);
-                display: flex;
-                align-items: center;
-                gap: 0.75rem;
-                border-radius: 0 0 var(--chat--border-radius) var(--chat--border-radius);
+            /* Chat Input Area */
+            .n8n-chat .chat-layout .chat-footer,
+            .n8n-chat .chat-footer {
+                padding: 0.75rem !important;
+                border-top: 1px solid var(--chat--color-gray-200) !important;
+                background: var(--chat--color-white) !important;
+                display: block !important;
             }
 
-            .n8n-chat .chat-input input,
-            .n8n-chat .chat-input textarea {
-                flex: 1;
-                font-size: 14px;
-                padding: 0.75rem 1rem;
-                border: 1px solid var(--chat--color-gray-300);
-                border-radius: 24px;
-                background: var(--chat--color-white);
-                resize: none;
-                font-family: inherit;
-                line-height: 1.4;
-                max-height: 200px !important;
-                min-height: 40px;
-                overflow-y: auto;
+            .n8n-chat .chat-input {
+                padding: 0 !important;
+                border: 0 !important;
+                background: transparent !important;
+            }
+
+            .n8n-chat .chat-inputs {
+                width: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.625rem !important;
+            }
+
+            .n8n-chat .chat-inputs textarea {
+                flex: 1 !important;
+                font-size: 14px !important;
+                padding: 0.75rem 1rem !important;
+                border: 1px solid var(--chat--color-gray-300) !important;
+                border-radius: 999px !important;
+                background: var(--chat--color-white) !important;
+                color: var(--chat--color-gray-800) !important;
+                resize: none !important;
+                font-family: inherit !important;
+                line-height: 1.4 !important;
+                min-height: 44px !important;
+                max-height: 160px !important;
+                overflow-y: auto !important;
                 scrollbar-width: none;
             }
 
-            .n8n-chat .chat-input input::-webkit-scrollbar,
-            .n8n-chat .chat-input textarea::-webkit-scrollbar {
+            .n8n-chat .chat-inputs textarea::-webkit-scrollbar {
                 display: none;
             }
 
-            .n8n-chat .chat-input input:focus,
-            .n8n-chat .chat-input textarea:focus {
-                border-color: var(--chat--color-primary);
-                outline: none;
-                box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
+            .n8n-chat .chat-inputs textarea:focus {
+                border-color: var(--chat--color-primary) !important;
+                outline: none !important;
+                box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.12) !important;
             }
 
-            .n8n-chat .chat-input input::placeholder,
-            .n8n-chat .chat-input textarea::placeholder {
+            .n8n-chat .chat-inputs textarea::placeholder {
                 color: var(--chat--color-gray-400);
                 font-weight: 400;
             }
-            .n8n-chat .chat-input-send-button{
-                color: var(--chat--color-primary);
+
+            .n8n-chat .chat-inputs-controls {
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
             }
 
-            /* Send Button - Arrow style like in image */
-            .n8n-chat .chat-input button[type="submit"],
-            .n8n-chat button[type="submit"] {
+            .n8n-chat .chat-input-send-button {
                 background: var(--chat--color-primary) !important;
                 color: var(--chat--color-white) !important;
                 border: none !important;
                 border-radius: 50% !important;
                 width: 40px !important;
                 height: 40px !important;
+                min-width: 40px !important;
                 padding: 0 !important;
                 cursor: pointer !important;
                 transition: all 0.2s ease !important;
                 display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                opacity: 1 !important;
-                visibility: visible !important;
                 box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2) !important;
-                flex-shrink: 0 !important;
             }
 
-            .n8n-chat .chat-input button[type="submit"]:hover,
-            .n8n-chat button[type="submit"]:hover {
+            .n8n-chat .chat-input-send-button:hover:not([disabled]) {
                 background: var(--chat--color-primary-hover) !important;
-                transform: scale(1.05);
-                box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3) !important;
+                transform: scale(1.04);
+                box-shadow: 0 4px 12px rgba(14, 165, 233, 0.28) !important;
             }
 
-            .n8n-chat .chat-input button[type="submit"]:active,
-            .n8n-chat button[type="submit"]:active {
+            .n8n-chat .chat-input-send-button:active:not([disabled]) {
                 background: var(--chat--color-primary-active) !important;
                 transform: scale(0.98);
             }
 
-            /* Make sure send button is always visible */
-            .n8n-chat .chat-input button[type="submit"][style*="display: none"],
-            .n8n-chat button[type="submit"][style*="display: none"] {
-                display: inline-flex !important;
-                opacity: 1 !important;
-                visibility: visible !important;
+            .n8n-chat .chat-input-send-button::before {
+                content: none !important;
             }
 
-            /* Add send icon */
-            .n8n-chat .chat-input button[type="submit"]::before,
-            .n8n-chat button[type="submit"]::before {
-                content: '→';
-                font-size: 18px;
-                font-weight: bold;
-                transform: rotate(-45deg);
+            .n8n-chat .chat-input-send-button svg {
+                width: 18px !important;
+                height: 18px !important;
+                color: var(--chat--color-white) !important;
             }
 
             /* Chat Toggle Button */

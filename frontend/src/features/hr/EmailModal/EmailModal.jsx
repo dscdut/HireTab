@@ -55,6 +55,7 @@ export default function EmailModal({
   onInsertEmoji,
   onInsertImage,
 }) {
+  const INTERVIEW_URL = import.meta.env.VITE_INTERVIEW_URL || "https://hiretab.gdsc.dev/interview/ghskjiwnfd"
   const textareaRef = useRef(null)
   const modalRef = useRef(null)
 
@@ -100,6 +101,19 @@ export default function EmailModal({
     if (modalRef.current && !modalRef.current.contains(e.target)) {
       onCloseModal()
     }
+  }
+
+  const handleInsertInterviewLink = () => {
+    const interviewLine = `Virtual interview link: ${INTERVIEW_URL}`
+    const hasInterviewLink = emailData.body.includes(INTERVIEW_URL)
+
+    if (hasInterviewLink) return
+
+    const nextBody = emailData.body?.trim()
+      ? `${emailData.body.trim()}\n\n${interviewLine}`
+      : interviewLine
+
+    setEmailData({ ...emailData, body: nextBody })
   }
 
   if (emailModalState === "closed") return null
@@ -249,6 +263,26 @@ export default function EmailModal({
                   textAlign: textFormatting.textAlign,
                 }}
               />
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3 mt-3 border border-blue-100 rounded-lg bg-blue-50">
+                <div className="text-sm text-blue-900">
+                  <span className="font-medium">Interview link:</span>{" "}
+                  <a
+                    href={INTERVIEW_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-blue-700 underline hover:text-blue-900"
+                  >
+                    {INTERVIEW_URL}
+                  </a>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleInsertInterviewLink}
+                  className="px-3 py-1.5 text-sm font-medium text-blue-700 bg-white border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                >
+                  Insert Interview Link
+                </button>
+              </div>
             </div>
 
             {/* Formatting Toolbar */}
