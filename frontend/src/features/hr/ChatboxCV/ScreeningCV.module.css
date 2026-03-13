@@ -1,0 +1,84 @@
+/* Screening CV Styles */
+.screeningCVContainer {
+  padding: 32px 24px;
+  background: #f4f6fb;
+  min-height: 100vh;
+}
+
+.searchBar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.candidateList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.candidateCard {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rank {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.name {
+  font-weight: 700;
+  color: #111827;
+}
+.email {
+  color: #374151;
+}
+.location {
+  color: #6b7280;
+}
+.exp {
+  color: #6b7280;
+}
+
+.skills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.skillTag {
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.85rem;
+}
+.matchScore {
+  font-weight: 500;
+  color: #059669;
+}
+.strengths {
+  color: #2563eb;
+  font-size: 0.95rem;
+}
+.gaps {
+  color: #dc2626;
+  font-size: 0.95rem;
+}
+.error {
+  color: #dc2626;
+  margin: 12px 0;
+}

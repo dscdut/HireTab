@@ -6,7 +6,8 @@ import { jobApi } from "@/core/services/job.service"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { toast } from "react-toastify"
 import { jwtDecode } from "jwt-decode"
-import { Plus, Trash2, X } from "lucide-react"
+import { Plus, Trash2, X, MapPin, Briefcase, Calendar, DollarSign, Users, ArrowLeft, Eye } from "lucide-react"
+import ReactMarkdown from "react-markdown"
 
 export default function AddJobModal({ isOpen, onClose }) {
     // State for job fields
@@ -25,7 +26,6 @@ export default function AddJobModal({ isOpen, onClose }) {
 
     // State for criteria
     const [criteria, setCriteria] = useState([{ name: "", weight: "", detail: "" }])
-    const [autoPost, setAutoPost] = useState(true)
     // State for validation errors
     const [salaryError, setSalaryError] = useState({ min: false, max: false })
     const [dateError, setDateError] = useState(false)
@@ -34,10 +34,11 @@ export default function AddJobModal({ isOpen, onClose }) {
     const [weightErrors, setWeightErrors] = useState([])
     const [weightExceeded, setWeightExceeded] = useState(false)
 
-    // State for AI Assistant
-    const [showQuickReplyPrompt, setShowQuickReplyPrompt] = useState(null) // Changed to store index of criterion or 'job' for job description
+    // State for Smart Assistant
+    const [showQuickReplyPrompt, setShowQuickReplyPrompt] = useState(null)
     const [quickReplyPrompt, setQuickReplyPrompt] = useState("")
     const [isGeneratingContent, setIsGeneratingContent] = useState(false)
+    const [showPreview, setShowPreview] = useState(false)
 
     // Fetch industries
     const { data: industries = [], isLoading, isError } = useQuery({
@@ -122,10 +123,10 @@ export default function AddJobModal({ isOpen, onClose }) {
         return criteria.reduce((sum, c) => sum + (parseFloat(c.weight) || 0), 0)
     }
 
-    // AI Assistant content generation
+    // Smart Assistant content generation
     const onGenerateContent = async (target) => {
         if (!quickReplyPrompt.trim()) {
-            toast.error("Please enter a description for the AI to generate content!")
+            toast.error("Please enter a description for the assistant!")
             return
         }
 
@@ -178,19 +179,19 @@ Do not include any HTML or CSS, only pure Markdown.`
                 }
                 setShowQuickReplyPrompt(null)
                 setQuickReplyPrompt("")
-                toast.success(target === "job" ? "Job description generated successfully!" : "Criterion detail generated successfully!")
+                toast.success(target === "job" ? "Description generated!" : "Details generated!")
             } else {
-                throw new Error("Unexpected API response")
+                throw new Error("Unexpected response")
             }
         } catch (error) {
             console.error("Error generating content:", error)
-            toast.error("Failed to generate content. Please try again.")
+            toast.error("Failed to generate content.")
         } finally {
             setIsGeneratingContent(false)
         }
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = (shouldPublish = true) => {
         const accessToken = localStorage.getItem("access_token");
         if (!accessToken) return toast.error("Access token is missing!");
 
@@ -198,531 +199,640 @@ Do not include any HTML or CSS, only pure Markdown.`
         try {
             userId = jwtDecode(accessToken).id;
         } catch {
-            return toast.error("Failed to decode access token!");
+            return toast.error("Failed to decode token!");
         }
 
+        // Define all required fields for publishing
         const requiredFields = [
-            { field: "industryId", msg: "Industry is required!" },
-            { field: "title", msg: "Job title is required!" },
-            { field: "description", msg: "Job description is required!" },
-            { field: "location", msg: "Location is required!" },
-            { field: "salaryMin", msg: "Minimum salary is required and must be a number!" },
-            { field: "salaryMax", msg: "Maximum salary is required and must be a number!" },
-            { field: "level", msg: "Job level is required!" },
-            { field: "startTime", msg: "Start date is required!" },
-            { field: "endTime", msg: "End date is required!" },
+            { field: "industryId", name: "Industry" },
+            { field: "title", name: "Job Title" },
+            { field: "description", name: "Job Description" },
+            { field: "location", name: "Location" },
+            { field: "salaryMin", name: "Min Salary" },
+            { field: "salaryMax", name: "Max Salary" },
+            { field: "level", name: "Job Level" },
+            { field: "startTime", name: "Start Date" },
+            { field: "endTime", name: "End Date" },
         ];
 
-        for (const { field, msg } of requiredFields) {
+        let missingFields = [];
+
+        // Check for missing data
+        for (const { field, name } of requiredFields) {
             if (!jobData[field] || (typeof jobData[field] === "string" && jobData[field].trim() === "")) {
-                return toast.error(msg);
+                missingFields.push(name);
             }
         }
 
         const salaryMin = parseFloat(jobData.salaryMin);
         const salaryMax = parseFloat(jobData.salaryMax);
 
-        if (isNaN(salaryMin) || isNaN(salaryMax)) {
-            setSalaryError({ min: isNaN(salaryMin), max: isNaN(salaryMax) });
-            return toast.error("Salary must contain numbers only!");
-        }
+        // --- VALIDATION FOR PUBLISHING ---
+        if (shouldPublish) {
+            if (missingFields.length > 0) {
+                return toast.error(`Missing required fields: ${missingFields[0]}!`);
+            }
 
-        if (salaryMin > salaryMax) {
-            setSalaryError({ min: true, max: true });
-            return toast.error("Minimum salary cannot be greater than maximum salary!");
-        } else {
-            setSalaryError({ min: false, max: false });
-        }
+            if (isNaN(salaryMin) || isNaN(salaryMax)) {
+                setSalaryError({ min: isNaN(salaryMin), max: isNaN(salaryMax) });
+                return toast.error("Salary must contain numbers only!");
+            }
 
-        if (new Date(jobData.startTime) >= new Date(jobData.endTime)) {
-            setDateError(true);
-            return toast.error("End date must be after start date!");
-        } else {
-            setDateError(false);
-        }
+            if (salaryMin > salaryMax) {
+                setSalaryError({ min: true, max: true });
+                return toast.error("Min salary cannot exceed max salary!");
+            } else {
+                setSalaryError({ min: false, max: false });
+            }
 
-        if (totalWeight() > 100) {
-            setWeightExceeded(true);
-            return toast.error("Total weight cannot exceed 100!");
-        } else {
-            setWeightExceeded(false);
+            if (new Date(jobData.startTime) >= new Date(jobData.endTime)) {
+                setDateError(true);
+                return toast.error("End date must be after start date!");
+            } else {
+                setDateError(false);
+            }
+
+            if (totalWeight() > 100) {
+                setWeightExceeded(true);
+                return toast.error("Total weight cannot exceed 100!");
+            } else {
+                setWeightExceeded(false);
+            }
         }
+        // --- END VALIDATION ---
 
         const descRateValue = criteria
             .map((c) => `${c.name} (${c.weight}%): ${c.detail}`)
             .join("; ");
 
+        // Auto-generate title if missing during draft save
+        const finalTitle = jobData.title?.trim() || `Untitled Job ${new Date().toLocaleDateString()}`;
+
+        // Safe default dates for backend DB constraints if empty
+        const defaultStart = jobData.startTime || new Date().toISOString().split('T')[0];
+        const defaultEnd = jobData.endTime || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+        // Safe default industry
+        const defaultIndustryId = jobData.industryId || (industries && industries.length > 0 ? industries[0].id : 1);
+
+        // Clean empty string properties from jobData to prevent Joi validation errors
+        const cleanedJobData = Object.fromEntries(
+            Object.entries(jobData).filter(([_, v]) => v !== "")
+        );
+
         const payload = {
-            ...jobData,
-            salaryMin,
-            salaryMax,
+            ...cleanedJobData,
+            title: finalTitle,
+            industryId: defaultIndustryId || 1, // Fallback if still empty
+            startTime: defaultStart,
+            endTime: defaultEnd,
+            salaryMin: isNaN(salaryMin) ? 0 : salaryMin, // Default to 0 for drafts if invalid
+            salaryMax: isNaN(salaryMax) ? 0 : salaryMax,
             descRate: descRateValue,
             userId,
             data: imageBase64,
             isPhoto: !!imageBase64,
+            status: shouldPublish ? "In Progress" : "To Do"
         };
 
-        // Lưu vào database trước
         jobApi.createJob(payload).then(async (response) => {
-            toast.success("Job saved to database successfully!");
-
-            // Nếu chọn tự động đăng bài thì gọi thêm API n8n
-            if (autoPost) {
+            if (shouldPublish) {
                 try {
-                    const n8nResponse = await fetch(import.meta.env.VITE_API_CREATE_JOB_URL, {
+                    await fetch(import.meta.env.VITE_API_CREATE_JOB_URL, {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload),
                     });
-
-                    if (n8nResponse.ok) {
-                        toast.success("Job posted automatically!");
-                    } else {
-                        toast.warning("Job saved but auto-posting failed!");
-                    }
+                    toast.success("Job published successfully!");
                 } catch (error) {
-                    toast.warning("Job saved but auto-posting failed!");
+                    toast.error("Created but failed to publish automatically.");
+                }
+            } else {
+                // Smart Feedback for Drafts
+                if (missingFields.length > 0) {
+                    toast.info(
+                        <div className="flex flex-col gap-1">
+                            <span className="font-bold">Draft saved successfully!</span>
+                            <span className="text-xs opacity-90">Missing {missingFields.length} fields to publish (e.g. {missingFields[0]}).</span>
+                        </div>,
+                        { autoClose: 4000 }
+                    );
+                } else {
+                    toast.success("Draft saved successfully!");
                 }
             }
-
             onClose();
         }).catch((error) => {
-            toast.error("Failed to create job!");
+            console.error(error.response?.data);
+            const detailMsg = error.response?.data?.detail?.[0]?.message;
+            const mainMsg = error.response?.data?.message;
+            toast.error(`Failed to process job! ${detailMsg || mainMsg || error.message}`);
         });
     }
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
-                <DialogHeader className="pb-6 border-b border-gray-100">
-                    <DialogTitle className="text-2xl font-bold text-gray-800">
-                        Create New Job Posting
-                    </DialogTitle>
-                    <DialogDescription className="mt-2 text-gray-600">
-                        Fill out the information below to create a professional job posting. All required fields must be completed.
-                    </DialogDescription>
-                </DialogHeader>
+            <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto bg-white rounded-[32px] p-0 border-none shadow-2xl">
+                {/* Header - Styled like image */}
+                <div className="sticky top-0 z-20 bg-white px-10 py-8 flex justify-between items-center border-b border-slate-100">
+                    <div className="flex items-center gap-6">
+                        <button onClick={onClose} className="p-2.5 hover:bg-gray-50 rounded-xl transition-all border border-slate-100">
+                            <X className="w-5 h-5 text-slate-400" />
+                        </button>
+                        <DialogTitle className="text-[32px] font-extrabold text-[#0F172A] tracking-tight">
+                            Create Job Posting
+                        </DialogTitle>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <Button
+                            onClick={() => setShowPreview(true)}
+                            variant="ghost"
+                            className="px-8 py-6 rounded-2xl font-bold bg-slate-50 text-slate-500 hover:bg-slate-100 transition-all flex items-center gap-2"
+                        >
+                            <Eye size={18} />
+                            Preview
+                        </Button>
+                        <Button onClick={() => handleSubmit(false)} variant="outline" className="px-8 py-6 rounded-2xl font-bold border-slate-200 text-[#0F172A] hover:bg-slate-50 transition-all">
+                            Save as Draft
+                        </Button>
+                        <Button
+                            onClick={() => handleSubmit(true)}
+                            disabled={dateError || salaryError.min || salaryError.max || weightExceeded || totalWeight() !== 100 || isGeneratingContent}
+                            className="px-8 py-6 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-xl shadow-blue-100 transition-all disabled:opacity-30"
+                        >
+                            {createJobMutation.isPending ? 'Publishing...' : 'Publish'}
+                        </Button>
+                    </div>
+                </div>
 
-                <div className="py-6 space-y-8">
-                    {/* Basic Information Section */}
-                    <div className="p-6 rounded-lg bg-gray-50">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-800">
-                            <div className="w-2 h-6 mr-3 bg-blue-500 rounded"></div>
-                            Basic Information
-                        </h3>
+                <PreviewModal
+                    isOpen={showPreview}
+                    onClose={() => setShowPreview(false)}
+                    jobData={jobData}
+                    criteria={criteria}
+                    imageBase64={imageBase64}
+                    industries={industries}
+                />
 
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            {/* Industry Selection */}
-                            <div>
-                                <select
-                                    className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    value={jobData.industryId}
-                                    onChange={(e) => handleJobDataChange("industryId", e.target.value)}
-                                >
-                                    <option value="">Select an industry</option>
-                                    {industries.map((industry) => (
-                                        <option key={industry.id} value={industry.id}>
-                                            {industry.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                <div className="px-10 pb-12 space-y-0">
+                    {/* UI Pattern: Left Label/Sub-description, Right Field */}
 
-                            {/* Job Title */}
-                            <div>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. Senior Software Engineer, Marketing Manager"
-                                    className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    value={jobData.title}
-                                    onChange={(e) => handleJobDataChange("title", e.target.value)}
-                                />
-                            </div>
-
-                            {/* Location */}
-                            <div>
-                                <select
-                                    className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    value={jobData.location}
-                                    onChange={(e) => handleJobDataChange("location", e.target.value)}
-                                >
-                                    <option value="">Select city</option>
-                                    <option value="danang">Da Nang</option>
-                                    <option value="hanoi">Ha Noi</option>
-                                    <option value="hochiminh">Ho Chi Minh City</option>
-                                </select>
-                            </div>
-
-                            {/* Experience Level */}
-                            <div>
-                                <select
-                                    className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    value={jobData.level}
-                                    onChange={(e) => handleJobDataChange("level", e.target.value)}
-                                >
-                                    <option value="">Select experience level</option>
-                                    <option value="Intern">Intern</option>
-                                    <option value="Junior">Junior</option>
-                                    <option value="Middle">Middle</option>
-                                    <option value="Senior">Senior</option>
-                                    <option value="Leader">Leader</option>
-                                    <option value="Manager">Manager</option>
-                                </select>
+                    {/* Job Title */}
+                    <Section
+                        title="Job post title"
+                        subtitle="Create a strong job post title"
+                    >
+                        <div className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="e.g. Senior Legal Counsel"
+                                className="w-full px-6 py-4 bg-slate-50 border border-blue-200 rounded-lg focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all font-semibold text-[#0F172A] placeholder:text-slate-300"
+                                value={jobData.title}
+                                onChange={(e) => handleJobDataChange("title", e.target.value)}
+                            />
+                            <div className="space-y-2">
+                                <p className="text-[13px] font-bold text-gray-400">Examples:</p>
+                                <ul className="text-[13px] font-medium text-gray-400 space-y-1 ml-1">
+                                    <li>• Legal Counsel for Law Issues</li>
+                                    <li>• Experienced Corporate Attorney for Established Law Firm</li>
+                                    <li>• Contract Attorney for Short-Term Project</li>
+                                </ul>
                             </div>
                         </div>
-                    </div>
+                    </Section>
 
-                    {/* Salary & Timeline Section */}
-                    <div className="p-6 rounded-lg bg-gray-50">
-                        <h3 className="flex items-center mb-6 text-lg font-semibold text-gray-800">
-                            <div className="w-2 h-6 mr-3 bg-green-500 rounded"></div>
-                            Salary & Timeline
-                        </h3>
+                    {/* Description */}
+                    <Section
+                        title="Description"
+                        subtitle="Provide a brief and concise job description"
+                    >
+                        <div className="relative">
+                            <textarea
+                                className="w-full px-6 py-6 bg-slate-50 border border-blue-200 rounded-lg focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all font-medium text-[#0F172A] placeholder:text-slate-300 min-h-[220px] leading-relaxed"
+                                placeholder="Describe the role, responsibilities, and key requirements..."
+                                value={jobData.description}
+                                onChange={(e) => handleJobDataChange("description", e.target.value)}
+                            />
 
-                        <div className="space-y-8">
-                            {/* Salary Range */}
-                            <div>
-                                <div className="flex items-center gap-4">
-                                    <input
-                                        type="text"
-                                        placeholder="1000"
-                                        className={`flex-1 border px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors text-center ${salaryError.min ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-blue-500"}`}
-                                        value={jobData.salaryMin}
-                                        onChange={(e) => handleJobDataChange("salaryMin", e.target.value)}
-                                    />
-                                    <span className="px-2 font-medium text-gray-500">to</span>
-                                    <input
-                                        type="text"
-                                        placeholder="2000"
-                                        className={`flex-1 block w-full border px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors text-center ${salaryError.max ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-blue-500"}`}
-                                        value={jobData.salaryMax}
-                                        onChange={(e) => handleJobDataChange("salaryMax", e.target.value)}
-                                    />
+                            <div className="absolute bottom-6 right-6 flex items-center gap-3">
+                                <div className="flex items-center gap-3 px-3 border-r border-gray-200">
+                                    <span className="font-serif italic text-gray-400 cursor-pointer hover:text-gray-600">B</span>
+                                    <span className="font-serif italic text-gray-400 cursor-pointer hover:text-gray-600">I</span>
+                                    <span className="font-serif underline text-gray-400 cursor-pointer hover:text-gray-600">U</span>
                                 </div>
-                            </div>
-
-                            {/* Timeline */}
-                            <div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <input
-                                            type="date"
-                                            className={`w-full border px-3 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors ${dateError ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-blue-500"}`}
-                                            value={jobData.startTime}
-                                            onChange={(e) => handleJobDataChange("startTime", e.target.value)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <input
-                                            type="date"
-                                            className={`w-full border px-3 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors ${dateError ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-blue-500"}`}
-                                            value={jobData.endTime}
-                                            onChange={(e) => handleJobDataChange("endTime", e.target.value)}
-                                        />
-                                    </div>
-                                </div>
+                                <button
+                                    onClick={() => setShowQuickReplyPrompt(showQuickReplyPrompt === "job" ? null : "job")}
+                                    className="px-4 py-2 bg-[#1E293B] text-white rounded-xl text-xs font-bold hover:bg-black transition-all flex items-center gap-2"
+                                >
+                                    Use Smart Assistant
+                                </button>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Job Description */}
-                    <div className="p-6 rounded-lg bg-gray-50">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-800">
-                            <div className="w-ần h-6 bg-purple-500 rounded mr-3"></div>
-                            Job Description
-                            <button
-                                onClick={() => setShowQuickReplyPrompt(showQuickReplyPrompt === "job" ? null : "job")}
-                                className={`ml-4 px-2 py-1 rounded-lg hover:bg-blue-200 flex items-center space-x-2 text-sm font-medium transition-colors ${showQuickReplyPrompt === "job" ? "bg-blue-200 text-blue-800" : "bg-blue-100 text-blue-700"}`}
-                            >
-                                <span>✨ AI Assistant</span>
-                            </button>
-                        </h3>
-
-                        {/* Quick Reply Prompt for Job Description */}
                         {showQuickReplyPrompt === "job" && (
-                            <div className="p-4 mb-4 border-b border-gray-200 bg-blue-50">
-                                <div className="flex items-center mb-3 space-x-2">
-                                    <span className="text-sm font-medium text-blue-800">✨ AI Job Description</span>
-                                    <button
-                                        onClick={() => {
-                                            setShowQuickReplyPrompt(null)
-                                            setQuickReplyPrompt("")
-                                        }}
-                                        className="text-blue-600 hover:text-blue-800"
-                                    >
-                                        <X className="w-4 h-4" />
-                                    </button>
-                                </div>
-                                <div className="flex space-x-3">
+                            <div className="mt-4 bg-blue-50 p-6 rounded-2xl border border-blue-100 animate-fade-in relative">
+                                <button onClick={() => setShowQuickReplyPrompt(null)} className="absolute top-4 right-4 text-blue-400 hover:text-blue-600">
+                                    <X className="w-4 h-4" />
+                                </button>
+                                <label className="block text-[13px] font-semibold text-blue-800 mb-3">Generation prompt</label>
+                                <div className="flex gap-3">
                                     <input
                                         type="text"
                                         value={quickReplyPrompt}
                                         onChange={(e) => setQuickReplyPrompt(e.target.value)}
-                                        placeholder="Describe the job description you want to generate..."
-                                        className="flex-1 px-4 py-2 bg-white border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="Outline the role & requirements..."
+                                        className="flex-1 px-5 py-3 bg-white rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-300 font-medium"
                                         onKeyPress={(e) => e.key === "Enter" && onGenerateContent("job")}
                                     />
                                     <button
                                         onClick={() => onGenerateContent("job")}
                                         disabled={isGeneratingContent || !quickReplyPrompt.trim()}
-                                        className="flex items-center px-4 py-2 space-x-2 font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50"
                                     >
-                                        {isGeneratingContent ? (
-                                            <>
-                                                <div className="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
-                                                <span>Generating...</span>
-                                            </>
-                                        ) : (
-                                            <span>Generate</span>
-                                        )}
+                                        {isGeneratingContent ? 'Thinking...' : 'Generate'}
                                     </button>
                                 </div>
-                                <p className="mt-2 text-xs text-blue-600">
-                                    AI will generate a professional job description based on your input
-                                </p>
                             </div>
                         )}
+                    </Section>
 
-                        <div>
-                            <textarea
-                                className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Provide a detailed job description including:&#10;• Key responsibilities and duties&#10;• Required qualifications and skills&#10;• Company culture and benefits&#10;• Working conditions and environment&#10;&#10;Example: We are seeking a Senior Software Engineer to join our dynamic team. You will be responsible for designing and developing scalable web applications, collaborating with cross-functional teams, and mentoring junior developers..."
-                                rows={8}
-                                value={jobData.description}
-                                onChange={(e) => handleJobDataChange("description", e.target.value)}
-                            />
-                        </div>
-                    </div>
+                    {/* Industry & Location */}
+                    <Section
+                        title="Industry & Location"
+                        subtitle="Choose the market segment and work location"
+                    >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-4">
+                                <label className="text-[13px] font-semibold text-gray-500 ml-1">Focus industry</label>
+                                <select
+                                    className="w-full px-6 py-4 bg-gray-50 border border-blue-200 rounded-lg focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all font-medium text-[#1E293B] appearance-none"
+                                    value={jobData.industryId}
+                                    onChange={(e) => handleJobDataChange("industryId", e.target.value)}
+                                >
+                                    <option value="">Select industry field</option>
+                                    {industries.map((ind) => (
+                                        <option key={ind.id} value={ind.id}>{ind.name}</option>
+                                    ))}
+                                </select>
+                                <div className="flex flex-wrap gap-2">
+                                    {jobData.industryId && (
+                                        <span className="px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-xs font-bold border border-blue-100 flex items-center gap-2">
+                                            {industries.find(i => i.id === jobData.industryId)?.name}
+                                            <X className="w-3 h-3 cursor-pointer" onClick={() => handleJobDataChange("industryId", "")} />
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
 
-                    {/* Scoring Criteria */}
-                    <div className="p-6 rounded-lg bg-gray-50">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-800">
-                            <div className="w-2 h-6 mr-3 bg-orange-500 rounded"></div>
-                            Evaluation Criteria & Weights
-                        </h3>
-
-                        <div className="p-4 mb-4 border border-blue-200 rounded-lg bg-blue-50">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-blue-800">
-                                    Total Weight Distribution:
-                                </span>
-                                <span className={`text-lg font-bold ${totalWeight() > 100 ? "text-red-600" : totalWeight() === 100 ? "text-green-600" : "text-blue-600"}`}>
-                                    {totalWeight()}/100
-                                </span>
+                            <div className="space-y-4">
+                                <label className="text-[13px] font-semibold text-gray-500 ml-1">Work location</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Ho Chi Minh City / Remote"
+                                    className="w-full px-6 py-4 bg-gray-50 border border-blue-200 rounded-lg focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all font-medium text-[#1E293B]"
+                                    value={jobData.location || ""}
+                                    onChange={(e) => handleJobDataChange("location", e.target.value)}
+                                />
                             </div>
                         </div>
+                    </Section>
 
+                    {/* Job Type & Level */}
+                    <Section
+                        title="Job Type & Level"
+                        subtitle="Define the engagement and seniority"
+                    >
+                        <div className="grid grid-cols-2 gap-4">
+                            <div onClick={() => handleJobDataChange("level", "Middle")} className={`cursor-pointer p-5 rounded-2xl border-2 transition-all flex items-center justify-between ${jobData.level === 'Middle' ? 'border-blue-600 bg-blue-50/10' : 'border-gray-50 bg-gray-50 hover:bg-gray-100'}`}>
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${jobData.level === 'Middle' ? 'border-blue-600' : 'border-gray-300'}`}>
+                                        {jobData.level === 'Middle' && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full"></div>}
+                                    </div>
+                                    <span className={`font-bold ${jobData.level === 'Middle' ? 'text-blue-600' : 'text-gray-500'}`}>Middle Senior</span>
+                                </div>
+                            </div>
+                            <select
+                                className="px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-medium text-[#1E293B]"
+                                value={jobData.level}
+                                onChange={(e) => handleJobDataChange("level", e.target.value)}
+                            >
+                                <option value="">Other Level...</option>
+                                <option value="Intern">Intern</option>
+                                <option value="Junior">Junior</option>
+                                <option value="Senior">Senior</option>
+                                <option value="Leader">Leader</option>
+                                <option value="Manager">Manager</option>
+                            </select>
+                        </div>
+                    </Section>
+
+                    {/* Cost / Salary */}
+                    <Section
+                        title="Budget Allocation"
+                        subtitle="Define salary range for this position"
+                    >
                         <div className="space-y-4">
-                            {criteria.map((criterion, index) => (
-                                <div key={index} className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-sm font-medium text-gray-600">
-                                                Criterion #{index + 1}
-                                            </span>
-                                            <button
-                                                onClick={() => setShowQuickReplyPrompt(showQuickReplyPrompt === index ? null : index)}
-                                                className={`px-2 py-1 rounded-lg hover:bg-blue-200 flex items-center space-x-2 text-sm font-medium transition-colors ${showQuickReplyPrompt === index ? "bg-blue-200 text-blue-800" : "bg-blue-100 text-blue-700"}`}
-                                            >
-                                                <span>✨ AI Assistant</span>
-                                            </button>
+                            <div className="flex items-center gap-4">
+                                <div className="relative flex-1">
+                                    <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                                    <input
+                                        type="number"
+                                        placeholder="Min"
+                                        className={`w-full pl-12 pr-6 py-4 bg-gray-50 border border-blue-200 rounded-lg focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all font-bold text-[#1E293B] ${salaryError.min ? 'bg-red-50 border-red-200' : ''}`}
+                                        value={jobData.salaryMin}
+                                        onChange={(e) => handleJobDataChange("salaryMin", e.target.value)}
+                                    />
+                                </div>
+                                <span className="text-gray-300 font-bold">—</span>
+                                <div className="relative flex-1">
+                                    <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                                    <input
+                                        type="number"
+                                        placeholder="Max"
+                                        className={`w-full pl-12 pr-6 py-4 bg-gray-50 border border-blue-200 rounded-lg focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all font-bold text-[#1E293B] ${salaryError.max ? 'bg-red-50 border-red-200' : ''}`}
+                                        value={jobData.salaryMax}
+                                        onChange={(e) => handleJobDataChange("salaryMax", e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex justify-between items-center bg-blue-50/30 p-4 rounded-xl">
+                                <span className="text-xs font-bold text-gray-400">Projected Total Cost</span>
+                                <span className="text-sm font-bold text-blue-600">${parseFloat(jobData.salaryMax) || 0}</span>
+                            </div>
+                        </div>
+                    </Section>
+
+                    {/* Scoring Matrix */}
+                    <Section
+                        title="Evaluation Matrix"
+                        subtitle="Set criteria to score your candidates"
+                    >
+                        <div className="space-y-4">
+                            {criteria.map((crit, idx) => (
+                                <div key={idx} className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-[13px] font-semibold text-gray-500">Criterion #{idx + 1}</span>
                                         </div>
                                         {criteria.length > 1 && (
-                                            <button
-                                                type="button"
-                                                onClick={() => removeCriterion(index)}
-                                                className="p-1 text-red-500 transition-colors rounded hover:text-red-700"
-                                                title="Remove criterion"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
+                                            <Trash2 onClick={() => removeCriterion(idx)} className="w-4 h-4 text-gray-300 hover:text-red-500 cursor-pointer transition-colors" />
                                         )}
                                     </div>
 
-                                    {/* Quick Reply Prompt for Criterion */}
-                                    {showQuickReplyPrompt === index && (
-                                        <div className="p-4 mb-4 border-b border-gray-200 bg-blue-50">
-                                            <div className="flex items-center mb-3 space-x-2">
-                                                <span className="text-sm font-medium text-blue-800">✨ AI Quick Description</span>
-                                                <button
-                                                    onClick={() => {
-                                                        setShowQuickReplyPrompt(null)
-                                                        setQuickReplyPrompt("")
-                                                    }}
-                                                    className="text-blue-600 hover:text-blue-800"
-                                                >
-                                                    <X className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                            <div className="flex space-x-3">
-                                                <input
-                                                    type="text"
-                                                    value={quickReplyPrompt}
-                                                    onChange={(e) => setQuickReplyPrompt(e.target.value)}
-                                                    placeholder="Describe the criterion detail you want to generate..."
-                                                    className="flex-1 px-4 py-2 bg-white border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    onKeyPress={(e) => e.key === "Enter" && onGenerateContent(index)}
-                                                />
-                                                <button
-                                                    onClick={() => onGenerateContent(index)}
-                                                    disabled={isGeneratingContent || !quickReplyPrompt.trim()}
-                                                    className="flex items-center px-4 py-2 space-x-2 font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                >
-                                                    {isGeneratingContent ? (
-                                                        <>
-                                                            <div className="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
-                                                            <span>Generating...</span>
-                                                        </>
-                                                    ) : (
-                                                        <span>Generate</span>
-                                                    )}
-                                                </button>
-                                            </div>
-                                            <p className="mt-2 text-xs text-blue-600">
-                                                AI will generate a professional criterion detail based on your input
-                                            </p>
-                                        </div>
-                                    )}
-
-                                    <div className="grid grid-cols-1 gap-4 mb-3 md:grid-cols-3">
-                                        <div className="md:col-span-2">
+                                    <div className="grid grid-cols-12 gap-4">
+                                        <div className="col-span-8">
                                             <input
                                                 type="text"
-                                                placeholder="e.g. Technical Skills, Communication"
-                                                className="w-full px-3 py-2 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                value={criterion.name}
-                                                onChange={(e) => updateCriterion(index, "name", e.target.value)}
+                                                placeholder="Criterion Name"
+                                                className="w-full px-4 py-3 bg-white border border-blue-200 rounded-lg text-sm font-bold text-[#1E293B]"
+                                                value={crit.name}
+                                                onChange={(e) => updateCriterion(idx, "name", e.target.value)}
                                             />
                                         </div>
-
-                                        <div>
+                                        <div className="col-span-4 relative">
                                             <input
-                                                type="text"
-                                                placeholder="0-100"
-                                                className={`w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors ${weightErrors[index] ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-blue-500"}`}
-                                                value={criterion.weight}
-                                                onChange={(e) => updateCriterion(index, "weight", e.target.value)}
+                                                type="number"
+                                                placeholder="Weight"
+                                                className="w-full px-4 py-3 bg-white border border-blue-200 rounded-lg text-sm font-bold text-[#1E293B]"
+                                                value={crit.weight}
+                                                onChange={(e) => updateCriterion(idx, "weight", e.target.value)}
                                             />
+                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 text-xs font-bold">%</span>
                                         </div>
                                     </div>
-
-                                    <div>
-                                        <textarea
-                                            placeholder="Describe what will be evaluated and how points will be awarded for this criterion..."
-                                            className="w-full h-[13.25rem] border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                            rows={2}
-                                            value={criterion.detail}
-                                            onChange={(e) => updateCriterion(index, 'detail', e.target.value)}
-                                        />
-                                    </div>
+                                    <textarea
+                                        placeholder="Description of ideal skills..."
+                                        className="w-full px-4 py-3 bg-white border border-blue-200 rounded-lg text-sm font-medium text-gray-500 h-24"
+                                        value={crit.detail}
+                                        onChange={(e) => updateCriterion(idx, 'detail', e.target.value)}
+                                    />
                                 </div>
                             ))}
-                        </div>
-
-                        <div className="flex items-center justify-between mt-6">
                             <Button
-                                type="button"
                                 variant="outline"
                                 onClick={addCriterion}
                                 disabled={totalWeight() >= 100}
-                                className="flex items-center gap-2 text-blue-600 border-blue-300 hover:bg-blue-50"
+                                className="w-full py-4 rounded-xl border-dashed border-2 border-gray-200 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold"
                             >
-                                <Plus className="w-4 h-4" />
-                                Add New Criterion
+                                <Plus size={16} className="mr-2" /> Add Criterion
                             </Button>
                         </div>
-                    </div>
+                    </Section>
 
-                    <div className="p-6 mt-6 rounded-lg bg-gray-50">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-800">
-                            <div className="w-2 h-6 mr-3 bg-pink-500 rounded"></div>
-                            Upload Job Image
-                        </h3>
-                        {/* Ẩn label Choose file khi đã chọn ảnh */}
-                        {!imageBase64 && (
-                            <label
-                                htmlFor="job-image-upload"
-                                className="inline-block px-4 py-2 font-semibold text-blue-700 transition rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100"
-                            >
-                                Choose file
-                            </label>
-                        )}
-                        <input
-                            id="job-image-upload"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="hidden"
-                        />
-                        {!imageBase64 && (
-                            <span className="ml-3 text-gray-500">No file chosen</span>
-                        )}
-                        {imageBase64 && (
-                            <div className="relative inline-block mt-4">
-                                <img src={imageBase64} alt="Preview" className="border rounded-lg max-h-40" />
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setImageBase64("")
-                                        setHasPhoto(false)
-                                    }}
-                                    className="absolute p-1 text-red-600 transition bg-white rounded-full shadow top-2 right-2 bg-opacity-80 hover:bg-red-100"
-                                    title="Remove image"
-                                >
-                                    ×
-                                </button>
+                    {/* Dates */}
+                    <Section
+                        title="Recruitment Timeline"
+                        subtitle="Schedule your recruitment dates"
+                    >
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[13px] font-semibold text-gray-500 ml-1">Start date</label>
+                                <input
+                                    type="date"
+                                    className="w-full px-4 py-4 bg-gray-50 border border-blue-200 rounded-lg font-medium text-[#1E293B] focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all"
+                                    value={jobData.startTime}
+                                    onChange={(e) => handleJobDataChange("startTime", e.target.value)}
+                                />
                             </div>
-                        )}
-                    </div>
-                    <div className="flex gap-8 mt-6">
-                        <label className="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                checked={autoPost}
-                                onChange={() => setAutoPost(true)}
-                            />
-                            <span className="text-gray-700">Automation Mode</span>
-                        </label>
-                        <label className="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                checked={!autoPost}
-                                onChange={() => setAutoPost(false)}
-                            />
-                            <span className="text-gray-700">Manual</span>
-                        </label>
-                    </div>
-                </div>
+                            <div className="space-y-2">
+                                <label className="text-[13px] font-semibold text-gray-500 ml-1">End date</label>
+                                <input
+                                    type="date"
+                                    className="w-full px-4 py-4 bg-gray-50 border border-blue-200 rounded-lg font-medium text-[#1E293B] focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all font-sans"
+                                    value={jobData.endTime}
+                                    onChange={(e) => handleJobDataChange("endTime", e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    </Section>
 
-                {/* Submit Button */}
-                <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={onClose}
-                        className="px-6 py-2"
+                    {/* Banner Image */}
+                    <Section
+                        title="Publication Banner"
+                        subtitle="Upload a visual for this job posting"
                     >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="button"
-                        onClick={handleSubmit}
-                        disabled={
-                            dateError ||
-                            salaryError.min ||
-                            salaryError.max ||
-                            weightExceeded ||
-                            totalWeight() !== 100 ||
-                            isGeneratingContent
-                        }
-                        className="px-8 py-2 font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
-                    >
-                        Create New Job
-                    </Button>
+                        <label className="flex flex-col items-center justify-center w-full min-h-[180px] border-2 border-dashed border-gray-100 rounded-[28px] cursor-pointer bg-gray-50/30 hover:bg-gray-50 transition-all overflow-hidden relative">
+                            {imageBase64 ? (
+                                <>
+                                    <img src={imageBase64} alt="Preview" className="w-full h-full object-contain p-6" />
+                                    <div className="absolute top-4 right-4 flex gap-2">
+                                        <button
+                                            onClick={(e) => { e.preventDefault(); setImageBase64(""); }}
+                                            className="bg-red-500 text-white p-2 rounded-xl shadow-lg"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <Plus className="w-10 h-10 text-gray-200 mb-4" />
+                                    <p className="text-[14px] text-gray-500 font-semibold">Upload visual asset</p>
+                                </div>
+                            )}
+                            <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                        </label>
+                    </Section>
                 </div>
             </DialogContent>
         </Dialog>
     )
 }
+
+// Sub-component for side-by-side sections with prominent vertical divider
+const Section = ({ title, subtitle, children }) => (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-0 py-12">
+        <div className="space-y-4 pr-12 md:border-r-2 border-blue-100/80 self-start min-h-[140px]">
+            <h4 className="text-[20px] font-bold text-[#0F172A] leading-tight tracking-tight">{title}</h4>
+            <p className="text-[14px] text-slate-500 font-medium leading-relaxed max-w-[260px]">{subtitle}</p>
+        </div>
+        <div className="md:col-span-2 pl-12">
+            {children}
+        </div>
+    </div>
+)
+
+// Preview Modal Component
+const PreviewModal = ({ isOpen, onClose, jobData, criteria, imageBase64, industries }) => {
+    const industryName = industries.find(i => i.id === jobData.industryId)?.name || "Not specified";
+    const salaryMin = parseFloat(jobData.salaryMin) || 0;
+    const salaryMax = parseFloat(jobData.salaryMax) || 0;
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="max-w-6xl max-h-[92vh] overflow-y-auto bg-slate-50 p-0 border-none rounded-[32px] shadow-2xl">
+                {/* Hero Section */}
+                <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-[#0F172A]/40 to-transparent z-10 rounded-t-[32px]" />
+                    <div
+                        className="relative bg-cover bg-center h-[400px] rounded-t-[32px]"
+                        style={{
+                            backgroundImage: imageBase64 ? `url(${imageBase64})` : "url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')",
+                        }}
+                    >
+                        <div className="relative z-20 p-8 flex justify-between items-center">
+                            <button onClick={onClose} className="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-xl backdrop-blur-md transition-all border border-white/20 flex items-center gap-2 font-bold text-sm">
+                                <ArrowLeft size={16} /> Back to Editor
+                            </button>
+                            <div className="flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-xl font-semibold text-[13px] backdrop-blur-md border border-white/20">
+                                <Eye size={14} /> Preview mode
+                            </div>
+                        </div>
+
+                        <div className="relative z-20 px-12 pb-12 mt-20">
+                            <h1 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight drop-shadow-2xl">
+                                {jobData.title || "Untitled Job Position"}
+                            </h1>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <span className="bg-white/10 px-4 py-2 rounded-full text-sm backdrop-blur-md border border-white/10 text-white flex items-center gap-2 font-semibold">
+                                    <MapPin size={14} className="text-blue-400" /> {jobData.location || "Remote / Office"}
+                                </span>
+                                <span className="bg-white/10 px-4 py-2 rounded-full text-sm backdrop-blur-md border border-white/10 text-white flex items-center gap-2 font-semibold">
+                                    <Briefcase size={14} className="text-blue-400" /> {jobData.level || "Middle"}
+                                </span>
+                                <span className="bg-white/10 px-4 py-2 rounded-full text-sm backdrop-blur-md border border-white/10 text-white font-semibold">
+                                    {industryName}
+                                </span>
+                                <span className="bg-emerald-500 text-white px-5 py-2 rounded-full text-[13px] font-bold shadow-lg shadow-emerald-500/20">
+                                    Active now
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="px-12 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
+                    <div className="lg:col-span-2 space-y-12">
+                        {/* Description */}
+                        <div className="bg-white p-10 rounded-[32px] shadow-sm border border-slate-100">
+                            <h2 className="text-2xl font-bold text-[#0F172A] mb-8 flex items-center gap-4">
+                                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
+                                    <Briefcase className="w-6 h-6 text-blue-600" />
+                                </div>
+                                Role Overview & Description
+                            </h2>
+                            <div className="prose prose-slate max-w-none prose-p:text-slate-600 prose-headings:text-slate-900 prose-li:text-slate-600 text-lg leading-relaxed">
+                                <ReactMarkdown>
+                                    {jobData.description || "_Describe the purpose of this role and the impact it will have on the company._"}
+                                </ReactMarkdown>
+                            </div>
+                        </div>
+
+                        {/* Evaluation Matrix / Highlights */}
+                        <div className="bg-white p-10 rounded-[32px] shadow-sm border border-slate-100">
+                            <h2 className="text-2xl font-bold text-[#0F172A] mb-8 flex items-center gap-4">
+                                <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
+                                    <Users className="w-6 h-6 text-emerald-600" />
+                                </div>
+                                Key Requirements & Criteria
+                            </h2>
+                            <div className="grid grid-cols-1 gap-6">
+                                {criteria.map((c, i) => (
+                                    <div key={i} className="flex gap-6 p-6 bg-slate-50/50 rounded-2xl border border-slate-100 hover:border-blue-100 transition-all">
+                                        <div className="w-10 h-10 bg-white shadow-sm border border-slate-100 text-blue-600 rounded-xl flex-shrink-0 flex items-center justify-center font-bold text-lg">
+                                            {i + 1}
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <h4 className="font-bold text-[#0F172A] text-xl">{c.name || "Core Skillset"}</h4>
+                                                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[12px] font-bold">{c.weight || 0}% weight</span>
+                                            </div>
+                                            <p className="text-slate-500 font-medium leading-relaxed">{c.detail || "Detail any specific skills or qualifications expected from the applicant."}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-8">
+                        {/* Summary Card */}
+                        <div className="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/50 border border-slate-100 sticky top-8">
+                            <h3 className="text-xl font-bold text-[#0F172A] mb-8">Role Quick Stats</h3>
+                            <div className="space-y-8">
+                                <div className="flex items-center gap-5">
+                                    <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
+                                        <DollarSign size={24} />
+                                    </div>
+                                    <div>
+                                        <p className="text-[13px] font-semibold text-slate-500 mb-1">Estimated budget</p>
+                                        <p className="text-xl font-bold text-[#0F172A]">${salaryMin.toLocaleString()} – ${salaryMax.toLocaleString()}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-5">
+                                    <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                                        <Calendar size={24} />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Closing Date</p>
+                                        <p className="text-xl font-bold text-[#0F172A]">{jobData.endTime ? new Date(jobData.endTime).toLocaleDateString() : "Rolling Basis"}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button className="w-full mt-10 py-5 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all opacity-50 cursor-not-allowed">
+                                Apply for this Position
+                            </button>
+
+                            <div className="mt-8 pt-8 border-t border-slate-100">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
+                                    <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                                        This is a secure preview. Candidates will see this exact layout upon publication.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <style>{`
+                    .prose ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 1rem; margin-bottom: 1rem; }
+                    .prose li { margin-bottom: 0.5rem; }
+                    .prose h1, .prose h2, .prose h3 { margin-top: 2rem; margin-bottom: 1rem; font-weight: 800; color: #0F172A; }
+                `}</style>
+            </DialogContent>
+        </Dialog>
+    );
+};

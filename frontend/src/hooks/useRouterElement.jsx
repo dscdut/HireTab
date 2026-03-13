@@ -17,7 +17,9 @@ import Register from '@/features/hr/register/RegisterPage'
 import PageNotFound from '@/shared/layout/404/PageNotFound'
 import JobOpeningDetailPage from '@/features/candidate/job-opening-details/JobOpeningDetail'
 import JobPosting from '@/features/hr/JobPosting/JobPosting'
+import { ChatboxCV } from '@/features/hr';
 import TemplateGallery from '@/features/candidate/create-resume/pages/TemplateGallery'
+import PricingPage from '@/features/candidate/pricing/PricingPage'
 export default function useRoutesElements() {
   const location = useLocation()
 
@@ -30,11 +32,22 @@ export default function useRoutesElements() {
     { path: path.candidate.jobDetail, element: <JobOpeningDetailPage /> },
     { path: path.candidate.create_resume, element: <CreateResume /> },
     { path: path.candidate.template_gallery, element: <TemplateGallery /> },
+    { path: path.candidate.pricing, element: <PricingPage /> },
 
     // Auth routes - HR
     { path: path.login, element: <LoginPage /> },
     { path: path.register, element: <Register /> },
     // HR routes
+    {
+      path: path.hr.chatbox_cv,
+      element: (
+        <LayoutMain>
+          <ProtectedRoute allowedRoles={['HR']}>
+            <ChatboxCV />
+          </ProtectedRoute>
+        </LayoutMain>
+      )
+    },
     {
       path: path.hr.hr_dashboard,
       element: (

@@ -32,7 +32,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [userRole, setUserRole] = useState('Job Seeker');
+
   const [rememberMe, setRememberMe] = useState(
     localStorage.getItem(REMEMBER_ME) === 'true'
   );
@@ -102,39 +102,30 @@ const LoginPage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="relative hidden xl:flex xl:w-[55%] bg-[#F8F8FD] p-12 flex-col justify-between overflow-hidden"
+        className="relative hidden xl:flex xl:w-[55%] p-12 flex-col justify-between overflow-hidden bg-cover bg-center"
+        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop')" }}
       >
+        {/* Dark Overlay for better text and card contrast */}
+        <div className="absolute inset-0 bg-indigo-900/40 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-black/20" />
+
         {/* Brand Logo */}
         <div className="relative z-10 flex items-center gap-3">
           <div className="flex items-center justify-center w-10 h-10 text-white bg-indigo-600 rounded-full shadow-lg">
             <span className="text-xl font-bold">H</span>
           </div>
-          <span className="text-2xl font-bold tracking-tight text-gray-900">HireTab</span>
+          <span className="text-2xl font-bold tracking-tight text-white drop-shadow-md">HireTab</span>
         </div>
 
-        {/* Hero Image Section */}
-        <div className="relative flex flex-col items-center justify-center flex-1 py-10">
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="relative"
-          >
-            {/* Main Image Plate */}
-            <div className="relative z-0 overflow-hidden rounded-3xl">
-              <img
-                src="https://images.pexels.com/photos/3777570/pexels-photo-3777570.jpeg"
-                alt="Success professional"
-                className="w-full h-auto max-w-xl object-cover rounded-3xl shadow-3xl scale-[1.05] grayscale-[0.05]"
-              />
-            </div>
-
+        {/* Hero Content Overlay */}
+        <div className="relative z-10 flex flex-col flex-1 py-10">
+          <div className="w-full h-full relative">
             {/* Floating Stat Card */}
             <motion.div
               initial={{ x: -30, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="absolute top-20 -left-20 bg-white p-6 rounded-2xl shadow-2xl z-20 border border-gray-50/50 max-w-[180px]"
+              className="absolute top-1/4 left-[5%] bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-2xl z-20 border border-white/50 max-w-[180px]"
             >
               <div className="flex gap-1.5 mb-3 items-end h-8">
                 <div className="w-1.5 h-4 bg-indigo-200 rounded-full"></div>
@@ -144,7 +135,7 @@ const LoginPage = () => {
                 <div className="w-1.5 h-9 bg-indigo-500 rounded-full"></div>
               </div>
               <h4 className="text-2xl font-bold text-gray-900">100K+</h4>
-              <p className="text-sm font-semibold text-gray-400 leading-tight">People got hired</p>
+              <p className="text-sm font-semibold text-gray-500 leading-tight">People got hired</p>
             </motion.div>
 
             {/* Testimonial Quote */}
@@ -152,7 +143,7 @@ const LoginPage = () => {
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.8 }}
-              className="absolute -bottom-16 -right-16 md:-right-28 bg-white p-8 rounded-2xl shadow-2xl z-30 border border-gray-50/50 max-w-sm"
+              className="absolute bottom-[10%] right-[5%] bg-white/95 backdrop-blur-md p-8 rounded-3xl shadow-2xl z-30 border border-white/50 max-w-sm"
             >
               <div className="flex items-center gap-4 mb-5">
                 <img
@@ -162,19 +153,19 @@ const LoginPage = () => {
                 />
                 <div>
                   <h5 className="font-bold text-gray-900 text-lg">Adam Sandler</h5>
-                  <p className="text-sm text-gray-400 font-medium tracking-wide">Lead Engineer at Canva</p>
+                  <p className="text-sm text-gray-500 font-medium tracking-wide">Lead Engineer at Canva</p>
                 </div>
               </div>
               <div className="relative">
-                <svg className="absolute -top-4 -left-3 w-8 h-8 text-indigo-100/50 rotate-180" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="absolute -top-4 -left-3 w-8 h-8 text-indigo-100/60 rotate-180" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H16.017C14.9124 8 14.017 7.10457 14.017 6V3L11.017 3V21H14.017ZM5.017 21L5.017 18C5.017 16.8954 5.91243 16 7.017 16H10.017C10.5693 16 11.017 15.5523 11.017 15V9C11.017 8.44772 10.5693 8 10.017 8H7.017C5.91243 8 5.017 7.10457 5.017 6V3L2.017 3V21H5.017Z" />
                 </svg>
-                <p className="relative z-10 text-gray-600 font-semibold leading-relaxed italic text-lg pr-4">
+                <p className="relative z-10 text-gray-800 font-medium leading-relaxed italic text-lg pr-4">
                   “Great platform for the job seeker that searching for new career heights.”
                 </p>
               </div>
             </motion.div>
-          </motion.div>
+          </div>
         </div>
       </motion.div>
 
@@ -186,27 +177,10 @@ const LoginPage = () => {
         className="flex flex-col items-center justify-center flex-1 px-6 py-12 lg:px-20 bg-white"
       >
         <div className="w-full max-w-md">
-          {/* Role Switcher */}
-          <div className="flex p-1 mb-10 bg-gray-100 rounded-lg w-fit mx-auto">
-            <button
-              onClick={() => setUserRole('Job Seeker')}
-              className={`px-6 py-2 rounded-md text-sm font-bold transition-all ${userRole === 'Job Seeker' ? 'bg-[#E0E7FF] text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                }`}
-            >
-              Job Seeker
-            </button>
-            <button
-              onClick={() => setUserRole('Company')}
-              className={`px-6 py-2 rounded-md text-sm font-bold transition-all ${userRole === 'Company' ? 'bg-[#E0E7FF] text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                }`}
-            >
-              Company
-            </button>
-          </div>
-
           {/* Heading */}
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Welcome Back, Dude</h2>
+          <div className="text-center mb-10 pt-4">
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Welcome Back</h2>
+            <p className="text-gray-500">Sign in to the internal portal</p>
           </div>
 
           {/* Google Social Login */}

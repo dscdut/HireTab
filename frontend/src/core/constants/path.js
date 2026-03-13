@@ -12,7 +12,7 @@ export const path = {
     template_gallery: '/template-gallery',
     job: '/candidate/job',
     jobDetail: '/candidate/job/:id',
-    
+    pricing: '/pricing',
   },
   hr: {
     job_posting: '/hr/job-posting',
@@ -20,6 +20,7 @@ export const path = {
     dashboard: '/hr/job-dashboard/:jobId',
     candidates_manage: '/hr/manage-candidates',
     hr_dashboard: '/hr/dashboard',
+    chatbox_cv: '/hr/chatbox-cv',
     settings: '/hr/settings',
     help_center: '/hr/help-center',
   }

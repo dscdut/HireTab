@@ -3,9 +3,9 @@ import React from 'react';
 export const jobsOverview = {
     total: 180,
     breakdown: [
-        { label: "Active Jobs", value: 100, color: "#3B82F6" },
-        { label: "In reviews Jobs", value: 50, color: "#F59E0B" },
-        { label: "Finish Jobs", value: 30, color: "#8B5CF6" },
+        { label: "Đang mở", value: 100, color: "#3B82F6" },
+        { label: "Đang duyệt", value: 50, color: "#F59E0B" },
+        { label: "Đã hoàn thành", value: 30, color: "#8B5CF6" },
     ]
 };
 
@@ -13,43 +13,44 @@ export const attendanceRate = {
     rate: 90,
     change: 20,
     segments: [
-        { label: "Sick Leave", value: 10, color: "#F59E0B" },
-        { label: "Day Off", value: 20, color: "#60A5FA" },
-        { label: "On time", value: 70, color: "#8B5CF6" },
+        { label: "Nghỉ phép", value: 10, color: "#F59E0B" },
+        { label: "Ngày nghỉ", value: 20, color: "#60A5FA" },
+        { label: "Đúng giờ", value: 70, color: "#8B5CF6" },
     ]
 };
 
 export const totalsStats = [
-    { label: "Fulltime Candidate", value: 150, change: 50, trend: "up" },
-    { label: "Freelance Candidate", value: 50, change: -10, trend: "down" },
+    { label: "Ứng viên Full-time", value: 150, change: 50, trend: "up" },
+    { label: "Ứng viên Freelance", value: 50, change: -10, trend: "down" },
 ];
 
 export const recruitmentFunnelData = [
-    { name: 'Jan', applicants: 4000, hires: 2400 },
-    { name: 'Feb', applicants: 3000, hires: 1398 },
-    { name: 'Mar', applicants: 2000, hires: 9800 },
-    { name: 'Apr', applicants: 2780, hires: 3908 },
-    { name: 'May', applicants: 1890, hires: 4800 },
-    { name: 'Jun', applicants: 2390, hires: 3800 },
-    { name: 'Jul', applicants: 3490, hires: 4300 },
-    { name: 'Aug', applicants: 4000, hires: 2400 },
-    { name: 'Sep', applicants: 3000, hires: 1398 },
-    { name: 'Oct', applicants: 2000, hires: 9800 },
-    { name: 'Nov', applicants: 2780, hires: 3908 },
-    { name: 'Dec', applicants: 1890, hires: 4800 },
+    { name: 'Tháng 1', applicants: 4000, interviews: 3200, hires: 2400 },
+    { name: 'Tháng 2', applicants: 3000, interviews: 2000, hires: 1398 },
+    { name: 'Tháng 3', applicants: 2000, interviews: 5000, hires: 9800 },
+    { name: 'Tháng 4', applicants: 2780, interviews: 3100, hires: 3908 },
+    { name: 'Tháng 5', applicants: 1890, interviews: 3500, hires: 4800 },
+    { name: 'Tháng 6', applicants: 2390, interviews: 3000, hires: 3800 },
+    { name: 'Tháng 7', applicants: 3490, interviews: 4000, hires: 4300 },
+    { name: 'Tháng 8', applicants: 4000, interviews: 3100, hires: 2400 },
+    { name: 'Tháng 9', applicants: 3000, interviews: 2100, hires: 1398 },
+    { name: 'Tháng 10', applicants: 2000, interviews: 6000, hires: 9800 },
+    { name: 'Tháng 11', applicants: 2780, interviews: 3200, hires: 3908 },
+    { name: 'Tháng 12', applicants: 1890, interviews: 3500, hires: 4800 },
 ];
 
 export const candidatePerformance = [
-    { name: 'Hazel Nutt', technical: 80, communication: 70, culture: 90 },
-    { name: 'Simon Cyrene', technical: 90, communication: 85, culture: 75 },
-    { name: 'Aida Bugg', technical: 70, communication: 90, culture: 85 },
-    { name: 'Peg Legge', technical: 85, communication: 75, culture: 90 },
-    { name: 'Barb Akew', technical: 75, communication: 80, culture: 70 },
+    { name: 'Huỳnh Thị Phước', score: 85 },
+    { name: 'Hồ Đình Tuấn Kiệt', score: 92 },
+    { name: 'Lê Văn Cường', score: 78 },
+    { name: 'Phạm Minh Danh', score: 88 },
+    { name: 'Hoàng Anh Tuấn', score: 45 },
 ];
 
 export const candidateList = [
-    { id: "CAN120124", name: "Hazel Nutt", email: "hazelnutt@mail.com", role: "Lead UI/UX Designer", department: "Team Projects", status: "Full-time", avatar: "https://i.pravatar.cc/150?u=hazel" },
-    { id: "CAN120125", name: "Simon Cyrene", email: "simoncyr@mail.com", role: "Sr UI/UX Designer", department: "Team Projects", status: "Full-time", avatar: "https://i.pravatar.cc/150?u=simon" },
-    { id: "CAN120126", name: "Aida Bugg", email: "aidabug@mail.com", role: "Jr Graphics Designer", department: "Team Marketing", status: "Freelance", avatar: "https://i.pravatar.cc/150?u=aida" },
-    { id: "CAN120127", name: "Peg Legge", email: "peglegge@mail.com", role: "Jr Animator", department: "Team Marketing", status: "Full-time", avatar: "https://i.pravatar.cc/150?u=peg" },
+    { id: "CAN120124", name: "Huỳnh Thị Phước", email: "phuoc@mail.com", role: "Lead UI/UX Designer", department: "Team Projects", status: "Full-time", avatar: "https://i.pravatar.cc/150?u=1" },
+    { id: "CAN120125", name: "Hồ Đình Tuấn Kiệt", email: "kiet@mail.com", role: "Sr UI/UX Designer", department: "Team Projects", status: "Full-time", avatar: "https://i.pravatar.cc/150?u=2" },
+    { id: "CAN120128", name: "NGUYEN LE TIEN DAT", email: "tiendat.hr@fpt.edu.vn", role: "Backend Developer", department: "External Team", status: "Full-time", avatar: "https://i.pravatar.cc/150?u=dat" },
+    { id: "CAN120126", name: "Lê Văn Cường", email: "cuong@mail.com", role: "Jr Graphics Designer", department: "Team Marketing", status: "Freelance", avatar: "https://i.pravatar.cc/150?u=3" },
+    { id: "CAN120127", name: "Phạm Minh Danh", email: "danh@mail.com", role: "Jr Animator", department: "Team Marketing", status: "Full-time", avatar: "https://i.pravatar.cc/150?u=4" },
 ];

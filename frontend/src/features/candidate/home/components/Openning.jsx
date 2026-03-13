@@ -1,192 +1,166 @@
 import { motion } from 'framer-motion'
-import { Search, MapPin, ChevronDown } from 'lucide-react'
+import { ChevronRight, Globe, Users, Award, Zap } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const Openning = () => {
   return (
-    <section className="relative min-h-[95vh] flex items-center overflow-hidden pt-32 pb-24 bg-white">
+    <section className="relative min-h-[95vh] flex items-center overflow-hidden pt-32 pb-24 bg-[#FAFBFF]">
       {/* 
         Background Design:
-        Professional abstract pattern combined with a subtle image overlay
+        Modern clean geometric patterns instead of blurred blobs
       */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Subtle Gradient Mesh */}
+        {/* Subtle dot pattern */}
         <div
-          className="absolute top-0 right-0 w-[60%] h-full opacity-40 blur-[120px]"
+          className="absolute inset-0 opacity-[0.03] md:opacity-[0.05]"
           style={{
-            background: 'radial-gradient(circle, rgba(70, 64, 222, 0.12) 0%, rgba(255, 255, 255, 0) 70%)'
-          }}
-        />
-        <div
-          className="absolute -bottom-1/4 -left-1/4 w-[50%] h-[80%] opacity-30 blur-[100px]"
-          style={{
-            background: 'radial-gradient(circle, rgba(70, 64, 222, 0.08) 0%, rgba(255, 255, 255, 0) 70%)'
+            backgroundImage: 'radial-gradient(#3129B8 2px, transparent 2px)',
+            backgroundSize: '32px 32px'
           }}
         />
 
-        {/* Diagonal Geometric Accent */}
-        <svg
-          className="absolute bottom-0 right-0 w-2/3 h-full opacity-[0.03] text-[#4640DE]"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          fill="currentColor"
-        >
-          <path d="M100 0 L100 100 L0 100 Z" />
-        </svg>
+        {/* Geometric abstract shapes (Symbols/Ký hiệu) */}
+        <div className="absolute top-[15%] right-[10%] border border-[#3129B8]/10 w-[40vw] h-[40vw] rounded-full" />
+        <div className="absolute bottom-[-10%] left-[-10%] border border-[#3129B8]/10 w-[50vw] h-[50vw] rounded-full" />
 
-        {/* Subtle Grainy Texture Overlay */}
-        <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/concrete-wall.png')]" />
+        {/* Cross mark patterns */}
+        <div className="absolute top-[25%] left-[8%] text-[#3129B8]/10 font-black text-2xl">+</div>
+        <div className="absolute bottom-[20%] right-[35%] text-[#3129B8]/10 font-black text-2xl">+</div>
+        <div className="absolute top-[10%] right-[40%] text-[#3129B8]/10 font-black text-2xl">+</div>
+        <div className="absolute bottom-[40%] left-[5%] text-[#3129B8]/10 font-black text-2xl">+</div>
+
+        {/* Left balance shape abstract */}
+        <div className="absolute top-[40%] left-[-5%] w-[20vw] h-[20vw] border-2 border-dashed border-[#3129B8]/10 rounded-full opacity-50" />
       </div>
 
       <div className="container relative z-10 px-6 mx-auto lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center mb-5">
-          <div className="mb-10">
-            {/* Main Visual Hierarchy: Primary Heading */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+          <div className="mb-10 mt-12 lg:mt-10">
+            {/* Employer Branding: The High-Impact Message */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             >
-              <h1 className="text-[#18191C] text-6xl md:text-[5.5rem] font-bold leading-[1.05] tracking-tight mb-8">
-                Discover <br />
-                more than <br />
-                <span className="relative inline-block text-[#4640DE]">
-                  5000+ Jobs
-                  {/* Dynamic SVG Underline */}
-                  <svg
-                    className="absolute -bottom-4 left-0 w-full h-4 text-[#4640DE]/40"
-                    viewBox="0 0 358 14"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <motion.path
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ duration: 1.2, delay: 0.8 }}
-                      d="M3 11C23.6667 8.33333 93.4 -0.2 181.5 5.5C269.6 11.2 334.833 11 355 10"
-                      stroke="currentColor"
-                      strokeWidth="6"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </span>
+              <h1 className="text-[#18191C] text-5xl md:text-[5rem] font-bold leading-[1.05] tracking-tight mb-8">
+                Build the future <br />
+                <span className="text-[#3129B8]">with HireTab</span> <br />
+                starting today
               </h1>
             </motion.div>
 
-            {/* Hierarchy: Secondary Supporting Text (Subheading) */}
+            {/* Subtext: Focus on Culture and Value-Driven Growth */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-              className="text-[#515B6F] text-xl md:text-2xl max-w-2xl mb-16 leading-relaxed font-normal"
+              className="text-[#515B6F] text-base md:text-lg max-w-xl mb-12 leading-relaxed font-normal opacity-90"
             >
-              The premium platform for job seekers exploring new career heights and startups looking for top-tier talent.
+              We are more than a workplace. We are a community of innovators and dreamers dedicated to redefining industry standards. Join us in our journey of professional excellence and shared success.
             </motion.p>
 
-            {/* Focal Point: Search bar UI (Consistency & Simplicity) */}
+            {/* CTAs for Specific Internal Roles - No Shadows */}
             <motion.div
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col w-full max-w-4xl p-2 bg-white border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.05)] sm:flex-row items-stretch rounded-2xl group transition-all duration-300 hover:shadow-[0_30px_60px_rgba(70,64,222,0.1)]"
+              className="flex flex-wrap items-center gap-4 mt-2"
             >
-              {/* Input Group: Keywords */}
-              <div className="flex items-center flex-[1.4] px-6 py-5 border-b border-gray-100 sm:border-b-0 sm:border-r border-gray-100">
-                <Search className="w-6 h-6 mr-4 text-[#4640DE] shrink-0" />
-                <input
-                  type="text"
-                  placeholder="Job title, keyword, or company"
-                  className="w-full text-lg text-[#18191C] placeholder-[#7C8493] bg-transparent outline-none focus:ring-0"
-                />
-              </div>
-
-              {/* Input Group: Location */}
-              <div className="flex items-center flex-1 px-6 py-5">
-                <MapPin className="w-6 h-6 mr-4 text-[#4640DE] shrink-0" />
-                <div className="flex items-center justify-between w-full">
-                  <input
-                    type="text"
-                    defaultValue="Florence, Italy"
-                    className="w-full text-lg text-[#18191C] placeholder-[#7C8493] bg-transparent outline-none focus:ring-0"
-                  />
-                  <ChevronDown className="w-5 h-5 ml-2 text-[#7C8493] cursor-pointer transition-transform group-hover:translate-y-0.5" />
-                </div>
-              </div>
-
-              {/* CTA Button (Clear Hierarchy) */}
-              <button
-                className="m-1 bg-[#4640DE] hover:bg-[#322BB3] text-white px-10 py-5 text-xl font-bold rounded-xl transition-all duration-300 shadow-md hover:shadow-[#4640DE]/20 active:scale-95 whitespace-nowrap"
-              >
-                Search Job
+              <Link to="/candidate/job" className="bg-[#3129B8] hover:bg-[#251E91] text-white px-8 py-3.5 text-base font-semibold rounded-xl transition-all duration-300 active:scale-[0.98] flex items-center gap-2 shadow-sm">
+                Explore All Jobs <ChevronRight size={18} />
+              </Link>
+              <button className="bg-white border border-gray-200 text-[#18191C] hover:border-gray-300 hover:bg-gray-50 px-8 py-3.5 text-base font-semibold rounded-xl transition-all duration-300 active:scale-[0.98] shadow-sm">
+                Our Culture
               </button>
             </motion.div>
 
-            {/* Supporting Info: Social Proof/Keywords (Whitespace Hợp lý) */}
+            {/* Values Proof: Instead of general trust, specify internal values */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 0.9 }}
-              className="mt-10 flex items-center gap-2 text-base text-[#515B6F]"
+              transition={{ duration: 1, delay: 0.6 }}
+              className="mt-16 flex flex-wrap items-center gap-10"
             >
-              <span className="font-medium">Popular :</span>
-              <div className="flex flex-wrap gap-2 ml-1">
-                {['UI Designer', 'UX Researcher', 'Android', 'Admin'].map((tag, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2 py-1 bg-gray-50 text-[#18191C] rounded-md border border-gray-100 hover:border-[#4640DE]/30 hover:bg-white cursor-pointer transition-all font-semibold"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
             </motion.div>
           </div>
 
-          {/* New Image Column */}
+          {/* New Multi-Image Collage Column */}
           <motion.div
-            initial={{ opacity: 0, x: 50, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="hidden lg:block relative"
+            className="hidden lg:block relative h-[600px] w-full"
           >
             {/* Background Decorative Element for Image */}
-            <div className="absolute -inset-4 bg-gradient-to-tr from-[#4640DE]/10 to-transparent rounded-full blur-2xl -z-10" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-[#3129B8]/10 rounded-full blur-3xl -z-10" />
 
-            <img
-              src="https://cdn-ileinml.nitrocdn.com/QKFalZLFIBQZFyaTtYsfxzDEdLShqRXp/assets/images/optimized/rev-6caa47b/culvercareers.com/wp-content/uploads/2025/10/marketing-fall-2025-sales-person-1@2x-1024x887.webp"
-              alt="Successful career professional"
-              className="w-[90%] ml-20 mb-12 h-auto object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.15)]"
-            />
+            {/* Image Grid */}
+            <div className="relative w-full h-full">
+              {/* Image 1: Main collaboration */}
+              <motion.img
+                animate={{ y: [0, -12, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ scale: 1.03, zIndex: 10 }}
+                src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=800&auto=format&fit=crop"
+                alt="Team collaboration"
+                className="absolute top-[10%] right-[5%] w-[55%] h-[45%] object-cover rounded-[32px] border-[6px] border-white shadow-md hover:shadow-2xl transition-shadow duration-300"
+              />
 
-            {/* Floating Info Card 1 */}
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -left-8 top-1/4 bg-white p-4 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-4"
-            >
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <div className="w-6 h-6 bg-green-500 rounded-full" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-[#18191C]">1.2k+ Hired</p>
-                <p className="text-xs text-[#7C8493]">Per Month</p>
-              </div>
-            </motion.div>
+              {/* Image 2: Vertical modern workspace */}
+              <motion.img
+                animate={{ y: [0, 15, 0] }}
+                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                whileHover={{ scale: 1.03, zIndex: 10 }}
+                src="https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=800&auto=format&fit=crop"
+                alt="Modern workspace"
+                className="absolute top-[25%] left-[5%] w-[45%] h-[55%] object-cover rounded-[32px] border-[6px] border-white shadow-md hover:shadow-2xl transition-shadow duration-300"
+              />
 
-            {/* Floating Info Card 2 */}
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute -right-4 bottom-1/4 bg-white p-4 rounded-2xl shadow-xl border border-gray-100"
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <div className="flex -space-x-2">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className={`w-8 h-8 rounded-full border-2 border-white bg-gray-200`} />
-                  ))}
+              {/* Image 3: Small square casual/culture */}
+              <motion.img
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                whileHover={{ scale: 1.03, zIndex: 10 }}
+                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop"
+                alt="Culture"
+                className="absolute bottom-[5%] right-[15%] w-[40%] h-[35%] object-cover rounded-[32px] border-[6px] border-white shadow-md hover:shadow-2xl transition-shadow duration-300"
+              />
+
+              {/* Strategic Floating Card 1: Internal Growth */}
+              <motion.div
+                animate={{ y: [0, -12, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="absolute -left-4 top-[15%] bg-white p-5 rounded-3xl shadow-[0_20px_40px_rgba(49,41,184,0.08)] border border-gray-100 flex items-center gap-4 z-20 cursor-pointer"
+              >
+                <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600">
+                  <Users size={20} />
                 </div>
-                <span className="text-xs font-bold text-[#18191C] ml-2">5k+ Joiners</span>
-              </div>
-            </motion.div>
+                <div>
+                  <p className="text-sm font-black text-[#18191C]">200+ Team Members</p>
+                  <p className="text-xs text-[#7C8493] font-semibold">Scaling for the future</p>
+                </div>
+              </motion.div>
+
+              {/* Strategic Floating Card 2: Innovation Lab */}
+              <motion.div
+                animate={{ y: [0, 12, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                whileHover={{ scale: 1.05, y: 5 }}
+                className="absolute right-0 bottom-[10%] bg-white p-5 rounded-3xl shadow-[0_20px_40px_rgba(49,41,184,0.08)] border border-gray-100 z-20 cursor-pointer"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex -space-x-2">
+                    {[1, 2, 3].map(i => (
+                      <img key={i} className="w-9 h-9 rounded-full border-[3px] border-white bg-gray-100" src={`https://i.pravatar.cc/150?u=${i + 20}`} alt="Team member" />
+                    ))}
+                  </div>
+                  <div className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase">Active Lab</div>
+                </div>
+                <p className="text-xs font-black text-[#18191C]">Collaborating in Real-time</p>
+                <p className="text-[10px] text-[#7C8493] font-bold">Innovation is part of our DNA</p>
+              </motion.div>
+            </div>
           </motion.div>
         </div>
       </div>

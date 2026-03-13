@@ -77,7 +77,7 @@ export default function JobOpeningPage() {
     // Location filter
     if (filters.location.length > 0) {
       const jobLocation = job.location?.toLowerCase() || '';
-      const matchesLocation = filters.location.some(loc => 
+      const matchesLocation = filters.location.some(loc =>
         jobLocation.includes(loc.toLowerCase()) ||
         (loc.toLowerCase() === 'remote' && (job.workType?.toLowerCase() === 'remote' || jobLocation.includes('remote')))
       );
@@ -89,7 +89,7 @@ export default function JobOpeningPage() {
     // Level filter
     if (filters.level.length > 0) {
       const jobLevel = job.level?.toLowerCase() || '';
-      const matchesLevel = filters.level.some(level => 
+      const matchesLevel = filters.level.some(level =>
         jobLevel.includes(level.toLowerCase())
       );
       if (!matchesLevel) return false;
@@ -127,43 +127,43 @@ export default function JobOpeningPage() {
           const today = new Date();
           const diffTime = endDate - today;
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          
+
           if (diffDays > 3) {
-            return { text: `${diffDays} days left`, style: 'text-green-700 bg-gradient-to-r from-green-100 to-green-200' };
+            return { text: `${diffDays} days left`, style: 'text-green-700 bg-green-100' };
           } else if (diffDays > 0) {
-            return { text: `${diffDays} days left`, style: 'text-orange-700 bg-gradient-to-r from-orange-100 to-orange-200' };
+            return { text: `${diffDays} days left`, style: 'text-orange-700 bg-orange-100' };
           } else {
-            return { text: 'Expiring soon', style: 'text-red-700 bg-gradient-to-r from-red-100 to-red-200' };
+            return { text: 'Expiring soon', style: 'text-red-700 bg-red-100' };
           }
         case 'done':
-          return { text: 'Done', style: 'text-green-700 bg-gradient-to-r from-green-100 to-green-200' };
+          return { text: 'Done', style: 'text-green-700 bg-green-100' };
         case 'todo':
-          return { text: 'To Do', style: 'text-yellow-700 bg-gradient-to-r from-yellow-100 to-yellow-200' };
+          return { text: 'To Do', style: 'text-yellow-700 bg-yellow-100' };
         case 'in progress':
         case 'inprogress':
         case 'progress':
-          return { text: 'In Progress', style: 'text-blue-700 bg-gradient-to-r from-blue-100 to-blue-200' };
+          return { text: 'In Progress', style: 'text-blue-700 bg-blue-100' };
         case 'closed':
-          return { text: 'Closed', style: 'text-red-700 bg-gradient-to-r from-red-100 to-red-200' };
+          return { text: 'Closed', style: 'text-red-700 bg-red-100' };
         case 'expired':
-          return { text: 'Expired', style: 'text-red-700 bg-gradient-to-r from-red-100 to-red-200' };
+          return { text: 'Expired', style: 'text-red-700 bg-red-100' };
         case 'paused':
-          return { text: 'Paused', style: 'text-gray-700 bg-gradient-to-r from-gray-100 to-gray-200' };
+          return { text: 'Paused', style: 'text-gray-700 bg-gray-100' };
         default:
-          return { text: job.status, style: 'text-blue-700 bg-gradient-to-r from-blue-100 to-blue-200' };
+          return { text: job.status, style: 'text-blue-700 bg-blue-100' };
       }
     }
-    
+
     // Fallback to time-based calculation if no status
     const endDate = new Date(job.endTime);
     const today = new Date();
     const diffTime = endDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays > 0) {
-      return { text: `${diffDays} days left`, style: 'text-green-700 bg-gradient-to-r from-green-100 to-green-200' };
+      return { text: `${diffDays} days left`, style: 'text-green-700 bg-green-100' };
     } else {
-      return { text: 'Expired', style: 'text-red-700 bg-gradient-to-r from-red-100 to-red-200' };
+      return { text: 'Expired', style: 'text-red-700 bg-red-100' };
     }
   };
 
@@ -213,11 +213,10 @@ export default function JobOpeningPage() {
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-4 py-3 rounded-xl border transition-colors ${
-                showFilters || (filters.location.length + filters.level.length + filters.type.length > 0)
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-blue-600 border-blue-200 hover:bg-blue-50'
-              }`}
+              className={`flex items-center gap-2 px-4 py-3 rounded-xl border transition-colors ${showFilters || (filters.location.length + filters.level.length + filters.type.length > 0)
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-blue-600 border-blue-200 hover:bg-blue-50'
+                }`}
             >
               <FiFilter className="w-5 h-5" />
               <span className="font-medium">Filter</span>
@@ -228,7 +227,7 @@ export default function JobOpeningPage() {
               )}
             </button>
           </div>
-          
+
           {searchTerm && (
             <div className="mt-3 text-sm text-blue-600">
               Found {jobListings.length} jobs for "{searchTerm}"
@@ -243,14 +242,14 @@ export default function JobOpeningPage() {
               <div className="absolute bottom-0 left-0 right-0 max-h-[80vh] overflow-y-auto bg-white rounded-t-3xl p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold text-blue-900">Filters</h3>
-                  <button 
+                  <button
                     onClick={() => setShowFilters(false)}
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl"
                   >
                     <FiX className="w-6 h-6" />
                   </button>
                 </div>
-                
+
                 {/* Mobile Filter Content */}
                 <div className="space-y-6">
                   <div>
@@ -258,8 +257,8 @@ export default function JobOpeningPage() {
                     <div className="grid grid-cols-2 gap-3">
                       {['Ho Chi Minh', 'Da Nang', 'Ha Noi', 'Remote'].map((location) => (
                         <label key={location} className="flex items-center gap-3 p-3 border border-blue-100 cursor-pointer rounded-xl hover:bg-blue-50">
-                          <input 
-                            type="checkbox" 
+                          <input
+                            type="checkbox"
                             className="w-5 h-5 accent-blue-600"
                             checked={filters.location.includes(location)}
                             onChange={() => handleFilterChange('location', location)}
@@ -269,14 +268,14 @@ export default function JobOpeningPage() {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div>
                     <p className="mb-3 text-lg font-semibold text-blue-700">Level</p>
                     <div className="grid grid-cols-2 gap-3">
                       {['Intern', 'Fresher', 'Junior', 'Senior', 'Lead'].map((level) => (
                         <label key={level} className="flex items-center gap-3 p-3 border border-blue-100 cursor-pointer rounded-xl hover:bg-blue-50">
-                          <input 
-                            type="checkbox" 
+                          <input
+                            type="checkbox"
                             className="w-5 h-5 accent-blue-600"
                             checked={filters.level.includes(level)}
                             onChange={() => handleFilterChange('level', level)}
@@ -286,14 +285,14 @@ export default function JobOpeningPage() {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div>
                     <p className="mb-3 text-lg font-semibold text-blue-700">Type</p>
                     <div className="grid grid-cols-2 gap-3">
                       {['Full-time', 'Part-time', 'Remote', 'Hybrid'].map((type) => (
                         <label key={type} className="flex items-center gap-3 p-3 border border-blue-100 cursor-pointer rounded-xl hover:bg-blue-50">
-                          <input 
-                            type="checkbox" 
+                          <input
+                            type="checkbox"
                             className="w-5 h-5 accent-blue-600"
                             checked={filters.type.includes(type)}
                             onChange={() => handleFilterChange('type', type)}
@@ -303,13 +302,13 @@ export default function JobOpeningPage() {
                       ))}
                     </div>
                   </div>
-                  
+
                   {(filters.location.length > 0 || filters.level.length > 0 || filters.type.length > 0) && (
                     <div className="p-4 rounded-xl bg-blue-50">
                       <div className="mb-3 text-sm text-blue-600">
                         Active filters: {filters.location.length + filters.level.length + filters.type.length}
                       </div>
-                      <button 
+                      <button
                         onClick={clearAllFilters}
                         className="w-full py-3 font-bold text-blue-600 transition bg-white border border-blue-300 rounded-xl hover:bg-blue-50"
                       >
@@ -317,7 +316,7 @@ export default function JobOpeningPage() {
                       </button>
                     </div>
                   )}
-                  
+
                   <div className="pt-4 border-t border-blue-100">
                     <button
                       onClick={() => setShowFilters(false)}
@@ -335,7 +334,7 @@ export default function JobOpeningPage() {
           <aside className="sticky hidden w-full lg:flex lg:flex-col lg:self-start lg:w-80 top-28">
             <div className="overflow-hidden bg-white border border-blue-100 shadow-sm rounded-2xl">
               {/* Header */}
-              <div className="p-6 border-b border-blue-50 bg-gradient-to-r from-blue-50 to-blue-25">
+              <div className="p-6 border-b border-blue-100 bg-[#F0F5FF]">
                 <h2 className="mb-1 text-xl font-semibold text-blue-900">Filter Jobs</h2>
               </div>
 
@@ -377,8 +376,8 @@ export default function JobOpeningPage() {
                   <div className="space-y-2">
                     {['Ho Chi Minh', 'Da Nang', 'Ha Noi', 'Remote'].map((location) => (
                       <label key={location} className="flex items-center gap-3 cursor-pointer group">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           className="w-4 h-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500"
                           checked={filters.location.includes(location)}
                           onChange={() => handleFilterChange('location', location)}
@@ -398,8 +397,8 @@ export default function JobOpeningPage() {
                   <div className="space-y-2">
                     {['Intern', 'Fresher', 'Junior', 'Senior', 'Lead'].map((level) => (
                       <label key={level} className="flex items-center gap-3 cursor-pointer group">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           className="w-4 h-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500"
                           checked={filters.level.includes(level)}
                           onChange={() => handleFilterChange('level', level)}
@@ -419,8 +418,8 @@ export default function JobOpeningPage() {
                   <div className="space-y-2">
                     {['Full-time', 'Part-time', 'Remote', 'Hybrid'].map((type) => (
                       <label key={type} className="flex items-center gap-3 cursor-pointer group">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           className="w-4 h-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500"
                           checked={filters.type.includes(type)}
                           onChange={() => handleFilterChange('type', type)}
@@ -439,7 +438,7 @@ export default function JobOpeningPage() {
                         {filters.location.length + filters.level.length + filters.type.length} filters active
                       </span>
                     </div>
-                    <button 
+                    <button
                       onClick={clearAllFilters}
                       className="w-full px-3 py-2 text-sm font-medium text-blue-700 transition-colors border border-blue-200 rounded-lg bg-blue-50 hover:bg-blue-100 hover:border-blue-300"
                     >
@@ -509,7 +508,7 @@ export default function JobOpeningPage() {
                           </span>
                         );
                       })()}
-                      <span className="inline-block px-4 py-2 text-sm font-bold text-white transition shadow lg:px-6 lg:py-3 lg:text-base bg-gradient-to-r from-blue-600 to-blue-400 rounded-xl hover:from-blue-700 hover:to-blue-500 hover:shadow-lg">
+                      <span className="inline-block px-4 py-2 text-sm font-bold text-white transition shadow lg:px-6 lg:py-3 lg:text-base bg-[#3129B8] rounded-xl hover:bg-[#251E91] hover:shadow-lg">
                         Apply
                       </span>
                     </div>

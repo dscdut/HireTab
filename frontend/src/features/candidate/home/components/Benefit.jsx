@@ -8,7 +8,7 @@ const benefits = [
 			'Our AI-driven algorithm learns your preferences to connect you with the most relevant opportunities.',
 		bgColor: 'bg-[#E9EFFF]/60',
 		glowColor: 'group-hover:shadow-[0_20px_60px_rgba(70,64,222,0.15)]',
-		accent: '#4640DE'
+		accent: '#3129B8'
 	},
 	{
 		number: '02',
@@ -41,9 +41,9 @@ const benefits = [
 
 const Benefit = () => {
 	return (
-		<section className="relative py-32 overflow-hidden bg-white">
+		<section className="relative py-32 overflow-hidden bg-[#F8F9FA]">
 			{/* Decorative Background Elements */}
-			<div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#4640DE]/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+			<div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#3129B8]/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 			<div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#56CDAD]/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
 			<div className="container relative z-10 px-6 mx-auto lg:px-12">
@@ -53,9 +53,8 @@ const Benefit = () => {
 						initial={{ opacity: 0, y: 10 }}
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true }}
-						className="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-widest text-[#4640DE] uppercase bg-[#4640DE]/10 rounded-full"
+						className="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-widest text-[#3129B8] uppercase bg-[#3129B8]/10 rounded-full"
 					>
-						Platform Benefits
 					</motion.span>
 					<motion.h2
 						initial={{ opacity: 0, y: 20 }}
@@ -64,7 +63,7 @@ const Benefit = () => {
 						viewport={{ once: true }}
 						className="mb-8 text-5xl md:text-6xl font-extrabold text-[#18191C] leading-tight tracking-tight"
 					>
-						Why Choose <span className="text-[#4640DE]">Hiretab?</span>
+						Why Choose <span className="text-[#3129B8]">Hiretab?</span>
 					</motion.h2>
 					<motion.p
 						initial={{ opacity: 0, y: 20 }}
@@ -87,7 +86,7 @@ const Benefit = () => {
 							transition={{ duration: 0.6, delay: index * 0.1 }}
 							viewport={{ once: true }}
 							whileHover={{ y: -12 }}
-							className={`group relative p-12 rounded-[48px] ${benefit.bgColor} backdrop-blur-md border border-[#D6DDEB] hover:border-[#4640DE] transition-all duration-500 cursor-pointer overflow-hidden ${benefit.glowColor}`}
+							className={`group relative p-12 rounded-[48px] ${benefit.bgColor} backdrop-blur-md border border-[#D6DDEB] hover:border-[#3129B8] transition-all duration-500 cursor-pointer overflow-hidden ${benefit.glowColor}`}
 						>
 							{/* Background Number */}
 							<span className="absolute -top-4 -right-2 text-[120px] font-black text-[#18191C] opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 pointer-events-none select-none">
@@ -101,7 +100,7 @@ const Benefit = () => {
 							</div>
 
 							{/* Card Content */}
-							<h3 className="mb-4 text-2xl font-bold text-[#18191C] tracking-tight group-hover:text-[#4640DE] transition-colors duration-300">
+							<h3 className="mb-4 text-2xl font-bold text-[#18191C] tracking-tight group-hover:text-[#3129B8] transition-colors duration-300">
 								{benefit.title}
 							</h3>
 							<p className="text-[#515B6F] text-lg leading-relaxed font-medium">

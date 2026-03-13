@@ -1,5 +1,5 @@
 // @ts-check
-import * as express from 'express';
+const express = require('express');
 import methodOverride from 'method-override';
 import swaggerUi from 'swagger-ui-express';
 import { connectDatabase } from 'core/database';

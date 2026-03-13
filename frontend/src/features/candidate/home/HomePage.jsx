@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Openning from './components/Openning'
 import Benefit from './components/Benefit'
 import InspirationalSection from './components/InspirationalSection'
-import Contact from './components/Contact'
+
 import LogoScrambleSlogan from './components/LogoScrambleSlogan'
 import TypewriterLoading from './components/TypewriterLoading'
 import LoadingTerminal from './components/LoadingTerminal'
@@ -20,7 +20,7 @@ const HomePage = () => {
       <LatestJobs />
       <InspirationalSection />
       <PostJobCTA />
-      <Contact />
+
     </CandidateLayout>
   )
 }

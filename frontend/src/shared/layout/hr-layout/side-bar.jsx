@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { matchPath } from 'react-router'
-import { ChevronLeft, ChevronRight, User, LogOut } from 'lucide-react'
+import { ChevronLeft, ChevronRight, User, LogOut, Search } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { path } from '@/core/constants/path'
 import { hrLinks, candidateLinks, settingsBtn, helpCenterBtn, hrDashboard } from '@/core/constants/general.const'
@@ -12,7 +12,7 @@ const SidebarLink = ({ link, isCollapsed }) => {
   const baseClasses =
     'flex items-center gap-3 font-medium text-base rounded-lg py-3 transition-all duration-300'
   const collapsedClasses = isCollapsed ? 'justify-center px-2' : 'px-6'
-  
+
   // Check if the current URL matches any path in link.path
   const isActive = Array.isArray(link.path)
     ? link.path.some((path) => matchPath({ path, end: true }, location.pathname))
@@ -39,7 +39,7 @@ const ControlButtons = ({ link, isCollapsed }) => {
   const baseClasses =
     'flex items-center gap-3 font-medium text-base rounded-lg py-3 transition-all duration-300'
   const collapsedClasses = isCollapsed ? 'justify-center px-2' : 'px-6'
-  
+
   // Check if the current URL matches any path in link.path
   const isActive = Array.isArray(link.path)
     ? link.path.some((path) => matchPath({ path, end: true }, location.pathname))
@@ -188,9 +188,8 @@ const Logo = ({ isCollapsed }) => (
   >
     {!isCollapsed && (
       <div>
-        <div className="text-2xl font-bold">
-          <span className="text-blue-600">Dash</span>
-          <span className="text-purple-600">Board</span>
+        <div className="text-2xl font-bold text-[#1E293B]">
+          DashBoard
         </div>
         <div className="-mt-1 text-xs font-medium text-gray-500">
           HR Management System
@@ -205,17 +204,23 @@ const Sidebar = () => {
 
   // Combine all links
   const allLinks = [...hrDashboard, ...hrLinks, ...candidateLinks]
+  // Thêm shortcut Screening CV với icon Search
+  allLinks.push({
+    title: 'Screening CV',
+    icon: <Search size={20} />, // icon tìm kiếm
+    path: '/hr/chatbox-cv',
+  });
   const allButtons = [...settingsBtn, ...helpCenterBtn]
 
   return (
-    <div className={`px-3 py-3 bg-[#FCFCFC] ${sidebarOpen ? 'w-20' : 'w-64'} transition-all duration-300 flex flex-col h-screen`}>
-      <div className="flex items-center gap-2 mb-4">
+    <div className={`px-4 pt-10 pb-4 bg-[#FCFCFC] ${sidebarOpen ? 'w-20' : 'w-64'} transition-all duration-300 flex flex-col h-screen border-r border-gray-100 shadow-sm`}>
+      <div className="flex items-center justify-between mb-12 px-2">
         <Logo isCollapsed={sidebarOpen} />
         <button
           onClick={toggleSidebar}
-          className={`ml-auto ${sidebarOpen ? 'mr-1' : ''}`}
+          className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400"
         >
-          {sidebarOpen ? <ChevronRight /> : <ChevronLeft />}
+          {sidebarOpen ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </button>
       </div>
 
@@ -237,8 +242,8 @@ const Sidebar = () => {
       <div className="space-y-1">
         {!sidebarOpen && (
           <div className="px-6 py-2">
-            <p className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
-              SETTINGS
+            <p className="text-xs font-semibold tracking-wider text-gray-400">
+              Settings
             </p>
           </div>
         )}

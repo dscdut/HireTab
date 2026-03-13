@@ -99,7 +99,7 @@ const getTagStyles = (type) => {
         case 'outline-orange':
             return 'border border-[#FFB836] text-[#FFB836]'
         case 'outline-blue':
-            return 'border border-[#4640DE] text-[#4640DE]'
+            return 'border border-[#3129B8] text-[#3129B8]'
         default:
             return 'border border-gray-200 text-gray-500'
     }
@@ -111,9 +111,9 @@ const LatestJobs = () => {
             {/* Background Decorative Lines */}
             <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
                 <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <path d="M0 100 L100 0" stroke="#4640DE" strokeWidth="0.05" fill="none" />
-                    <path d="M30 100 L100 30" stroke="#4640DE" strokeWidth="0.05" fill="none" />
-                    <path d="M70 100 L100 70" stroke="#4640DE" strokeWidth="0.05" fill="none" />
+                    <path d="M0 100 L100 0" stroke="#3129B8" strokeWidth="0.05" fill="none" />
+                    <path d="M30 100 L100 30" stroke="#3129B8" strokeWidth="0.05" fill="none" />
+                    <path d="M70 100 L100 70" stroke="#3129B8" strokeWidth="0.05" fill="none" />
                 </svg>
             </div>
 
@@ -122,7 +122,7 @@ const LatestJobs = () => {
                     <h2 className="text-4xl md:text-5xl font-bold text-[#18191C]">
                         Latest <span className="text-[#26A4FF]">jobs open</span>
                     </h2>
-                    <button className="flex items-center gap-2 text-[#4640DE] font-bold hover:gap-3 transition-all">
+                    <button className="flex items-center gap-2 text-[#3129B8] font-bold hover:gap-3 transition-all">
                         Show all jobs <ArrowRight size={20} />
                     </button>
                 </div>
@@ -135,14 +135,14 @@ const LatestJobs = () => {
                             whileInView={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5, delay: idx * 0.05 }}
                             viewport={{ once: true }}
-                            className="flex items-center p-6 bg-white border border-[#D6DDEB] rounded-2xl hover:shadow-xl hover:border-[#4640DE] transition-all duration-300 group cursor-pointer"
+                            className="flex items-center p-6 bg-white border border-[#D6DDEB] rounded-2xl hover:shadow-xl hover:border-[#3129B8] transition-all duration-300 group cursor-pointer"
                         >
                             <div className="w-24 h-20 flex items-center justify-center shrink-0 mr-6">
                                 <img src={job.logo} alt={job.company} className="w-full h-full object-contain" />
                             </div>
 
                             <div className="flex-1">
-                                <h3 className="text-xl font-bold text-[#18191C] mb-1 group-hover:text-[#4640DE] transition-colors">
+                                <h3 className="text-xl font-bold text-[#18191C] mb-1 group-hover:text-[#3129B8] transition-colors">
                                     {job.title}
                                 </h3>
                                 <p className="text-[#7C8493] text-sm mb-4">
